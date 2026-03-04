@@ -12,10 +12,10 @@ interface Paket {
   description: string | null;
   createdAt: string;
   _count: {
-    readings: number;
-    listenings: number;
-    writings: number;
-    speakings: number;
+    readingCategories: number;
+    listeningCategories: number;
+    writingCategories: number;
+    speakingCategories: number;
   };
 }
 
@@ -140,10 +140,10 @@ export default function PaketListPage() {
               ) : (
                 filteredPakets.map((item) => {
                   const totalCounts = 
-                    (item._count?.readings || 0) + 
-                    (item._count?.listenings || 0) + 
-                    (item._count?.writings || 0) + 
-                    (item._count?.speakings || 0);
+                    (item._count?.readingCategories || 0) + 
+                    (item._count?.listeningCategories || 0) + 
+                    (item._count?.writingCategories || 0) + 
+                    (item._count?.speakingCategories || 0);
 
                   return (
                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group">
@@ -160,10 +160,10 @@ export default function PaketListPage() {
                       </td>
                       <td className="px-6 py-4">
                          <div className="flex flex-wrap gap-1.5 max-w-[200px]">
-                            {item._count.readings > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">{item._count.readings} Reading</span>}
-                            {item._count.listenings > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100">{item._count.listenings} Listening</span>}
-                            {item._count.writings > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-50 text-cyan-700 border border-cyan-100">{item._count.writings} Writing</span>}
-                            {item._count.speakings > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100">{item._count.speakings} Speaking</span>}
+                            {item._count.readingCategories > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">{item._count.readingCategories} Reading Category</span>}
+                            {item._count.listeningCategories > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100">{item._count.listeningCategories} Listening Category</span>}
+                            {item._count.writingCategories > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-50 text-cyan-700 border border-cyan-100">{item._count.writingCategories} Writing Category</span>}
+                            {item._count.speakingCategories > 0 && <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100">{item._count.speakingCategories} Speaking Category</span>}
                             {totalCounts === 0 && <span className="text-xs text-gray-400 italic">Empty Package</span>}
                          </div>
                       </td>

@@ -7,9 +7,9 @@ import { ArrowLeft, Save, Loader2, Check, X, Search, BookOpen, Headphones, Edit3
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
 
-interface Passage {
+interface Category {
   id: number;
-  title: string;
+  name: string;
 }
 
 export default function EditPaketPage() {
@@ -21,16 +21,16 @@ export default function EditPaketPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    readingIds: [] as number[],
-    listeningIds: [] as number[],
-    writingIds: [] as number[],
-    speakingIds: [] as number[],
+    readingCategoryIds: [] as number[],
+    listeningCategoryIds: [] as number[],
+    writingCategoryIds: [] as number[],
+    speakingCategoryIds: [] as number[],
   });
   
-  const [readings, setReadings] = useState<Passage[]>([]);
-  const [listenings, setListenings] = useState<Passage[]>([]);
-  const [writings, setWritings] = useState<Passage[]>([]);
-  const [speakings, setSpeakings] = useState<Passage[]>([]);
+  const [readingCategories, setReadingCategories] = useState<Category[]>([]);
+  const [listeningCategories, setListeningCategories] = useState<Category[]>([]);
+  const [writingCategories, setWritingCategories] = useState<Category[]>([]);
+  const [speakingCategories, setSpeakingCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,26 +42,26 @@ export default function EditPaketPage() {
       setFetchingData(true);
       const [resPaket, resR, resL, resW, resS] = await Promise.all([
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/readings`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speakings`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reading-categories`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing-categories`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`)
       ]);
 
-      if (resR.data.success) setReadings(resR.data.data);
-      if (resL.data.success) setListenings(resL.data.data);
-      if (resW.data.success) setWritings(resW.data.data);
-      if (resS.data.success) setSpeakings(resS.data.data);
+      if (resR.data.success) setReadingCategories(resR.data.data);
+      if (resL.data.success) setListeningCategories(resL.data.data);
+      if (resW.data.success) setWritingCategories(resW.data.data);
+      if (resS.data.success) setSpeakingCategories(resS.data.data);
 
       if (resPaket.data.success) {
         const paket = resPaket.data.data;
         setFormData({
           name: paket.name || '',
           description: paket.description || '',
-          readingIds: paket.readings?.map((r: any) => r.id) || [],
-          listeningIds: paket.listenings?.map((l: any) => l.id) || [],
-          writingIds: paket.writings?.map((w: any) => w.id) || [],
-          speakingIds: paket.speakings?.map((s: any) => s.id) || [],
+          readingCategoryIds: paket.readingCategories?.map((c: any) => c.id) || [],
+          listeningCategoryIds: paket.listeningCategories?.map((c: any) => c.id) || [],
+          writingCategoryIds: paket.writingCategories?.map((c: any) => c.id) || [],
+          speakingCategoryIds: paket.speakingCategories?.map((c: any) => c.id) || [],
         });
       } else {
          setError('Failed to fetch paket details.');
@@ -88,10 +88,10 @@ export default function EditPaketPage() {
       const payload = {
         name: formData.name,
         description: formData.description,
-        readingIds: formData.readingIds,
-        listeningIds: formData.listeningIds,
-        writingIds: formData.writingIds,
-        speakingIds: formData.speakingIds,
+        readingCategoryIds: formData.readingCategoryIds,
+        listeningCategoryIds: formData.listeningCategoryIds,
+        writingCategoryIds: formData.writingCategoryIds,
+        speakingCategoryIds: formData.speakingCategoryIds,
       };
 
       const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`, payload);
@@ -109,8 +109,8 @@ export default function EditPaketPage() {
     }
   };
 
-  // Generic Passage Selector Component
-  const PassageSelector = ({ 
+  // Generic Category Selector Component
+  const CategorySelector = ({ 
     type, 
     icon: Icon, 
     title, 
@@ -118,12 +118,12 @@ export default function EditPaketPage() {
     selectedIds, 
     field 
   }: { 
-    type: 'reading' | 'listening' | 'writing' | 'speaking',
+    type: string,
     icon: React.ElementType,
     title: string,
-    items: Passage[],
+    items: Category[],
     selectedIds: number[],
-    field: 'readingIds' | 'listeningIds' | 'writingIds' | 'speakingIds'
+    field: 'readingCategoryIds' | 'listeningCategoryIds' | 'writingCategoryIds' | 'speakingCategoryIds'
   }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isOpen, setIsOpen] = useState(false);
@@ -142,7 +142,7 @@ export default function EditPaketPage() {
       <div className="pt-6 border-t border-gray-100">
         <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
           <Icon size={18} className="text-gray-400" />
-          Assign {title} Passages
+          Assign {title} Categories
         </label>
         
         <div className="relative">
@@ -151,14 +151,14 @@ export default function EditPaketPage() {
             onClick={() => setIsOpen(!isOpen)}
           >
             {selectedIds.length === 0 && !isOpen && (
-              <span className="text-gray-400 text-sm">Search and assign {title.toLowerCase()} passages...</span>
+              <span className="text-gray-400 text-sm">Search and assign {title.toLowerCase()} categories...</span>
             )}
             {items.filter(item => selectedIds.includes(item.id)).map(item => (
               <span 
                 key={item.id} 
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-md border border-blue-100 shadow-sm"
               >
-                {item.title}
+                {item.name}
                 <button 
                   type="button" 
                   onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
@@ -174,7 +174,7 @@ export default function EditPaketPage() {
                 <input
                   type="text"
                   className="w-full bg-transparent border-none outline-none text-sm placeholder:text-gray-400"
-                  placeholder={selectedIds.length > 0 ? "Search more..." : (isOpen ? "Type to search passage titles..." : "")}
+                  placeholder={selectedIds.length > 0 ? "Search more..." : (isOpen ? "Type to search category names..." : "")}
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -197,14 +197,14 @@ export default function EditPaketPage() {
                 {fetchingData ? (
                    <div className="p-4 text-center text-gray-500 text-sm flex items-center justify-center gap-2">
                     <Loader2 size={16} className="animate-spin" />
-                    Loading passages...
+                    Loading categories...
                   </div>
-                ) : items.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
+                ) : items.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
                   <div className="p-4 text-center text-gray-500 text-sm italic">
-                    No {title.toLowerCase()} passages found matching "{searchTerm}"
+                    No {title.toLowerCase()} categories found matching "{searchTerm}"
                   </div>
                 ) : (
-                  items.filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase())).map(item => {
+                  items.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())).map(item => {
                     const isSelected = selectedIds.includes(item.id);
                     return (
                       <div 
@@ -214,7 +214,7 @@ export default function EditPaketPage() {
                       >
                         <div className="flex flex-col pr-4">
                           <span className={`text-sm font-bold truncate ${isSelected ? 'text-blue-600' : 'text-gray-900'}`}>
-                            {item.title}
+                            {item.name}
                           </span>
                         </div>
                         <div className="shrink-0 flex items-center">
@@ -267,7 +267,7 @@ export default function EditPaketPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900 font-serif">Edit Exam Paket</h1>
-          <p className="text-sm text-gray-500 mt-1">Update bundle details and modify assigned assessment passages.</p>
+          <p className="text-sm text-gray-500 mt-1">Update bundle details and modify assigned assessment categories.</p>
         </div>
       </div>
 
@@ -312,12 +312,12 @@ export default function EditPaketPage() {
               />
             </div>
 
-            {/* Passage Selectors */}
+            {/* Category Selectors */}
             <div className="space-y-2">
-              <PassageSelector type="reading" icon={BookOpen} title="Reading" items={readings} selectedIds={formData.readingIds} field="readingIds" />
-              <PassageSelector type="listening" icon={Headphones} title="Listening" items={listenings} selectedIds={formData.listeningIds} field="listeningIds" />
-              <PassageSelector type="writing" icon={Edit3} title="Writing" items={writings} selectedIds={formData.writingIds} field="writingIds" />
-              <PassageSelector type="speaking" icon={Mic} title="Speaking" items={speakings} selectedIds={formData.speakingIds} field="speakingIds" />
+              <CategorySelector type="reading" icon={BookOpen} title="Reading" items={readingCategories} selectedIds={formData.readingCategoryIds} field="readingCategoryIds" />
+              <CategorySelector type="listening" icon={Headphones} title="Listening" items={listeningCategories} selectedIds={formData.listeningCategoryIds} field="listeningCategoryIds" />
+              <CategorySelector type="writing" icon={Edit3} title="Writing" items={writingCategories} selectedIds={formData.writingCategoryIds} field="writingCategoryIds" />
+              <CategorySelector type="speaking" icon={Mic} title="Speaking" items={speakingCategories} selectedIds={formData.speakingCategoryIds} field="speakingCategoryIds" />
             </div>
 
           </div>
@@ -352,3 +352,4 @@ export default function EditPaketPage() {
     </div>
   );
 }
+
