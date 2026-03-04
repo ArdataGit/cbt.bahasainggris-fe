@@ -16,6 +16,8 @@ export default function EditWritingPage({ params }: { params: Promise<{ id: stri
   const [formData, setFormData] = useState({
     title: '',
     content: '',
+    jenis: 'ESSAY',
+    targetWords: 150,
     categoryIds: [] as number[]
   });
   const [categories, setCategories] = useState<any[]>([]);
@@ -52,6 +54,8 @@ export default function EditWritingPage({ params }: { params: Promise<{ id: stri
         setFormData({
           title: item.title,
           content: item.content,
+          jenis: item.jenis || 'ESSAY',
+          targetWords: item.targetWords || 150,
           categoryIds: item.categories?.map((c: any) => c.id) || []
         });
       } else {
@@ -171,6 +175,41 @@ export default function EditWritingPage({ params }: { params: Promise<{ id: stri
 
         <form onSubmit={handleSubmit} className="divide-y divide-gray-100">
           <div className="p-6 lg:p-8 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="jenis" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Writing Type
+                </label>
+                <select
+                  id="jenis"
+                  name="jenis"
+                  value={formData.jenis}
+                  onChange={(e) => setFormData({ ...formData, jenis: e.target.value })}
+                  required
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-sm font-medium bg-white"
+                >
+                  <option value="ESSAY">Essay</option>
+                  <option value="SHORT_ANSWER">Short Answer</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="targetWords" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Target Word Count
+                </label>
+                <input
+                  type="number"
+                  id="targetWords"
+                  name="targetWords"
+                  value={formData.targetWords}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-sm font-medium"
+                  placeholder="e.g. 150"
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
                 Writing Title

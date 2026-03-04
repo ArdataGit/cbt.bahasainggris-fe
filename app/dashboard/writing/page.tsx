@@ -10,6 +10,7 @@ interface Writing {
   id: number;
   title: string;
   content: string;
+  jenis: 'ESSAY' | 'SHORT_ANSWER';
   createdAt: string;
   _count: {
     SoalWriting: number;
@@ -112,28 +113,29 @@ export default function WritingListPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Type</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Questions</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Created At</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Created At</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center">
+                  <td colSpan={5} className="px-6 py-12 text-center">
                     <Loader2 className="animate-spin mx-auto text-blue-500 mb-2" size={24} />
                     <span className="text-gray-500 text-sm">Loading materials...</span>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-red-500 text-sm font-medium">
+                  <td colSpan={5} className="px-6 py-12 text-center text-red-500 text-sm font-medium">
                     ⚠️ Error: {error}
                   </td>
                 </tr>
               ) : filteredWritings.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500 text-sm">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm">
                     No writing materials found.
                   </td>
                 </tr>
@@ -147,6 +149,15 @@ export default function WritingListPage() {
                         </div>
                         <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{item.title}</span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase border ${
+                        item.jenis === 'ESSAY' 
+                        ? 'bg-purple-50 text-purple-700 border-purple-100' 
+                        : 'bg-teal-50 text-teal-700 border-teal-100'
+                      }`}>
+                        {item.jenis === 'ESSAY' ? 'Essay' : 'Short Answer'}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
