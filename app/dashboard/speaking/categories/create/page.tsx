@@ -18,7 +18,7 @@ export default function CreateSpeakingCategoryPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    timer: 0,
+    timer: '' as number | '',
     speakingIds: [] as number[]
   });
   
@@ -47,7 +47,11 @@ export default function CreateSpeakingCategoryPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const value = e.target.name === 'timer' ? parseInt(e.target.value) || 0 : e.target.value;
+    let value: string | number = e.target.value;
+    if (e.target.name === 'timer') {
+      value = e.target.value === '' ? '' : parseInt(e.target.value);
+      if (typeof value === 'number' && isNaN(value)) value = '';
+    }
     setFormData({
       ...formData,
       [e.target.name]: value

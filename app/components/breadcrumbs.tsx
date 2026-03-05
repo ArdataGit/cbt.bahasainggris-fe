@@ -8,6 +8,7 @@ interface BreadcrumbItem {
   label: string;
   href?: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
 interface BreadcrumbsProps {
@@ -27,17 +28,28 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
       {items.map((item, index) => (
         <React.Fragment key={index}>
           <ChevronRight size={14} className="text-gray-400 shrink-0" />
-          {item.active || !item.href ? (
-            <span className={`font-semibold ${item.active ? 'text-gray-900' : 'text-gray-500'}`}>
+          {item.active ? (
+            <span className="font-semibold text-gray-900">
               {item.label}
             </span>
-          ) : (
+          ) : item.onClick ? (
+            <button 
+              onClick={item.onClick}
+              className="hover:text-blue-600 transition-colors"
+            >
+              {item.label}
+            </button>
+          ) : item.href ? (
             <Link 
               href={item.href}
               className="hover:text-blue-600 transition-colors"
             >
               {item.label}
             </Link>
+          ) : (
+            <span className="text-gray-500">
+              {item.label}
+            </span>
           )}
         </React.Fragment>
       ))}

@@ -23,7 +23,7 @@ const sidebarItems = [
   { icon: Edit3, label: 'Writing', href: '/dashboard/writing' },
   { icon: Mic, label: 'Speaking', href: '/dashboard/speaking' },
   { icon: Package, label: 'Pakets', href: '/dashboard/pakets' },
-  { icon: Users, label: 'Users', href: '/dashboard/users' },
+  { icon: Users, label: 'History', href: '/dashboard/history' },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
 ];
 

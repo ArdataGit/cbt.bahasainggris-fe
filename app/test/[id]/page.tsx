@@ -95,7 +95,10 @@ export default function PaketIntroductionPage() {
     if (validateForm()) {
       try {
         setIsSubmitting(true);
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/data-users`, formData);
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/data-users`, {
+          ...formData,
+          paketId: id
+        });
         
         if (response.data.success) {
           // Store the User ID for history tracking

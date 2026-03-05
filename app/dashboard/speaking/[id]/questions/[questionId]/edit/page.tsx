@@ -23,7 +23,7 @@ export default function EditSoalSpeakingPage({ params }: { params: Promise<{ id:
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    jenis: 'ESSAY' as 'ESSAY' | 'SHORT_ANSWER',
+    jenis: 'MENIRU' as 'MENIRU' | 'MENJAWAB',
     question: '',
     AnswerSpeaking: [{ answer: '' }]
   });
@@ -111,7 +111,7 @@ export default function EditSoalSpeakingPage({ params }: { params: Promise<{ id:
         AnswerSpeaking: [] as any[]
       };
 
-      if (formData.jenis === 'SHORT_ANSWER') {
+      if (formData.jenis === 'MENJAWAB') {
         const validAnswers = formData.AnswerSpeaking.filter(a => a.answer.trim() !== '');
         if (validAnswers.length === 0) {
           throw new Error('Please provide at least one valid answer for short-answer questions.');
@@ -186,7 +186,7 @@ export default function EditSoalSpeakingPage({ params }: { params: Promise<{ id:
                 <label 
                   className={`
                     relative flex flex-col p-4 cursor-pointer rounded-xl border-2 transition-all group
-                    ${formData.jenis === 'ESSAY' 
+                    ${formData.jenis === 'MENIRU' 
                       ? 'border-blue-600 bg-blue-50/50' 
                       : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                     }
@@ -195,24 +195,24 @@ export default function EditSoalSpeakingPage({ params }: { params: Promise<{ id:
                   <input 
                     type="radio" 
                     name="jenis" 
-                    value="ESSAY" 
-                    checked={formData.jenis === 'ESSAY'}
-                    onChange={() => setFormData({...formData, jenis: 'ESSAY'})}
+                    value="MENIRU" 
+                    checked={formData.jenis === 'MENIRU'}
+                    onChange={() => setFormData({...formData, jenis: 'MENIRU'})}
                     className="sr-only"
                   />
                   <div className="flex justify-between items-start mb-2">
-                    <span className={`font-bold ${formData.jenis === 'ESSAY' ? 'text-blue-900' : 'text-gray-900'}`}>
-                      Essay / Audio Response
+                    <span className={`font-bold ${formData.jenis === 'MENIRU' ? 'text-blue-900' : 'text-gray-900'}`}>
+                      Meniru (Repeat)
                     </span>
-                    {formData.jenis === 'ESSAY' && <CheckCircle2 size={20} className="text-blue-600" />}
+                    {formData.jenis === 'MENIRU' && <CheckCircle2 size={20} className="text-blue-600" />}
                   </div>
-                  <p className="text-xs text-gray-500">Students provide a free-text or spoken response to the prompt.</p>
+                  <p className="text-xs text-gray-500">Students repeat the sentences or phrases from the prompt.</p>
                 </label>
 
                 <label 
                   className={`
                     relative flex flex-col p-4 cursor-pointer rounded-xl border-2 transition-all group
-                    ${formData.jenis === 'SHORT_ANSWER' 
+                    ${formData.jenis === 'MENJAWAB' 
                       ? 'border-blue-600 bg-blue-50/50' 
                       : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                     }
@@ -221,16 +221,16 @@ export default function EditSoalSpeakingPage({ params }: { params: Promise<{ id:
                   <input 
                     type="radio" 
                     name="jenis" 
-                    value="SHORT_ANSWER" 
-                    checked={formData.jenis === 'SHORT_ANSWER'}
-                    onChange={() => setFormData({...formData, jenis: 'SHORT_ANSWER'})}
+                    value="MENJAWAB" 
+                    checked={formData.jenis === 'MENJAWAB'}
+                    onChange={() => setFormData({...formData, jenis: 'MENJAWAB'})}
                     className="sr-only"
                   />
                    <div className="flex justify-between items-start mb-2">
-                    <span className={`font-bold ${formData.jenis === 'SHORT_ANSWER' ? 'text-blue-900' : 'text-gray-900'}`}>
-                      Short Answer
+                    <span className={`font-bold ${formData.jenis === 'MENJAWAB' ? 'text-blue-900' : 'text-gray-900'}`}>
+                      Menjawab (Answer)
                     </span>
-                    {formData.jenis === 'SHORT_ANSWER' && <CheckCircle2 size={20} className="text-blue-600" />}
+                    {formData.jenis === 'MENJAWAB' && <CheckCircle2 size={20} className="text-blue-600" />}
                   </div>
                   <p className="text-xs text-gray-500">System automatically grades based on provided correct keywords/phrases.</p>
                 </label>
@@ -252,7 +252,7 @@ export default function EditSoalSpeakingPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* Dynamic Short Answer Fields */}
-            {formData.jenis === 'SHORT_ANSWER' && (
+            {formData.jenis === 'MENJAWAB' && (
               <div className="bg-amber-50 rounded-xl p-5 border border-amber-200 animate-in fade-in slide-in-from-top-4 duration-300">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="p-1.5 bg-amber-100 text-amber-600 rounded-lg shrink-0 mt-0.5">

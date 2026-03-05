@@ -16,6 +16,7 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
   const [formData, setFormData] = useState({
     title: '',
     content: '',
+    jenis: 'MENIRU' as 'MENIRU' | 'MENJAWAB',
     categoryIds: [] as number[]
   });
   const [categories, setCategories] = useState<any[]>([]);
@@ -55,7 +56,8 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
         setFormData({
           title: item.title,
           content: item.content,
-           categoryIds: item.categories?.map((c: any) => c.id) || []
+          jenis: item.jenis,
+          categoryIds: item.categories?.map((c: any) => c.id) || []
         });
         if (item.audioUrl) {
           setCurrentAudioUrl(item.audioUrl);
@@ -128,6 +130,7 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
       const submitData = new FormData();
       submitData.append('title', formData.title);
       submitData.append('content', formData.content);
+      submitData.append('jenis', formData.jenis);
       
       if (formData.categoryIds.length > 0) {
           submitData.append('categoryIds', JSON.stringify(formData.categoryIds));
@@ -215,6 +218,28 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-lg font-medium"
                 placeholder="Enter title here..."
               />
+            </div>
+
+            {/* Speaking Type Selection */}
+            <div>
+              <label htmlFor="jenis" className="block text-sm font-semibold text-gray-700 mb-2">
+                Speaking Type
+              </label>
+              <select
+                id="jenis"
+                name="jenis"
+                value={formData.jenis}
+                onChange={(e) => setFormData({ ...formData, jenis: e.target.value as 'MENIRU' | 'MENJAWAB' })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-sm font-medium bg-white"
+              >
+                <option value="MENIRU">Meniru (Repeat)</option>
+                <option value="MENJAWAB">Menjawab (Answer)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-2">
+                {formData.jenis === 'MENIRU' 
+                  ? 'Focuses on pronunciation and mimicry of the audio prompt.' 
+                  : 'Focuses on comprehension and answering specific questions.'}
+              </p>
             </div>
 
             {/* Category Selection */}

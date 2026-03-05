@@ -15,7 +15,7 @@ interface AnswerSpeaking {
 interface SoalSpeaking {
   id: number;
   speakingId: number;
-  jenis: 'ESSAY' | 'SHORT_ANSWER';
+  jenis: 'MENIRU' | 'MENJAWAB';
   question: string;
   AnswerSpeaking: AnswerSpeaking[];
 }
@@ -77,8 +77,8 @@ export default function SoalSpeakingPage({ params }: { params: Promise<{ id: str
 
   const getTypeBadgeColor = (type: string) => {
     switch(type) {
-      case 'ESSAY': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'SHORT_ANSWER': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'MENIRU': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'MENJAWAB': return 'bg-amber-100 text-amber-800 border-amber-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -163,15 +163,15 @@ export default function SoalSpeakingPage({ params }: { params: Promise<{ id: str
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">
                 <div className="bg-purple-50 p-2.5 rounded-lg border border-purple-100">
-                  <p className="text-[10px] text-purple-600 uppercase font-bold">Essay</p>
+                  <p className="text-[10px] text-purple-600 uppercase font-bold">Meniru</p>
                   <p className="text-lg font-bold text-purple-900">
-                    {soalList.filter(s => s.jenis === 'ESSAY').length}
+                    {soalList.filter(s => s.jenis === 'MENIRU').length}
                   </p>
                 </div>
                 <div className="bg-amber-50 p-2.5 rounded-lg border border-amber-100">
-                  <p className="text-[10px] text-amber-600 uppercase font-bold mb-0.5 leading-tight">Short<br/>Answer</p>
+                  <p className="text-[10px] text-amber-600 uppercase font-bold mb-0.5 leading-tight">Menjawab</p>
                   <p className="text-lg font-bold text-amber-900">
-                    {soalList.filter(s => s.jenis === 'SHORT_ANSWER').length}
+                    {soalList.filter(s => s.jenis === 'MENJAWAB').length}
                   </p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function SoalSpeakingPage({ params }: { params: Promise<{ id: str
                         {formatQuestionText(soal.question)}
                       </div>
 
-                      {soal.jenis === 'SHORT_ANSWER' && soal.AnswerSpeaking && soal.AnswerSpeaking.length > 0 && (
+                      {soal.jenis === 'MENJAWAB' && soal.AnswerSpeaking && soal.AnswerSpeaking.length > 0 && (
                         <div className="mt-4 pl-3 border-l-2 border-amber-200">
                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                              Valid Answers ({soal.AnswerSpeaking.length})
@@ -238,7 +238,7 @@ export default function SoalSpeakingPage({ params }: { params: Promise<{ id: str
                         </div>
                       )}
                       
-                       {soal.jenis === 'ESSAY' && (
+                       {soal.jenis === 'MENIRU' && (
                         <div className="mt-3">
                            <p className="text-xs text-gray-400 italic flex items-center gap-1.5">
                              Students will provide a free-text response or audio recording for this question.

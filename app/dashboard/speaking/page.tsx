@@ -11,6 +11,7 @@ interface Speaking {
   id: number;
   title: string;
   content: string;
+  jenis: 'MENIRU' | 'MENJAWAB';
   audioUrl?: string;
   createdAt: string;
   _count: {
@@ -157,7 +158,16 @@ export default function SpeakingListPage() {
                         </div>
                         <div>
                           <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight line-clamp-1">{item.title}</p>
-                          <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">ID: #SPK-{item.id}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <p className="text-xs text-gray-500 whitespace-nowrap">ID: #SPK-{item.id}</p>
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                              item.jenis === 'MENIRU' 
+                                ? 'bg-purple-100 text-purple-800 border-purple-200' 
+                                : 'bg-amber-100 text-amber-800 border-amber-200'
+                            }`}>
+                              {item.jenis === 'MENIRU' ? 'Meniru' : 'Menjawab'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </td>

@@ -81,7 +81,7 @@ export default function ListeningPage() {
         </div>
         <div className="flex gap-2">
           <Link 
-            href="/dashboard/listenings/categories"
+            href="/dashboard/listening/categories"
             className="inline-flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700 hover:text-blue-700 px-4 py-2.5 rounded-lg font-bold transition-all shadow-sm active:scale-95"
           >
             <Library size={18} />

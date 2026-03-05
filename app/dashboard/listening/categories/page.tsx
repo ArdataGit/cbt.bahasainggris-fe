@@ -68,7 +68,7 @@ export default function ListeningCategoryListPage() {
       <Breadcrumbs 
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Listenings', href: '/dashboard/listenings' },
+          { label: 'Listening', href: '/dashboard/listening' },
           { label: 'Categories', active: true },
         ]} 
       />
@@ -79,7 +79,7 @@ export default function ListeningCategoryListPage() {
           <p className="text-sm text-gray-500 mt-1">Manage categories and timers for listening tests.</p>
         </div>
         <Link 
-          href="/dashboard/listenings/categories/create"
+          href="/dashboard/listening/categories/create"
           className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-bold transition-all shadow-sm active:scale-95"
         >
           <Plus size={18} />
@@ -167,7 +167,7 @@ export default function ListeningCategoryListPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Link 
-                          href={`/dashboard/listenings/categories/${item.id}/edit`}
+                          href={`/dashboard/listening/categories/${item.id}/edit`}
                           className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-100"
                           title="Edit"
                         >

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Loader2, Clock, Tag, AlignLeft, Search, Check, X, Headphones } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Clock, Tag, AlignLeft, AlertCircle, Search, Check, X, Headphones } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
 
@@ -12,9 +12,11 @@ interface Listening {
   title: string;
 }
 
-export default function CreateListeningCategoryPage() {
+export default function EditListeningCategoryPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [fetchingListenings, setFetchingListenings] = useState(true);
   const [listenings, setListenings] = useState<Listening[]>([]);
   const [formData, setFormData] = useState({
@@ -28,8 +30,31 @@ export default function CreateListeningCategoryPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    fetchCategory();
     fetchListenings();
-  }, []);
+  }, [id]);
+
+  const fetchCategory = async () => {
+    try {
+      setFetching(true);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories/${id}`);
+      if (response.data.success) {
+        const item = response.data.data;
+        setFormData({
+          name: item.name,
+          description: item.description || '',
+          timer: item.timer,
+          listeningIds: item.listenings?.map((r: any) => r.id) || []
+        });
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch category.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong.');
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const fetchListenings = async () => {
     try {
@@ -53,11 +78,11 @@ export default function CreateListeningCategoryPage() {
     });
   };
 
-  const toggleListening = (id: number) => {
-    const isSelected = formData.listeningIds.includes(id);
+  const toggleListening = (listeningId: number) => {
+    const isSelected = formData.listeningIds.includes(listeningId);
     const newListeningIds = isSelected
-      ? formData.listeningIds.filter(lid => lid !== id)
-      : [...formData.listeningIds, id];
+      ? formData.listeningIds.filter(lid => lid !== listeningId)
+      : [...formData.listeningIds, listeningId];
     
     setFormData({
       ...formData,
@@ -65,10 +90,10 @@ export default function CreateListeningCategoryPage() {
     });
   };
 
-  const removeListening = (id: number) => {
+  const removeListening = (listeningId: number) => {
     setFormData({
       ...formData,
-      listeningIds: formData.listeningIds.filter(lid => lid !== id)
+      listeningIds: formData.listeningIds.filter(lid => lid !== listeningId)
     });
   };
 
@@ -78,13 +103,13 @@ export default function CreateListeningCategoryPage() {
     setError(null);
     
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`, formData);
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories/${id}`, formData);
 
       if (response.data.success) {
-        router.push('/dashboard/listenings/categories');
+        router.push('/dashboard/listening/categories');
         router.refresh();
       } else {
-        throw new Error(response.data.message || 'Failed to create category.');
+        throw new Error(response.data.message || 'Failed to update category.');
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Something went wrong.');
@@ -92,6 +117,15 @@ export default function CreateListeningCategoryPage() {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="max-w-6xl mx-auto py-20 flex flex-col items-center justify-center text-gray-500">
+        <Loader2 className="animate-spin mb-4 text-blue-600" size={48} />
+        <p className="text-lg font-medium">Fetching category data...</p>
+      </div>
+    );
+  }
 
   const filteredListenings = listenings.filter(l => 
     l.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -104,30 +138,30 @@ export default function CreateListeningCategoryPage() {
       <Breadcrumbs 
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Listenings', href: '/dashboard/listenings' },
-          { label: 'Categories', href: '/dashboard/listenings/categories' },
-          { label: 'Create', active: true },
+          { label: 'Listening', href: '/dashboard/listening' },
+          { label: 'Categories', href: '/dashboard/listening/categories' },
+          { label: 'Edit', active: true },
         ]} 
       />
 
       <div className="flex items-center gap-4 mb-8">
         <Link 
-          href="/dashboard/listenings/categories"
+          href="/dashboard/listening/categories"
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
         >
           <ArrowLeft size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Listening Category</h1>
-          <p className="text-sm text-gray-500 mt-1">Define settings and duration for a group of listenings.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Edit Listening Category</h1>
+          <p className="text-sm text-gray-500 mt-1">Modify category name, description or timer.</p>
         </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden text-gray-950">
         {error && (
-          <div className="m-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center gap-2">
-            <span>⚠️</span>
-            {error}
+          <div className="m-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-3">
+            <AlertCircle size={18} className="shrink-0 mt-0.5" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -167,7 +201,6 @@ export default function CreateListeningCategoryPage() {
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-medium"
                   placeholder="60"
                 />
-                <p className="text-[10px] text-gray-500 mt-1.5 ml-1 italic">Time limit for all listenings in this category.</p>
               </div>
             </div>
 
@@ -175,7 +208,7 @@ export default function CreateListeningCategoryPage() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <Headphones size={16} className="text-gray-400" />
-                Select Listenings
+                Associated Listenings
               </label>
               
               <div className="relative">
@@ -256,7 +289,7 @@ export default function CreateListeningCategoryPage() {
                   </>
                 )}
               </div>
-              <p className="text-[10px] text-gray-500 mt-1.5 ml-1 italic">Associate multiple listening materials with this category.</p>
+              <p className="text-[10px] text-gray-500 mt-1.5 ml-1 italic">You can add or remove associations between listenings and this category.</p>
             </div>
 
             <div>
@@ -278,7 +311,7 @@ export default function CreateListeningCategoryPage() {
 
           <div className="p-6 bg-gray-50 flex items-center justify-end gap-3">
             <Link 
-              href="/dashboard/listenings/categories"
+              href="/dashboard/listening/categories"
               className="px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 rounded-lg transition-all"
             >
               Cancel
@@ -291,12 +324,12 @@ export default function CreateListeningCategoryPage() {
               {loading ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Saving...
+                  Updating...
                 </>
               ) : (
                 <>
                   <Save size={16} />
-                  Save Category
+                  Update Category
                 </>
               )}
             </button>
