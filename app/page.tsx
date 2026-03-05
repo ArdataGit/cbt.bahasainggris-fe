@@ -14,8 +14,8 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md z-50 px-6 md:px-12 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-8">
           <div className="flex items-center">
-            <span className="text-3xl font-black italic text-slate-900 tracking-tighter">EF</span>
-            <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">SET</span>
+            <span className="text-3xl font-black italic text-slate-900 tracking-tighter">CBT</span>
+            
           </div>
           <div className="hidden lg:flex items-center gap-8 text-[15px] font-bold text-slate-600">
             <div 
@@ -110,7 +110,7 @@ export default function Home() {
       <footer className="bg-white py-20 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
            <div>
-              <div className="text-3xl font-black italic text-slate-300 mb-4 opacity-50">EF SET</div>
+              <div className="text-3xl font-black italic text-slate-300 mb-4 opacity-50">TEST</div>
               <p className="text-slate-500 font-medium">Tes bahasa Inggris online tercanggih di dunia.</p>
            </div>
            {[

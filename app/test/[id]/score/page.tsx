@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Loader2, Trophy, ArrowRight, CheckCircle, XCircle, BarChart3, RotateCcw } from 'lucide-react';
+import { Loader2, Trophy, ArrowRight, CheckCircle, XCircle, BarChart3, RotateCcw, BookOpen, Headphones } from 'lucide-react';
 
 interface HistoryData {
     name: string;
@@ -82,7 +82,18 @@ export default function ScorePage() {
     // Calculate Reading Totals
     const totalReadingQuestions = history.readingHistories.reduce((acc, rh) => acc + (rh.reading?.SoalReading?.length || 0), 0);
     const totalReadingCorrect = history.readingHistories.reduce((acc, rh) => acc + rh.score, 0);
+    
+    // Calculate Listening Totals
+    const totalListeningQuestions = history.listeningHistories.reduce((acc, lh) => acc + (lh.listening?.SoalListeing?.length || 0), 0);
+    const totalListeningCorrect = history.listeningHistories.reduce((acc, lh) => acc + lh.score, 0);
+
+    // Overall Totals
+    const totalQuestions = totalReadingQuestions + totalListeningQuestions;
+    const totalCorrect = totalReadingCorrect + totalListeningCorrect;
+    const overallPercentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+    
     const readingPercentage = totalReadingQuestions > 0 ? Math.round((totalReadingCorrect / totalReadingQuestions) * 100) : 0;
+    const listeningPercentage = totalListeningQuestions > 0 ? Math.round((totalListeningCorrect / totalListeningQuestions) * 100) : 0;
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] py-12 px-6">
@@ -105,12 +116,12 @@ export default function ScorePage() {
                         </div>
                         
                         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] text-center min-w-[200px]">
-                            <p className="text-blue-100 text-sm font-bold uppercase tracking-widest mb-1">Overall Percentage</p>
-                            <div className="text-6xl font-black mb-1">{readingPercentage}%</div>
-                            <div className="flex items-center justify-center gap-1.5 text-blue-100/80 text-sm">
-                                <CheckCircle size={14} />
-                                <span>{totalReadingCorrect} correct answers</span>
-                            </div>
+                             <p className="text-blue-100 text-sm font-bold uppercase tracking-widest mb-1">Overall Accuracy</p>
+                             <div className="text-6xl font-black mb-1">{overallPercentage}%</div>
+                             <div className="flex items-center justify-center gap-1.5 text-blue-100/80 text-sm">
+                                 <CheckCircle size={14} />
+                                 <span>{totalCorrect} / {totalQuestions} correct</span>
+                             </div>
                         </div>
                     </div>
                 </div>
@@ -127,9 +138,7 @@ export default function ScorePage() {
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner">
-                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                    </svg>
+                                    <BookOpen className="w-8 h-8" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-900">Reading Component</h3>
@@ -182,11 +191,68 @@ export default function ScorePage() {
                         </div>
                     </div>
 
+                    {/* Listening Section Card */}
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                    <Headphones className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-900">Listening Component</h3>
+                                    <p className="text-slate-500 text-sm font-medium">{history.listeningHistories.length} Sections Completed</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-3xl font-black text-slate-900">{totalListeningCorrect}<span className="text-slate-300 mx-1">/</span>{totalListeningQuestions}</div>
+                                <p className="text-purple-500 font-bold text-sm tracking-wide">CORRECT ANSWERS</p>
+                            </div>
+                        </div>
+
+                        {/* Visual Progress Bar */}
+                        <div className="relative pt-1">
+                            <div className="flex mb-2 items-center justify-between">
+                                <div>
+                                    <span className="text-xs font-black inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-100">
+                                        Accuracy
+                                    </span>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-sm font-black inline-block text-purple-600">
+                                        {listeningPercentage}%
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100">
+                                <div 
+                                    style={{ width: `${listeningPercentage}%` }}
+                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500 rounded-full transition-all duration-1000"
+                                ></div>
+                            </div>
+                        </div>
+                        
+                        {/* Detail List */}
+                        <div className="mt-8 space-y-4">
+                            {history.listeningHistories.map((lh, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-black text-slate-400">
+                                            {idx + 1}
+                                        </div>
+                                        <span className="font-bold text-slate-700 truncate max-w-[200px] md:max-w-md">{lh.listening.title}</span>
+                                    </div>
+                                    <span className="bg-white px-3 py-1 rounded-lg border border-slate-200 font-bold text-slate-900 text-sm shadow-sm">
+                                        {lh.score} / {lh.listening.SoalListeing.length}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Placeholder for other sections */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {['Listening', 'Writing', 'Speaking'].map((section) => {
-                            const histories = section === 'Listening' ? history.listeningHistories :
-                                             section === 'Writing' ? history.writingHistories :
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {['Writing', 'Speaking'].map((section) => {
+                            const histories = section === 'Writing' ? history.writingHistories :
                                              history.speakingHistories;
                             
                             const isCompleted = histories.length > 0;

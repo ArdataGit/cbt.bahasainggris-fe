@@ -28,6 +28,7 @@ export default function SpeakingTestIntroPage() {
   const [audioState, setAudioState] = useState<'idle' | 'playing' | 'ended'>('idle');
   const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'recorded'>('idle');
   const [answers, setAnswers] = useState<Blob[]>([]);
+  const [repeatCounts, setRepeatCounts] = useState<Record<number, number>>({});
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -441,15 +442,21 @@ export default function SpeakingTestIntroPage() {
             {/* Action Button */}
             {recordingState === 'recorded' ? (
               <div className="flex gap-4 mt-4 z-20">
-                <button 
-                   onClick={() => {
-                     setAudioState('idle');
-                     setRecordingState('idle');
-                   }}
-                   className="bg-white text-[#1877F2] border-2 border-[#1877F2] hover:bg-[#F4F9FF] rounded-full px-8 h-12 flex items-center justify-center shadow-sm hover:scale-105 transition-transform text-[15px] font-bold"
-                >
-                    Ulangi
-                </button>
+                {(repeatCounts[currentSpeakingIndex] || 0) < 2 && (
+                  <button 
+                    onClick={() => {
+                      setRepeatCounts(prev => ({
+                        ...prev,
+                        [currentSpeakingIndex]: (prev[currentSpeakingIndex] || 0) + 1
+                      }));
+                      setAudioState('idle');
+                      setRecordingState('idle');
+                    }}
+                    className="bg-white text-[#1877F2] border-2 border-[#1877F2] hover:bg-[#F4F9FF] rounded-full px-8 h-12 flex items-center justify-center shadow-sm hover:scale-105 transition-transform text-[15px] font-bold"
+                  >
+                      Ulangi ({2 - (repeatCounts[currentSpeakingIndex] || 0)} sisa)
+                  </button>
+                )}
                 <button 
                    onClick={handleNext}
                    className="bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-full px-8 h-12 flex items-center justify-center shadow-lg hover:scale-105 transition-transform text-[15px] font-bold"
