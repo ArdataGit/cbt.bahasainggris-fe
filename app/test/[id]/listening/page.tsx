@@ -159,7 +159,7 @@ export default function ListeningTestPage() {
         } else if (paket?.speakingCategories && paket.speakingCategories.length > 0) {
           router.push(`/test/${id}/speaking`);
         } else {
-          router.push(`/test/${id}/score`);
+          router.push(`/test/${id}/score?userId=${userDataId}`);
         }
       } else {
         throw new Error(response.data.message || 'Failed to save results.');

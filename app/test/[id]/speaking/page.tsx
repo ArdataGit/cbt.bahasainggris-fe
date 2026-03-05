@@ -107,7 +107,8 @@ export default function SpeakingTestIntroPage() {
   };
 
   const handleSkipTest = () => {
-       router.push(`/test/${id}/score`); // Directly skip to score
+       const userDataId = localStorage.getItem('userDataId');
+       router.push(`/test/${id}/score${userDataId ? `?userId=${userDataId}` : ''}`); 
   };
 
   const playAudio = () => {
@@ -201,7 +202,7 @@ export default function SpeakingTestIntroPage() {
           }
         }
         
-        router.push(`/test/${id}/score`);
+        router.push(`/test/${id}/score?userId=${userDataId}`);
       } catch (err: any) {
          console.error('Error submitting speaking test:', err);
          alert('Failed to submit speaking test: ' + (err.response?.data?.message || err.message));

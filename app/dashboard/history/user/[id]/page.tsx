@@ -126,6 +126,17 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
     });
   };
 
+  const isAudioPath = (path: string | undefined) => {
+    if (!path) return false;
+    return path.startsWith('/uploads/userspeaking/') || path.endsWith('.webm') || path.endsWith('.mp3') || path.endsWith('.wav');
+  };
+
+  const getFullAudioUrl = (path: string) => {
+    // If path already starts with http, return as is. Otherwise prepend API URL
+    if (path.startsWith('http')) return path;
+    return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+  };
+
   const calculateTotalScore = () => {
     const scores = [
       ...data.readingHistories.map(h => h.score),
@@ -278,9 +289,25 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                           <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
                               {skill === 'writing' ? <PenTool size={120} /> : <Mic size={120} />}
                           </div>
-                          <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">Overall Submission / Essay Response</p>
+                          <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">
+                            {skill === 'speaking' ? 'Candidate Voice Recording' : 'Overall Submission / Essay Response'}
+                          </p>
                           <div className="text-gray-800 leading-relaxed text-sm whitespace-pre-wrap font-medium">
-                            {h.answer}
+                            {skill === 'speaking' && isAudioPath(h.answer) ? (
+                              <div className="mt-2 bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-blue-100/50 shadow-sm">
+                                <audio controls className="w-full h-10 custom-audio">
+                                  <source src={getFullAudioUrl(h.answer)} type="audio/webm" />
+                                  <source src={getFullAudioUrl(h.answer)} type="audio/mpeg" />
+                                  Your browser does not support the audio element.
+                                </audio>
+                                <div className="flex items-center gap-2 mt-3 text-[10px] text-blue-500 font-bold uppercase tracking-wider">
+                                  <Clock size={12} />
+                                  <span>Recorded Audio Response</span>
+                                </div>
+                              </div>
+                            ) : (
+                              h.answer
+                            )}
                           </div>
                         </div>
                       )}

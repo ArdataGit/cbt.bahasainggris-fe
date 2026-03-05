@@ -13,17 +13,23 @@ interface HistoryData {
     speakingHistories: any[];
 }
 
+import { useSearchParams } from 'next/navigation';
+
 export default function ScorePage() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const router = useRouter();
     const id = params.id;
+    const urlUserId = searchParams.get('userId');
     
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState<HistoryData | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const userDataId = localStorage.getItem('userDataId');
+        const localUserId = localStorage.getItem('userDataId');
+        const userDataId = urlUserId || localUserId;
+
         if (!userDataId) {
             router.push(`/test/${id}`);
             return;
@@ -44,7 +50,7 @@ export default function ScorePage() {
         };
 
         fetchHistory();
-    }, [id]);
+    }, [id, urlUserId]);
 
     if (loading) {
         return (
