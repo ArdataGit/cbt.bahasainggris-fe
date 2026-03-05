@@ -54,6 +54,12 @@ export default function ReadingTestPage() {
     }
   }, [id]);
 
+  useEffect(() => {
+    document.getElementById('passage-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('questions-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentReadingIndex]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -370,8 +376,6 @@ export default function ReadingTestPage() {
                 <button 
                   onClick={() => {
                     setCurrentReadingIndex(prev => prev + 1);
-                    document.getElementById('passage-container')?.scrollTo({ top: 0, behavior: 'smooth' });
-                    document.getElementById('questions-container')?.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center gap-2 group"
                 >
@@ -416,6 +420,22 @@ export default function ReadingTestPage() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #94a3b8;
+        }
+
+        #passage-container {
+          overflow-x: hidden;
+        }
+
+        #passage-container img {
+          max-width: 100% !important;
+          height: auto !important;
+          object-fit: contain;
+        }
+
+        #passage-container * {
+          max-width: 100%;
+          overflow-wrap: anywhere;
+          word-break: normal;
         }
       `}</style>
     </div>

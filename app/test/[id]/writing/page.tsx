@@ -43,6 +43,11 @@ export default function WritingTestPage() {
     }
   }, [id]);
 
+  useEffect(() => {
+    document.getElementById('prompt-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentWritingIndex]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -265,7 +270,7 @@ export default function WritingTestPage() {
             className="w-1/2 p-12 overflow-y-auto border-r border-slate-100 bg-white"
           >
             <div className="max-w-2xl mx-auto">
-               <div className="flex items-center gap-3 mb-6">
+               {/* <div className="flex items-center gap-3 mb-6">
                   <div className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-blue-100">
                      Task {currentWritingIndex + 1} of {writings.length}
                   </div>
@@ -274,11 +279,11 @@ export default function WritingTestPage() {
                       {currentWriting.jenis.replace('_', ' ')}
                     </div>
                   )}
-               </div>
+               </div> */}
 
-               <h1 className="text-4xl font-black text-slate-900 mb-8 leading-tight tracking-tight">
+               {/* <h1 className="text-4xl font-black text-slate-900 mb-8 leading-tight tracking-tight">
                  {currentWriting?.title || 'Writing Prompt'}
-               </h1>
+               </h1> */}
                
                <div 
                  className="prose prose-slate max-w-none text-[18px] leading-relaxed text-slate-700 font-medium"
@@ -303,29 +308,17 @@ export default function WritingTestPage() {
         {/* Right Column: Writing Area */}
         <div className={`${currentWriting?.jenis === 'SHORT_ANSWER' ? 'w-full px-4 sm:px-12 py-12 sm:py-20' : 'w-1/2 p-12'} bg-[#F8FBFF] flex flex-col relative overflow-y-auto`}>
            <div className={`flex-grow flex flex-col ${currentWriting?.jenis === 'SHORT_ANSWER' ? 'max-w-4xl' : 'max-w-3xl'} w-full mx-auto`}>
-               {currentWriting?.jenis === 'SHORT_ANSWER' && (
                 <div className="mb-8">
-                   <div className="flex items-center gap-3 mb-6">
-                      <div className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-blue-100">
-                         Task {currentWritingIndex + 1} of {writings.length}
-                      </div>
-                      <div className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-purple-100">
-                        Short Answer
-                      </div>
-                   </div>
-                   {/* instructions / content */}
-                   <div 
-                      className="prose prose-slate max-w-none text-xl mb-10 text-slate-700 font-medium"
-                      dangerouslySetInnerHTML={{ __html: currentWriting.content }} 
-                   />
+                   <h2 className="text-xl font-bold text-slate-900 mb-4 leading-relaxed">
+                     Read the following questions and provide your short answers.
+                   </h2>
                 </div>
-              )}
 
               <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                  <span className="text-[12px] font-black text-slate-400 tracking-widest uppercase italic">
+                  {/* <span className="text-[12px] font-black text-slate-400 tracking-widest uppercase italic">
                     {currentWriting?.jenis === 'SHORT_ANSWER' ? 'Your Answer' : 'Your Response'}
-                  </span>
+                  </span> */}
                   {savingStatus !== 'idle' && (
                        <div className="flex items-center gap-2 px-3 py-1 bg-white border border-slate-100 rounded-full text-xs text-slate-500 animate-in fade-in slide-in-from-left-2 transition-all">
                           {savingStatus === 'saving' ? (
@@ -342,10 +335,10 @@ export default function WritingTestPage() {
                        </div>
                     )}
                  </div>
-                 <div className="flex items-center gap-3">
+                  {/* <div className="flex items-center gap-3">
                     <Clock size={16} className="text-slate-400" />
                     <span className="text-[12px] font-black text-slate-500 tracking-widest uppercase font-mono">{formatTime(timeLeft)}</span>
-                 </div>
+                  </div> */}
               </div>
 
               <div className="flex-grow flex flex-col gap-10">
@@ -405,7 +398,6 @@ export default function WritingTestPage() {
                    <button 
                      onClick={() => {
                         setCurrentWritingIndex(prev => prev + 1);
-                        document.getElementById('prompt-container')?.scrollTo({ top: 0, behavior: 'smooth' });
                      }}
                      className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full font-black shadow-xl shadow-blue-100 transition-all flex items-center gap-3 hover:scale-105 active:scale-95 text-lg"
                    >

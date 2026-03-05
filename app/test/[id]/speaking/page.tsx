@@ -21,6 +21,7 @@ export default function SpeakingTestIntroPage() {
   const [error, setError] = useState<string | null>(null);
   const [paket, setPaket] = useState<Paket | null>(null);
   const [totalTimer, setTotalTimer] = useState(15); // Default 15 mins
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
 
   const [speakings, setSpeakings] = useState<any[]>([]);
   const [currentSpeakingIndex, setCurrentSpeakingIndex] = useState(0);
@@ -66,9 +67,10 @@ export default function SpeakingTestIntroPage() {
                  hasTimer = true;
              }
           });
-          if (hasTimer) {
-              setTotalTimer(totalMins);
-          }
+           if (hasTimer) {
+               setTotalTimer(totalMins);
+               setTimeLeft(totalMins * 60);
+           }
 
           // Fetch speaking details safely
           const allSpeakingIds = data.speakingCategories.flatMap((cat: any) => 
@@ -91,6 +93,22 @@ export default function SpeakingTestIntroPage() {
     } finally {
       setLoading(false);
     }
+  };
+  useEffect(() => {
+    if (view === 'test' && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (timeLeft === 0 && view === 'test') {
+      handleNext();
+    }
+  }, [view, timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleStart = () => {
@@ -377,18 +395,26 @@ export default function SpeakingTestIntroPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[15px] text-[#2D3748]">{totalTimer}:00</span>
+              <span className="font-bold text-[15px] text-[#2D3748] tracking-mono">{formatTime(timeLeft)}</span>
               <PieChart size={18} fill="#1877F2" className="text-[#1877F2]" />
             </div>
           </div>
 
           {/* Main Test Content */}
           <main className="flex-grow flex flex-col items-center justify-center p-4 relative">
-            <div className="z-10 text-center mb-16">
-              <h1 className="text-[40px] font-bold text-[#1A202C] mb-4 tracking-tight">Part 1 - Task {currentSpeakingIndex + 1}</h1>
-              <p className="text-[18px] text-[#2D3748] font-medium">
-                {speakings[currentSpeakingIndex].jenis === 'MENIRU' ? 'Play the recording, then repeat what you heard.' : 'Play the recording, then answer the question.'}
-              </p>
+            <div className="z-10 text-center mb-10 max-w-3xl px-6">
+              <h1 className="text-[40px] font-bold text-[#1A202C] mb-6 tracking-tight">Part 1 - Task {currentSpeakingIndex + 1}</h1>
+              
+              <div 
+                className="prose prose-slate max-w-none text-xl leading-relaxed text-slate-700 font-medium mb-8"
+                dangerouslySetInnerHTML={{ __html: speakings[currentSpeakingIndex]?.content || '' }}
+              />
+
+              <div className="bg-blue-50/50 rounded-2xl border border-blue-100 p-4 inline-block">
+                <p className="text-[16px] text-blue-700 font-bold">
+                  {speakings[currentSpeakingIndex].jenis === 'MENIRU' ? 'Play the recording, then repeat what you heard.' : 'Play the recording, then answer the question.'}
+                </p>
+              </div>
             </div>
 
             {/* Soundwave Visualizer */}

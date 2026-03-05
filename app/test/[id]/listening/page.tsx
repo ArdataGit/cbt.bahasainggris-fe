@@ -48,6 +48,7 @@ export default function ListeningTestPage() {
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [playCounts, setPlayCounts] = useState<Record<number, number>>({});
   
   // Audio state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -58,6 +59,12 @@ export default function ListeningTestPage() {
       fetchData();
     }
   }, [id]);
+
+  useEffect(() => {
+    document.getElementById('audio-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('questions-container')?.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentListeningIndex]);
 
   const fetchData = async () => {
     try {
@@ -173,13 +180,31 @@ export default function ListeningTestPage() {
   };
 
   const toggleAudio = () => {
-    if (audioRef.current) {
+    if (audioRef.current && currentListening) {
+      const currentCount = playCounts[currentListening.id] || 0;
+      
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        // Allow playing if we haven't reached the limit OR if we're just resuming
+        const isResuming = audioRef.current.currentTime > 0 && !audioRef.current.ended;
+        
+        if (currentCount < 2 || isResuming) {
+          audioRef.current.play();
+          setIsPlaying(true);
+          
+          // Increment count ONLY if starting from the very beginning (0)
+          if (audioRef.current.currentTime === 0) {
+            setPlayCounts(prev => ({
+              ...prev,
+              [currentListening.id]: currentCount + 1
+            }));
+          }
+        } else {
+          alert('You have reached the maximum of 2 plays for this audio.');
+        }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -387,7 +412,9 @@ export default function ListeningTestPage() {
                </div>
                <div className="flex-grow">
                  <h4 className="text-slate-900 font-bold mb-1">Audio Recording</h4>
-                 <p className="text-slate-500 text-sm">Click play to listen to the recording.</p>
+                 <p className="text-slate-500 text-sm">
+                   Plays remaining: <span className="font-bold text-blue-600">{Math.max(0, 2 - (playCounts[currentListening?.id] || 0))}</span>/2
+                 </p>
                </div>
                
                {currentListening?.audioUrl ? (
@@ -421,18 +448,19 @@ export default function ListeningTestPage() {
             </div>
 
             {/* Dynamic Content - Like Reading Page */}
-            <h1 className="text-3xl font-black text-slate-900 mb-8 leading-tight">
+            {/* <h1 className="text-3xl font-black text-slate-900 mb-8 leading-tight">
               {currentListening?.title || 'Listening Task'}
-            </h1>
+            </h1> */}
             
+            <h2 className="text-xl font-bold text-slate-900 mb-8 leading-relaxed">
+              Listen to the recording about a specific topic and choose the best answer for each question.
+            </h2>
             <div 
               className="prose prose-slate max-w-none text-[17px] leading-relaxed text-slate-700"
               dangerouslySetInnerHTML={{ __html: currentListening?.content || '' }}
             />
 
-            <div className="mt-12 pt-8 border-t border-slate-50 text-slate-400 text-sm italic">
-              Please listen to the recording and answer all questions on the right.
-            </div>
+           
           </div>
         </div>
 
@@ -487,8 +515,6 @@ export default function ListeningTestPage() {
                   onClick={() => {
                     setCurrentListeningIndex(prev => prev + 1);
                     setIsPlaying(false);
-                    document.getElementById('audio-container')?.scrollTo({ top: 0, behavior: 'smooth' });
-                    document.getElementById('questions-container')?.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center gap-2 group"
                 >

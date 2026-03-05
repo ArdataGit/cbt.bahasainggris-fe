@@ -12,6 +12,7 @@ interface Writing {
   content: string;
   jenis: 'ESSAY' | 'SHORT_ANSWER';
   createdAt: string;
+  categories: { id: number; name: string }[];
   _count: {
     SoalWriting: number;
   };
@@ -114,6 +115,7 @@ export default function WritingListPage() {
               <tr>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Type</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Questions</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Created At</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
@@ -158,6 +160,19 @@ export default function WritingListPage() {
                       }`}>
                         {item.jenis === 'ESSAY' ? 'Essay' : 'Short Answer'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {item.categories && item.categories.length > 0 ? (
+                          item.categories.map((cat) => (
+                            <span key={cat.id} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                              {cat.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">No Category</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
