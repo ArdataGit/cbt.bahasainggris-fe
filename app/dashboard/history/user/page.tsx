@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { 
   Search, 
   Users, 
@@ -37,7 +37,7 @@ interface UserHistory {
   speakingHistories: any[];
 }
 
-export default function UserHistoryListPage() {
+function UserHistoryList() {
   const searchParams = useSearchParams();
   const paketIdParam = searchParams.get('paketId');
   const [history, setHistory] = useState<UserHistory[]>([]);
@@ -257,5 +257,18 @@ export default function UserHistoryListPage() {
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
       `}</style>
     </div>
+  );
+}
+
+export default function UserHistoryListPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto py-12 px-4 flex flex-col items-center justify-center text-gray-500 bg-white/50 rounded-3xl min-h-[600px] border border-gray-100 shadow-sm">
+        <Loader2 className="animate-spin mb-4 text-blue-600" size={48} />
+        <p className="font-bold text-lg">Loading history...</p>
+      </div>
+    }>
+      <UserHistoryList />
+    </Suspense>
   );
 }

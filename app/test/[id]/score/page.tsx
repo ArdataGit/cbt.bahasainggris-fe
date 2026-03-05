@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Loader2, Trophy, ArrowRight, CheckCircle, XCircle, BarChart3, RotateCcw, BookOpen, Headphones } from 'lucide-react';
@@ -15,7 +15,7 @@ interface HistoryData {
 
 import { useSearchParams } from 'next/navigation';
 
-export default function ScorePage() {
+function ScoreContent() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -303,5 +303,18 @@ export default function ScorePage() {
                 }
             `}</style>
         </div>
+    );
+}
+
+export default function ScorePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+                <Loader2 className="animate-spin text-blue-600 mb-4" size={48} />
+                <p className="text-slate-600 font-medium animate-pulse">Loading scores...</p>
+            </div>
+        }>
+            <ScoreContent />
+        </Suspense>
     );
 }
