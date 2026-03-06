@@ -1,7 +1,39 @@
-import React from 'react';
-import { Bell, Search } from 'lucide-react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Bell, Search, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
+  const router = useRouter();
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error('Failed to parse user from localStorage', e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 shrink-0">
       {/* Search Bar */}
@@ -27,14 +59,28 @@ export default function Navbar() {
         <div className="h-6 w-px bg-gray-200 mx-2"></div>
 
         {/* User Profile */}
-        <button className="flex items-center gap-3 hover:bg-gray-50 px-2 py-1.5 rounded-lg transition-colors text-left">
+        <div className="flex items-center gap-3 px-2 py-1.5 rounded-lg transition-colors text-left">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-            AD
+            {user ? getInitials(user.name) : 'AD'}
           </div>
           <div className="hidden sm:flex flex-col">
-            <span className="font-medium text-gray-700 text-sm leading-tight">Admin User</span>
-            <span className="text-xs text-gray-500">Administrator</span>
+            <span className="font-medium text-gray-700 text-sm leading-tight">
+              {user ? user.name : 'Admin User'}
+            </span>
+            <span className="text-xs text-gray-500 capitalize">
+              {user ? user.role : 'Administrator'}
+            </span>
           </div>
+        </div>
+
+        {/* Logout Button */}
+        <button 
+          onClick={handleLogout}
+          className="ml-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          title="Logout"
+        >
+          <LogOut size={18} />
+          <span className="hidden md:inline">Logout</span>
         </button>
       </div>
     </header>

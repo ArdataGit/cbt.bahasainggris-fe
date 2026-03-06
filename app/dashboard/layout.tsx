@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/sidebar';
 import Navbar from '@/app/components/navbar';
 
@@ -6,6 +10,37 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+
+    if (!token || !user) {
+      router.push('/login');
+    } else {
+      try {
+        const userData = JSON.parse(user);
+        if (userData.role !== 'admin') {
+          router.push('/login');
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (e) {
+        router.push('/login');
+      }
+    }
+  }, [router]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-gray-500">Checking authentication...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <Sidebar />
