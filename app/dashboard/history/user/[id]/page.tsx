@@ -169,15 +169,46 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
     return `${baseUrl}${path}`;
   };
 
+  const getBandScore = (score: number, total: number) => {
+    if (total === 0) return "0.0";
+    const raw = (score / total) * 9;
+    // Round to nearest 0.5
+    const rounded = Math.round(raw * 2) / 2;
+    return rounded.toFixed(1);
+  };
+
   const calculateTotalScore = () => {
-    const scores = [
-      ...data.readingHistories.map(h => h.score),
-      ...data.listeningHistories.map(h => h.score),
-      ...data.writingHistories.map(h => h.score),
-      ...data.speakingHistories.map(h => h.score)
-    ];
-    if (scores.length === 0) return 0;
-    return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+    let totalCorrect = 0;
+    let totalQuestions = 0;
+
+    data.readingHistories.forEach(h => {
+      totalCorrect += h.score;
+      totalQuestions += (h.reading?.SoalReading || []).length;
+    });
+
+    data.listeningHistories.forEach(h => {
+      totalCorrect += h.score;
+      totalQuestions += (h.listening?.SoalListeing || []).length;
+    });
+
+    data.writingHistories.forEach(h => {
+      totalCorrect += h.score;
+      if (h.writing?.jenis === 'ESSAY') {
+        totalQuestions += (h.writing?.SoalWriting || []).length + 1;
+      } else {
+        totalQuestions += (h.writing?.SoalWriting || []).length;
+      }
+    });
+
+    data.speakingHistories.forEach(h => {
+      totalCorrect += h.score;
+      totalQuestions += 1;
+    });
+
+    if (totalQuestions === 0) return "0";
+
+    const percentage = (totalCorrect / totalQuestions) * 100;
+    return Math.round(percentage).toString();
   };
 
   const tabs = [
@@ -211,6 +242,8 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             jenis: h.writing?.jenis || h.speaking?.jenis
           }));
           const title = h.reading?.title || h.listening?.title || h.writing?.title || h.speaking?.title || 'Untitled Assessment';
+          const isSpeaking = skill === 'speaking';
+          const displayTotal = isSpeaking ? 1 : (h.writing?.jenis === 'ESSAY' ? questions.length + 1 : questions.length);
 
           return (
             <div key={h.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
@@ -230,7 +263,9 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="flex items-center gap-8">
                   <div className="text-center">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Score</p>
-                    <div className="text-3xl font-black text-blue-600 tracking-tighter">{h.score}</div>
+                    <div className="text-2xl font-black text-blue-600 tracking-tighter">
+                      {h.score} <span className="text-gray-300 mx-0.5">/</span> {displayTotal}
+                    </div>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
                     {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -364,11 +399,11 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                                   <div className="flex items-center gap-4 pt-4 border-t border-blue-100/50">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Manual Grading:</p>
                                     <button 
-                                      onClick={() => handleUpdateScore(h.id, 1)}
-                                      className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${h.score === 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-600 border border-emerald-100 hover:bg-emerald-50'}`}
+                                      onClick={() => handleUpdateScore(h.id, displayTotal)}
+                                      className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${h.score === displayTotal ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-600 border border-emerald-100 hover:bg-emerald-50'}`}
                                     >
                                       <CheckCircle2 size={14} />
-                                      Mark Correct (1)
+                                      Mark Correct ({displayTotal})
                                     </button>
                                     <button 
                                       onClick={() => handleUpdateScore(h.id, 0)}

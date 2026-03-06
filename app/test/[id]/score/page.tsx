@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Loader2, Trophy, ArrowRight, CheckCircle, XCircle, BarChart3, RotateCcw, BookOpen, Headphones } from 'lucide-react';
+import { Loader2, Trophy, ArrowRight, CheckCircle, XCircle, BarChart3, RotateCcw, BookOpen, Headphones, PenTool, Mic } from 'lucide-react';
 
 interface HistoryData {
     name: string;
@@ -87,13 +87,42 @@ function ScoreContent() {
     const totalListeningQuestions = history.listeningHistories.reduce((acc, lh) => acc + (lh.listening?.SoalListeing?.length || 0), 0);
     const totalListeningCorrect = history.listeningHistories.reduce((acc, lh) => acc + lh.score, 0);
 
+    // Calculate Writing Totals
+    const totalWritingQuestions = history.writingHistories.reduce((acc, wh) => acc + (wh.writing?.jenis === 'ESSAY' ? (wh.writing?.SoalWriting?.length || 0) + 1 : (wh.writing?.SoalWriting?.length || 0)), 0);
+    const totalWritingCorrect = history.writingHistories.reduce((acc, wh) => acc + wh.score, 0);
+
+    // Calculate Speaking Totals
+    const totalSpeakingQuestions = history.speakingHistories.length;
+    const totalSpeakingCorrect = history.speakingHistories.reduce((acc, sh) => acc + sh.score, 0);
+
+    const getBandScore = (correct: number, total: number) => {
+        if (total === 0) return "0.0";
+        const raw = (correct / total) * 9;
+        const rounded = Math.round(raw * 2) / 2;
+        return rounded.toFixed(1);
+    };
+
     // Overall Totals
-    const totalQuestions = totalReadingQuestions + totalListeningQuestions;
-    const totalCorrect = totalReadingCorrect + totalListeningCorrect;
-    const overallPercentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+    const totalQuestions = totalReadingQuestions + totalListeningQuestions + totalWritingQuestions + totalSpeakingQuestions;
+    const totalCorrect = totalReadingCorrect + totalListeningCorrect + totalWritingCorrect + totalSpeakingCorrect;
     
-    const readingPercentage = totalReadingQuestions > 0 ? Math.round((totalReadingCorrect / totalReadingQuestions) * 100) : 0;
-    const listeningPercentage = totalListeningQuestions > 0 ? Math.round((totalListeningCorrect / totalListeningQuestions) * 100) : 0;
+    // Calculate individual band scores
+    const readingBand = getBandScore(totalReadingCorrect, totalReadingQuestions);
+    const listeningBand = getBandScore(totalListeningCorrect, totalListeningQuestions);
+    const writingBand = getBandScore(totalWritingCorrect, totalWritingQuestions);
+    const speakingBand = getBandScore(totalSpeakingCorrect, totalSpeakingQuestions);
+
+    // Calculate overall average band
+    const bands = [];
+    if (totalReadingQuestions > 0) bands.push(parseFloat(readingBand));
+    if (totalListeningQuestions > 0) bands.push(parseFloat(listeningBand));
+    if (totalWritingQuestions > 0) bands.push(parseFloat(writingBand));
+    if (totalSpeakingQuestions > 0) bands.push(parseFloat(speakingBand));
+
+    const averageBandRaw = bands.length > 0 ? bands.reduce((a, b) => a + b, 0) / bands.length : 0;
+    
+    // User requested "Overall Score" to match history page percentage
+    const overallPercentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] py-12 px-6">
@@ -116,8 +145,8 @@ function ScoreContent() {
                         </div>
                         
                         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2rem] text-center min-w-[200px]">
-                             <p className="text-blue-100 text-sm font-bold uppercase tracking-widest mb-1">Overall Accuracy</p>
-                             <div className="text-6xl font-black mb-1">{overallPercentage}%</div>
+                             <p className="text-blue-100 text-sm font-bold uppercase tracking-widest mb-1">Overall Score</p>
+                             <div className="text-6xl font-black mb-1">{overallPercentage}</div>
                              <div className="flex items-center justify-center gap-1.5 text-blue-100/80 text-sm">
                                  <CheckCircle size={14} />
                                  <span>{totalCorrect} / {totalQuestions} correct</span>
@@ -156,18 +185,18 @@ function ScoreContent() {
                             <div className="flex mb-2 items-center justify-between">
                                 <div>
                                     <span className="text-xs font-black inline-block py-1 px-2 uppercase rounded-full text-emerald-600 bg-emerald-100">
-                                        Accuracy
+                                        Band Score
                                     </span>
                                 </div>
                                 <div className="text-right">
                                     <span className="text-sm font-black inline-block text-emerald-600">
-                                        {readingPercentage}%
+                                        {readingBand}
                                     </span>
                                 </div>
                             </div>
                             <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100">
                                 <div 
-                                    style={{ width: `${readingPercentage}%` }}
+                                    style={{ width: `${(parseFloat(readingBand) / 9) * 100}%` }}
                                     className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500 rounded-full transition-all duration-1000"
                                 ></div>
                             </div>
@@ -214,18 +243,18 @@ function ScoreContent() {
                             <div className="flex mb-2 items-center justify-between">
                                 <div>
                                     <span className="text-xs font-black inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-100">
-                                        Accuracy
+                                        Band Score
                                     </span>
                                 </div>
                                 <div className="text-right">
                                     <span className="text-sm font-black inline-block text-purple-600">
-                                        {listeningPercentage}%
+                                        {listeningBand}
                                     </span>
                                 </div>
                             </div>
                             <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100">
                                 <div 
-                                    style={{ width: `${listeningPercentage}%` }}
+                                    style={{ width: `${(parseFloat(listeningBand) / 9) * 100}%` }}
                                     className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500 rounded-full transition-all duration-1000"
                                 ></div>
                             </div>
@@ -249,31 +278,91 @@ function ScoreContent() {
                         </div>
                     </div>
 
-                    {/* Placeholder for other sections */}
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {['Writing', 'Speaking'].map((section) => {
-                            const histories = section === 'Writing' ? history.writingHistories :
-                                             history.speakingHistories;
-                            
-                            const isCompleted = histories.length > 0;
-
-                            return (
-                                <div key={section} className={`p-6 rounded-[2rem] border transition-all ${
-                                    isCompleted ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50/50 border-dashed border-slate-300 opacity-60'
-                                }`}>
-                                    <h4 className="font-black text-slate-400 uppercase tracking-widest text-xs mb-3">{section}</h4>
-                                    {isCompleted ? (
-                                         <div className="flex items-center justify-between">
-                                            <span className="text-slate-900 font-bold">Completed</span>
-                                            <CheckCircle className="text-emerald-500" size={20} />
-                                         </div>
-                                    ) : (
-                                        <span className="text-slate-400 font-medium italic text-sm">No data available</span>
-                                    )}
+                    {/* Writing Section Card */}
+                    {history.writingHistories.length > 0 && (
+                        <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                        <PenTool className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-900">Writing Component</h3>
+                                        <p className="text-slate-500 text-sm font-medium">{history.writingHistories.length} Tasks Completed</p>
+                                    </div>
                                 </div>
-                            );
-                        })}
-                    </div>
+                                <div className="text-right">
+                                    <div className="text-3xl font-black text-slate-900">{totalWritingCorrect}<span className="text-slate-300 mx-1">/</span>{totalWritingQuestions}</div>
+                                    <p className="text-amber-500 font-bold text-sm tracking-wide">TOTAL SCORE</p>
+                                </div>
+                            </div>
+
+                            {/* Visual Progress Bar */}
+                            <div className="relative pt-1">
+                                <div className="flex mb-2 items-center justify-between">
+                                    <div>
+                                        <span className="text-xs font-black inline-block py-1 px-2 uppercase rounded-full text-amber-600 bg-amber-100">
+                                            Band Score
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-sm font-black inline-block text-amber-600">
+                                            {writingBand}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100">
+                                    <div 
+                                        style={{ width: `${(parseFloat(writingBand) / 9) * 100}%` }}
+                                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500 rounded-full transition-all duration-1000"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Speaking Section Card */}
+                    {history.speakingHistories.length > 0 && (
+                        <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                        <Mic className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-900">Speaking Component</h3>
+                                        <p className="text-slate-500 text-sm font-medium">{history.speakingHistories.length} Tasks Completed</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-3xl font-black text-slate-900">{totalSpeakingCorrect}<span className="text-slate-300 mx-1">/</span>{totalSpeakingQuestions}</div>
+                                    <p className="text-purple-500 font-bold text-sm tracking-wide">TOTAL SCORE</p>
+                                </div>
+                            </div>
+
+                            {/* Visual Progress Bar */}
+                            <div className="relative pt-1">
+                                <div className="flex mb-2 items-center justify-between">
+                                    <div>
+                                        <span className="text-xs font-black inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-100">
+                                            Band Score
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-sm font-black inline-block text-purple-600">
+                                            {speakingBand}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100">
+                                    <div 
+                                        style={{ width: `${(parseFloat(speakingBand) / 9) * 100}%` }}
+                                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500 rounded-full transition-all duration-1000"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer Actions */}
