@@ -7,6 +7,7 @@ import { Loader2, Trophy, ArrowRight, CheckCircle, XCircle, BarChart3, RotateCcw
 
 interface HistoryData {
     name: string;
+    email?: string;
     readingHistories: any[];
     listeningHistories: any[];
     writingHistories: any[];
@@ -125,8 +126,39 @@ function ScoreContent() {
     const overallPercentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-12 px-6">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-[#F8FAFC] py-12 px-6 print:bg-white print:py-0 print:px-0">
+            <div className="max-w-4xl mx-auto print:max-w-none">
+                {/* Print Only Header */}
+                <div className="hidden print:flex justify-between items-end border-b-4 border-slate-900 pb-8 mb-10">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                             <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black italic text-xl">
+                                CBT
+                             </div>
+                             <span className="text-3xl font-black italic text-slate-900 tracking-tighter uppercase">Standard Report</span>
+                        </div>
+                        <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px]">Official Proficiency Assessment Certificate</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
+                        <p className="text-sm font-bold text-slate-900">
+                            {new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Candidate Info - Print Only */}
+                <div className="hidden print:grid grid-cols-2 gap-8 mb-10 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                    <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Candidate Name</p>
+                        <p className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{history.name}</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Score Validation ID</p>
+                        <p className="text-lg font-mono font-bold text-slate-600">#{Math.random().toString(36).substring(2, 9).toUpperCase()}</p>
+                    </div>
+                </div>
+
                 {/* Header Card */}
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-200 mb-10 overflow-hidden relative">
                     <div className="absolute top-0 right-0 p-12 opacity-10">
@@ -163,7 +195,7 @@ function ScoreContent() {
 
                 <div className="grid grid-cols-1 gap-6">
                     {/* Reading Section Card */}
-                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow print-break-inside-avoid">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner">
@@ -221,7 +253,7 @@ function ScoreContent() {
                     </div>
 
                     {/* Listening Section Card */}
-                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow print-break-inside-avoid">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shadow-inner">
@@ -280,7 +312,7 @@ function ScoreContent() {
 
                     {/* Writing Section Card */}
                     {history.writingHistories.length > 0 && (
-                        <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow print-break-inside-avoid">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center shadow-inner">
@@ -323,7 +355,7 @@ function ScoreContent() {
 
                     {/* Speaking Section Card */}
                     {history.speakingHistories.length > 0 && (
-                        <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow print-break-inside-avoid">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shadow-inner">
@@ -366,7 +398,7 @@ function ScoreContent() {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden">
                     <button 
                         onClick={() => router.push('/')}
                         className="w-full sm:w-auto px-10 py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-slate-200 group"
@@ -389,6 +421,24 @@ function ScoreContent() {
                 
                 body {
                     font-family: 'Plus Jakarta Sans', sans-serif;
+                }
+
+                @media print {
+                    @page {
+                        margin: 1.5cm;
+                        size: A4;
+                    }
+                    body {
+                        background-color: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    .print-break-inside-avoid {
+                        break-inside: avoid;
+                    }
+                    button, .print-hidden {
+                        display: none !important;
+                    }
                 }
             `}</style>
         </div>
