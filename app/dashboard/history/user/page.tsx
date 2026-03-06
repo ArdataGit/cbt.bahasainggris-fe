@@ -11,7 +11,9 @@ import {
   Phone,
   ArrowLeft,
   User as UserIcon,
-  Filter
+  Filter,
+  Copy,
+  Check
 } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
@@ -44,10 +46,18 @@ function UserHistoryList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchHistory();
   }, []);
+
+  const handleCopy = (user: UserHistory) => {
+    const url = `${window.location.origin}/test/${user.paketId}/score?userId=${user.id}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(user.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const fetchHistory = async () => {
     try {
@@ -234,7 +244,28 @@ function UserHistoryList() {
                            ))}
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-right">
+                      <td className="px-8 py-6 text-right flex justify-end gap-2">
+                         <button 
+                           onClick={() => handleCopy(user)}
+                           className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border shadow-sm active:scale-95 ${
+                             copiedId === user.id 
+                               ? 'bg-emerald-600 text-white border-emerald-600' 
+                               : 'bg-white text-blue-600 border-blue-100 hover:bg-blue-50'
+                           }`}
+                           title="Copy Score URL"
+                         >
+                           {copiedId === user.id ? (
+                             <>
+                               <Check size={14} />
+                               <span>Copied!</span>
+                             </>
+                           ) : (
+                             <>
+                               <Copy size={14} />
+                               <span className="hidden sm:inline">Copy URL</span>
+                             </>
+                           )}
+                         </button>
                          <Link 
                            href={`/dashboard/history/user/${user.id}`}
                            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold text-gray-600 transition-all border border-gray-100 hover:border-blue-500 shadow-sm active:scale-95"

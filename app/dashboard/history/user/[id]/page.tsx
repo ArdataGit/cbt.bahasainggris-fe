@@ -134,7 +134,8 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   const getFullAudioUrl = (path: string) => {
     // If path already starts with http, return as is. Otherwise prepend API URL
     if (path.startsWith('http')) return path;
-    return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || '';
+    return `${baseUrl}${path}`;
   };
 
   const calculateTotalScore = () => {

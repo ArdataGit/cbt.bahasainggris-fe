@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Bell, Search, LogOut } from 'lucide-react';
+import { Bell, Search, LogOut, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -58,30 +59,49 @@ export default function Navbar() {
         {/* Divider */}
         <div className="h-6 w-px bg-gray-200 mx-2"></div>
 
-        {/* User Profile */}
-        <div className="flex items-center gap-3 px-2 py-1.5 rounded-lg transition-colors text-left">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-            {user ? getInitials(user.name) : 'AD'}
-          </div>
-          <div className="hidden sm:flex flex-col">
-            <span className="font-medium text-gray-700 text-sm leading-tight">
-              {user ? user.name : 'Admin User'}
-            </span>
-            <span className="text-xs text-gray-500 capitalize">
-              {user ? user.role : 'Administrator'}
-            </span>
-          </div>
-        </div>
+        {/* User Profile & Dropdown */}
+        <div className="relative">
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center gap-3 hover:bg-gray-50 px-2 py-1.5 rounded-lg transition-colors text-left"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+              {user ? getInitials(user.name) : 'AD'}
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <span className="font-medium text-gray-700 text-sm leading-tight">
+                {user ? user.name : 'Admin User'}
+              </span>
+              <span className="text-xs text-gray-500 capitalize">
+                {user ? user.role : 'Administrator'}
+              </span>
+            </div>
+            <ChevronDown size={16} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
 
-        {/* Logout Button */}
-        <button 
-          onClick={handleLogout}
-          className="ml-2 flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          title="Logout"
-        >
-          <LogOut size={18} />
-          <span className="hidden md:inline">Logout</span>
-        </button>
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <>
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setIsDropdownOpen(false)}
+              ></div>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-20">
+                <div className="px-4 py-2 border-b border-gray-50 md:hidden">
+                  <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin User'}</p>
+                  <p className="text-xs text-gray-500 capitalize">{user?.role || 'Administrator'}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

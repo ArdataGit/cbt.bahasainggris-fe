@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Loader2, Mic, Volume2, Play, PieChart, Square } from 'lucide-react';
+import { Loader2, Mic, Volume2, Play, PieChart, Square, Check } from 'lucide-react';
 import axios from 'axios';
 
 interface Paket {
@@ -16,7 +16,7 @@ export default function SpeakingTestIntroPage() {
   const router = useRouter();
   const id = params.id;
 
-  const [view, setView] = useState<'introduction' | 'microphone' | 'test'>('introduction');
+  const [view, setView] = useState<'introduction' | 'microphone' | 'microphone-test' | 'test'>('introduction');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paket, setPaket] = useState<Paket | null>(null);
@@ -29,10 +29,23 @@ export default function SpeakingTestIntroPage() {
   const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'recorded'>('idle');
   const [answers, setAnswers] = useState<Blob[]>([]);
   const [repeatCounts, setRepeatCounts] = useState<Record<number, number>>({});
+  
+  // Microphone Test States
+  const [testVolume, setTestVolume] = useState(0);
+  const [testAudioUrl, setTestAudioUrl] = useState<string | null>(null);
+  const [isTestRecording, setIsTestRecording] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const testAudioRef = useRef<HTMLAudioElement | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const testRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const testChunksRef = useRef<Blob[]>([]);
+  const animationFrameRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -118,12 +131,104 @@ export default function SpeakingTestIntroPage() {
 
   const handleAllowMicrophone = async () => {
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      setView('test');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      startVolumeAnalysis(stream);
+      setView('microphone-test');
     } catch (err) {
       alert('Microphone access is required for the speaking test.');
     }
   };
+
+  const startVolumeAnalysis = (stream: MediaStream) => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(stream);
+    source.connect(analyser);
+    analyser.fftSize = 256;
+    
+    audioContextRef.current = audioContext;
+    analyserRef.current = analyser;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const updateVolume = () => {
+      if (!analyserRef.current) return;
+      analyserRef.current.getByteFrequencyData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+      }
+      const average = sum / bufferLength;
+      setTestVolume(average);
+      animationFrameRef.current = requestAnimationFrame(updateVolume);
+    };
+
+    updateVolume();
+  };
+
+  const startTestRecording = () => {
+    if (!streamRef.current) return;
+    const mediaRecorder = new MediaRecorder(streamRef.current);
+    testRecorderRef.current = mediaRecorder;
+    testChunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        testChunksRef.current.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(testChunksRef.current, { type: 'audio/webm' });
+      const url = URL.createObjectURL(audioBlob);
+      setTestAudioUrl(url);
+    };
+
+    mediaRecorder.start();
+    setIsTestRecording(true);
+    setTestAudioUrl(null);
+  };
+
+  const stopTestRecording = () => {
+    if (testRecorderRef.current && testRecorderRef.current.state === 'recording') {
+      testRecorderRef.current.stop();
+      setIsTestRecording(false);
+    }
+  };
+
+  const playTestRecording = () => {
+    if (testAudioRef.current) {
+        testAudioRef.current.play();
+    }
+  };
+
+  const handleContinueToTest = () => {
+    cleanupAudioAnalysis();
+    setView('test');
+  };
+
+  const cleanupAudioAnalysis = () => {
+      if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+      }
+      if (audioContextRef.current) {
+          audioContextRef.current.close();
+          audioContextRef.current = null;
+      }
+      analyserRef.current = null;
+  };
+
+  useEffect(() => {
+    return () => {
+      cleanupAudioAnalysis();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   const handleSkipTest = () => {
        const userDataId = localStorage.getItem('userDataId');
@@ -149,6 +254,9 @@ export default function SpeakingTestIntroPage() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      startVolumeAnalysis(stream); // Start visualizer
+
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
@@ -179,7 +287,21 @@ export default function SpeakingTestIntroPage() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+      cleanupAudioAnalysis(); // Stop visualizer
       setRecordingState('recorded');
+    }
+  };
+
+  const playPreview = () => {
+    if (answers[currentSpeakingIndex] && previewAudioRef.current) {
+        const url = URL.createObjectURL(answers[currentSpeakingIndex]);
+        previewAudioRef.current.src = url;
+        previewAudioRef.current.play();
+        
+        // Cleanup URL after playing to avoid memory leaks
+        previewAudioRef.current.onended = () => {
+            URL.revokeObjectURL(url);
+        };
     }
   };
 
@@ -365,11 +487,86 @@ export default function SpeakingTestIntroPage() {
         </main>
       )}
 
+      {view === 'microphone-test' && (
+        <main className="relative z-10 flex-grow flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl px-10 py-12 text-center">
+                <h2 className="text-[28px] font-bold text-[#1A202C] mb-4">Test your microphone</h2>
+                <p className="text-[16px] text-[#4A5568] mb-8">Speak normally to see if your microphone is working.</p>
+                
+                {/* Volume Meter */}
+                <div className="flex flex-col items-center mb-10">
+                    <div className="w-full max-w-md h-4 bg-gray-100 rounded-full overflow-hidden border border-gray-200 mb-2">
+                        <div 
+                            className={`h-full transition-all duration-75 ${testVolume > 50 ? 'bg-red-500' : 'bg-green-500'}`}
+                            style={{ width: `${Math.min(100, (testVolume / 100) * 100)}%` }}
+                        ></div>
+                    </div>
+                    <p className="text-xs text-gray-500 font-medium tracking-wide uppercase">Input Level</p>
+                </div>
+
+                {/* Recorder Test */}
+                <div className="bg-slate-50 rounded-2xl p-8 mb-10 border border-slate-100">
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest mb-6">Recording Preview</h3>
+                    <div className="flex items-center justify-center gap-6">
+                        {!isTestRecording ? (
+                            <button 
+                                onClick={startTestRecording}
+                                className="w-16 h-16 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+                            >
+                                <Mic size={28} />
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={stopTestRecording}
+                                className="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg animate-pulse"
+                            >
+                                <Square size={28} fill="currentColor" />
+                            </button>
+                        )}
+
+                        <div className="h-10 w-px bg-slate-200"></div>
+
+                        <button 
+                            onClick={playTestRecording}
+                            disabled={!testAudioUrl}
+                            className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 ${testAudioUrl ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                        >
+                            <Play size={28} fill={testAudioUrl ? "currentColor" : "none"} className="ml-1" />
+                        </button>
+                    </div>
+                    {testAudioUrl && (
+                        <p className="mt-4 text-xs font-bold text-green-600 flex items-center justify-center gap-1">
+                            <Check size={14} /> Recording ready. Play it back to check quality.
+                        </p>
+                    )}
+                    <audio ref={testAudioRef} src={testAudioUrl || undefined} className="hidden" />
+                </div>
+                
+                <div className="flex flex-col items-center">
+                    <button 
+                        onClick={handleContinueToTest}
+                        className="bg-[#1877F2] hover:bg-[#166FE5] text-white text-[15px] font-bold px-12 py-3.5 rounded-full transition-colors mb-4 shadow-lg shadow-blue-200"
+                    >
+                        Looks good, continue
+                    </button>
+                    <button 
+                        onClick={() => {
+                            cleanupAudioAnalysis();
+                            setView('microphone');
+                        }} 
+                        className="text-[#4A5568] hover:text-[#1A202C] text-[14px] font-medium"
+                    >
+                         Back
+                    </button>
+                </div>
+            </div>
+        </main>
+      )}
       {view === 'test' && speakings.length > 0 && (
         <div className="flex-grow flex flex-col relative z-10 w-full overflow-hidden">
           <audio 
             ref={audioRef} 
-            src={speakings[currentSpeakingIndex]?.audioUrl ? `${process.env.NEXT_PUBLIC_API_URL}${speakings[currentSpeakingIndex].audioUrl}` : undefined}
+            src={speakings[currentSpeakingIndex]?.audioUrl ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${speakings[currentSpeakingIndex].audioUrl}` : undefined}
             onEnded={() => setAudioState('ended')}
             onError={() => {
                console.error("Failed to load audio source.");
@@ -419,21 +616,40 @@ export default function SpeakingTestIntroPage() {
             </div>
 
             {/* Soundwave Visualizer */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center gap-1.5 opacity-40 px-10 overflow-hidden pointer-events-none transition-opacity duration-300" style={{ opacity: (audioState === 'playing' || recordingState === 'recording') ? 0.8 : 0.3 }}>
+            <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center gap-1.5 px-10 overflow-hidden pointer-events-none transition-all duration-500 ${recordingState === 'recording' ? 'bg-red-500/10 inset-y-0 opacity-100 scale-105' : 'opacity-40 scale-100'}`}>
+              
+              {/* Blinking REC indicator */}
+              {recordingState === 'recording' && (
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-red-600 text-white px-4 py-1.5 rounded-full text-sm font-bold animate-pulse shadow-lg z-30">
+                  <div className="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div>
+                  REC
+                </div>
+              )}
+
               {/* Generate dynamic looking bars */}
               {[...Array(60)].map((_, i) => {
                 const distance = Math.abs(30 - i);
-                const maxH = 160;
-                const baseH = 10;
-                const wave = Math.sin(i * 0.4) * 40;
-                let height = Math.max(baseH, maxH - (distance * 5) + wave);
-                if (distance > 25) height = baseH + Math.random() * 5;
+                const maxH = 220; // Increased max height
+                const baseH = 12;
+                
+                // Calculate height based on volume and position
+                const volumeEffect = (testVolume / 100) * (maxH - baseH) * 1.5; // Scaled up effect
+                const distanceEffect = 1 - (distance / 32);
+                const wave = recordingState === 'recording' || audioState === 'playing' 
+                  ? Math.sin(Date.now() * 0.01 + i * 0.3) * 20 
+                  : 0;
+                
+                let height = baseH + (volumeEffect * Math.max(0, distanceEffect)) + wave;
+                if (distance > 28) height = baseH + (Math.random() * 8);
                 
                 return (
                   <div 
                     key={i} 
-                    className={`w-1.5 rounded-full ${recordingState === 'recording' ? 'bg-red-500' : 'bg-[#1877F2]'}`} 
-                    style={{ height: `${height}px`, opacity: 1 - (distance / 40) }}
+                    className={`w-2 rounded-full transition-all duration-75 ${recordingState === 'recording' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.7)]' : 'bg-[#1877F2]'}`} 
+                    style={{ 
+                      height: `${Math.max(baseH, height)}px`, 
+                      opacity: Math.max(0.15, 1 - (distance / 35)) 
+                    }}
                   ></div>
                 );
               })}
@@ -441,7 +657,14 @@ export default function SpeakingTestIntroPage() {
 
             {/* Action Button */}
             {recordingState === 'recorded' ? (
-              <div className="flex gap-4 mt-4 z-20">
+              <div className="flex flex-wrap justify-center gap-4 mt-4 z-20">
+                <button 
+                   onClick={playPreview}
+                   className="bg-emerald-50 text-emerald-600 border-2 border-emerald-100 hover:bg-emerald-100 rounded-full px-8 h-12 flex items-center justify-center shadow-sm hover:scale-105 transition-transform text-[15px] font-bold"
+                >
+                    <Play size={18} fill="currentColor" className="mr-2" />
+                    Pratinjau Suara
+                </button>
                 {(repeatCounts[currentSpeakingIndex] || 0) < 2 && (
                   <button 
                     onClick={() => {
@@ -451,6 +674,7 @@ export default function SpeakingTestIntroPage() {
                       }));
                       setAudioState('idle');
                       setRecordingState('idle');
+                      setTestVolume(0);
                     }}
                     className="bg-white text-[#1877F2] border-2 border-[#1877F2] hover:bg-[#F4F9FF] rounded-full px-8 h-12 flex items-center justify-center shadow-sm hover:scale-105 transition-transform text-[15px] font-bold"
                   >
@@ -463,14 +687,21 @@ export default function SpeakingTestIntroPage() {
                 >
                     {currentSpeakingIndex < speakings.length - 1 ? 'Lanjut' : 'Selesai'}
                 </button>
+                <audio ref={previewAudioRef} className="hidden" />
               </div>
             ) : recordingState === 'recording' ? (
-              <button 
-                 onClick={stopRecording}
-                 className="z-20 bg-red-500 hover:bg-red-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
-              >
-                <Square size={30} fill="currentColor" />
-              </button>
+              <div className="relative z-20 mt-4">
+                {/* Ripple Effect */}
+                <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20 scale-150"></div>
+                <div className="absolute inset-0 bg-red-400 rounded-full animate-pulse opacity-30 scale-125"></div>
+                
+                <button 
+                   onClick={stopRecording}
+                   className="relative bg-red-500 hover:bg-red-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.4)] transition-transform hover:scale-110 active:scale-95"
+                >
+                  <Square size={30} fill="currentColor" />
+                </button>
+              </div>
             ) : audioState === 'ended' ? (
                <button 
                  onClick={startRecording}
