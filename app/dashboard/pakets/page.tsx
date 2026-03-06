@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Edit, Trash2, Loader2, Package, LayoutTemplate } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Loader2, Package, LayoutTemplate, Copy, Check } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
 
@@ -24,6 +24,7 @@ export default function PaketListPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPakets();
@@ -43,6 +44,14 @@ export default function PaketListPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopyLink = (id: number) => {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    const url = `${baseUrl}/test/${id}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleDelete = async (id: number) => {
@@ -174,6 +183,13 @@ export default function PaketListPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleCopyLink(item.id)}
+                            className={`p-2 rounded-lg transition-colors border border-transparent ${copiedId === item.id ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100'}`}
+                            title="Copy Test Link"
+                          >
+                            {copiedId === item.id ? <Check size={18} /> : <Copy size={18} />}
+                          </button>
                           <Link 
                             href={`/dashboard/pakets/${item.id}/edit`}
                             className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-100"

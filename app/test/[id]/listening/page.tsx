@@ -50,6 +50,8 @@ export default function ListeningTestPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [playCounts, setPlayCounts] = useState<Record<number, number>>({});
   
+  const currentListening = listenings[currentListeningIndex];
+  
   // Audio state
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -368,7 +370,6 @@ export default function ListeningTestPage() {
     );
   }
 
-  const currentListening = listenings[currentListeningIndex];
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
