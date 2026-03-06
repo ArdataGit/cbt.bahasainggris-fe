@@ -237,8 +237,8 @@ export default function ListeningTestPage() {
 
         <header className="relative z-10 w-full h-20 bg-white border-b flex items-center justify-center shadow-sm">
            <div className="flex items-center gap-0.5">
-            <span className="text-3xl font-black italic text-slate-800 tracking-tighter">EF</span>
-            <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">SET</span>
+            <span className="text-3xl font-black italic text-slate-800 tracking-tighter">CBT</span>
+            <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
           </div>
         </header>
 
@@ -326,7 +326,7 @@ export default function ListeningTestPage() {
 
         <header className="relative z-10 w-full h-16 bg-white border-b flex items-center justify-center shadow-sm">
           <div className="flex items-center gap-0.5">
-            <span className="text-2xl font-black italic text-slate-800">COBA</span>
+            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">CBT</span>
             <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
           </div>
         </header>
@@ -375,7 +375,7 @@ export default function ListeningTestPage() {
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
         <div className="flex items-center gap-0.5">
-          <span className="text-2xl font-black italic text-slate-800">COBA</span>
+          <span className="text-2xl font-black italic text-slate-800 tracking-tighter">CBT</span>
           <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
         </div>
       </header>
