@@ -121,16 +121,28 @@ export default function WritingTestPage() {
       setLoading(true);
 
       const results = writings.map(item => {
-        const subAnswers = item.SoalWriting.map(sw => ({
-          soalWritingId: sw.id,
-          answer: answers[`q-${sw.id}`] || ''
-        }));
+        let taskScore = 0;
+        const subAnswers = item.SoalWriting.map(sw => {
+          const userAnswer = (answers[`q-${sw.id}`] || '').trim().toLowerCase();
+          
+          if (item.jenis === 'SHORT_ANSWER' && (sw as any).AnswerWriting) {
+            const isCorrect = (sw as any).AnswerWriting.some((aw: any) => 
+               aw.answer.trim().toLowerCase() === userAnswer
+            );
+            if (isCorrect) taskScore += 1;
+          }
+
+          return {
+            soalWritingId: sw.id,
+            answer: answers[`q-${sw.id}`] || ''
+          };
+        });
 
         return {
           writingId: item.id,
           answer: answers[item.id] || '',
           answers: subAnswers,
-          score: 0 // Writing is typically manually graded or AI graded later
+          score: item.jenis === 'SHORT_ANSWER' ? taskScore : 0
         };
       });
 

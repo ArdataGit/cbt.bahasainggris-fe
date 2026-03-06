@@ -36,6 +36,7 @@ interface Question {
   AnswerWriting?: { id: number; answer: string }[]; // For Writing correct answers
   correctAnswer: string; // Keep for backward compatibility
   explanation?: string;
+  jenis?: 'ESSAY' | 'SHORT_ANSWER';
 }
 
 interface SkillHistory {
@@ -44,8 +45,8 @@ interface SkillHistory {
   createdAt: string;
   reading?: { title: string; SoalReading: Question[] };
   listening?: { title: string; SoalListeing: Question[] };
-  writing?: { title: string; SoalWriting: Question[] };
-  speaking?: { title: string; SoalSpeaking: Question[] };
+  writing?: { title: string; jenis: 'ESSAY' | 'SHORT_ANSWER'; SoalWriting: Question[] };
+  speaking?: { title: string; jenis: 'ESSAY' | 'SHORT_ANSWER'; SoalSpeaking: Question[] };
   soalHistories?: SoalHistory[];
   answer?: string; // For Writing/Speaking essays
 }
@@ -116,6 +117,36 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
     );
   }
 
+  const handleUpdateScore = async (historyId: number, newScore: number) => {
+    try {
+      const res = await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/history/writing/${historyId}/score`, {
+        score: newScore
+      });
+      if (res.data.success) {
+        // Refresh data to reflect change
+        fetchUserDetail();
+      }
+    } catch (err) {
+      console.error('Error updating score:', err);
+      alert('Failed to update score');
+    }
+  };
+
+  const handleUpdateSpeakingScore = async (historyId: number, newScore: number) => {
+    try {
+      const res = await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/history/speaking/${historyId}/score`, {
+        score: newScore
+      });
+      if (res.data.success) {
+        // Refresh data to reflect change
+        fetchUserDetail();
+      }
+    } catch (err) {
+      console.error('Error updating score:', err);
+      alert('Failed to update score');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       day: 'numeric',
@@ -175,7 +206,10 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
       <div className="space-y-6">
         {histories.map((h, idx) => {
           const isExpanded = expandedSection === h.id;
-          const questions = h.reading?.SoalReading || h.listening?.SoalListeing || h.writing?.SoalWriting || h.speaking?.SoalSpeaking || [];
+          const questions = (h.reading?.SoalReading || h.listening?.SoalListeing || h.writing?.SoalWriting || h.speaking?.SoalSpeaking || []).map(q => ({
+            ...q,
+            jenis: h.writing?.jenis || h.speaking?.jenis
+          }));
           const title = h.reading?.title || h.listening?.title || h.writing?.title || h.speaking?.title || 'Untitled Assessment';
 
           return (
@@ -250,20 +284,34 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                   {(skill === 'writing' || skill === 'speaking') && (
                     <div className="space-y-6">
                       {questions.map((q, qIdx) => {
-                         const qAnswer = h.soalHistories?.find(sh => sh.soalWritingId === q.id)?.answer;
+                         const qAnswer = (h.soalHistories?.find(sh => (sh as any).soalWritingId === q.id)?.answer || '').trim();
                          const correctAnswers = q.AnswerWriting || [];
+                         const isShortAnswer = q.jenis === 'SHORT_ANSWER' || correctAnswers.length > 0;
+                         const isCorrect = isShortAnswer && correctAnswers.some(ca => 
+                           ca.answer.trim().toLowerCase() === qAnswer.toLowerCase()
+                         );
 
                          return (
-                           <div key={q.id} className="mb-8 last:mb-0">
-                              <h4 className="text-sm font-black text-gray-900 uppercase tracking-tighter mb-4 flex items-center gap-2">
-                                 <div className="w-6 h-6 rounded-lg bg-gray-950 text-white flex items-center justify-center text-[10px]">{qIdx + 1}</div>
-                                 {q.question}
+                           <div key={q.id} className="mb-8 last:mb-0 relative">
+                              {isShortAnswer && (
+                                <div className={`absolute -left-10 top-1 w-2 h-2 rounded-full ${isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                              )}
+                              <h4 className="text-sm font-black text-gray-900 uppercase tracking-tighter mb-4 flex items-center justify-between gap-2">
+                                 <div className="flex items-center gap-2">
+                                   <div className="w-6 h-6 rounded-lg bg-gray-950 text-white flex items-center justify-center text-[10px]">{qIdx + 1}</div>
+                                   {q.question}
+                                 </div>
+                                 {isShortAnswer && (
+                                   isCorrect ? 
+                                     <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black border border-emerald-100 uppercase tracking-wider shrink-0"><CheckCircle2 size={12}/> Correct</span> :
+                                     <span className="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 rounded-full text-[10px] font-black border border-red-100 uppercase tracking-wider shrink-0"><XCircle size={12}/> Incorrect</span>
+                                 )}
                               </h4>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-8">
-                                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                <div className={`p-4 rounded-2xl border ${isShortAnswer ? (isCorrect ? 'bg-emerald-50/10 border-emerald-100' : 'bg-red-50/10 border-red-100') : 'bg-gray-50 border-gray-100'}`}>
                                   <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">User's Answer</p>
-                                  <p className="text-sm font-medium text-gray-700 italic">
+                                  <p className={`text-sm font-medium italic ${isShortAnswer ? (isCorrect ? 'text-emerald-800' : 'text-red-800') : 'text-gray-700'}`}>
                                     {qAnswer || 'No answer submitted.'}
                                   </p>
                                 </div>
@@ -307,7 +355,51 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                                 </div>
                               </div>
                             ) : (
-                              h.answer
+                              <div className="flex flex-col gap-6">
+                                <div className="p-4 bg-white/50 rounded-2xl border border-blue-100/30">
+                                  {h.answer}
+                                </div>
+                                
+                                {skill === 'writing' && h.writing?.jenis === 'ESSAY' && (
+                                  <div className="flex items-center gap-4 pt-4 border-t border-blue-100/50">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Manual Grading:</p>
+                                    <button 
+                                      onClick={() => handleUpdateScore(h.id, 1)}
+                                      className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${h.score === 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-600 border border-emerald-100 hover:bg-emerald-50'}`}
+                                    >
+                                      <CheckCircle2 size={14} />
+                                      Mark Correct (1)
+                                    </button>
+                                    <button 
+                                      onClick={() => handleUpdateScore(h.id, 0)}
+                                      className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${h.score === 0 ? 'bg-red-600 text-white shadow-lg shadow-red-200' : 'bg-white text-red-600 border border-red-100 hover:bg-red-50'}`}
+                                    >
+                                      <XCircle size={14} />
+                                      Mark Incorrect (0)
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {skill === 'speaking' && (
+                              <div className="flex items-center gap-4 pt-4 border-t border-blue-100/50 mt-4">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Manual Grading:</p>
+                                <button 
+                                  onClick={() => handleUpdateSpeakingScore(h.id, 1)}
+                                  className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${h.score === 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-emerald-600 border border-emerald-100 hover:bg-emerald-50'}`}
+                                >
+                                  <CheckCircle2 size={14} />
+                                  Mark Correct (1)
+                                </button>
+                                <button 
+                                  onClick={() => handleUpdateSpeakingScore(h.id, 0)}
+                                  className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${h.score === 0 ? 'bg-red-600 text-white shadow-lg shadow-red-200' : 'bg-white text-red-600 border border-red-100 hover:bg-red-50'}`}
+                                >
+                                  <XCircle size={14} />
+                                  Mark Incorrect (0)
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
