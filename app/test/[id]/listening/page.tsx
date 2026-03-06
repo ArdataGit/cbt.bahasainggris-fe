@@ -422,7 +422,7 @@ export default function ListeningTestPage() {
                  <div className="flex items-center gap-4">
                     <audio 
                       ref={audioRef}
-                      src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${currentListening.audioUrl}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${currentListening.audioUrl}`}
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
                       className="hidden"

@@ -566,7 +566,7 @@ export default function SpeakingTestIntroPage() {
         <div className="flex-grow flex flex-col relative z-10 w-full overflow-hidden">
           <audio 
             ref={audioRef} 
-            src={speakings[currentSpeakingIndex]?.audioUrl ? `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${speakings[currentSpeakingIndex].audioUrl}` : undefined}
+            src={speakings[currentSpeakingIndex]?.audioUrl ? `${process.env.NEXT_PUBLIC_API_URL}${speakings[currentSpeakingIndex].audioUrl}` : undefined}
             onEnded={() => setAudioState('ended')}
             onError={() => {
                console.error("Failed to load audio source.");
