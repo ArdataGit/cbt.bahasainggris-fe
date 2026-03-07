@@ -115,18 +115,24 @@ export default function SpeakingTestIntroPage() {
                setTimeLeft(totalMins * 60);
            }
 
-          // Fetch speaking details safely
-          const allSpeakingIds = data.speakingCategories.flatMap((cat: any) => 
-            (cat.speakings || []).map((s: any) => s.id)
+          setPaket(data);
+        
+        // Aggregate all speaking IDs from all categories AND direct relations
+        const fromCategories = (data.speakingCategories || []).flatMap((cat: any) => 
+          (cat.speakings || []).map((s: any) => s.id)
+        );
+        const directIds = (data.speakings || []).map((s: any) => s.id);
+        
+        const allSpeakingIds = [...fromCategories, ...directIds];
+        const uniqueSpeakingIds = Array.from(new Set(allSpeakingIds));
+        
+        if (uniqueSpeakingIds.length > 0) {
+          const speakingPromises = uniqueSpeakingIds.map((sid: any) => 
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speakings/${sid}`)
           );
-          const uniqueSpeakingIds = Array.from(new Set(allSpeakingIds));
-          if (uniqueSpeakingIds.length > 0) {
-            const speakingPromises = uniqueSpeakingIds.map((sid: any) => 
-              axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speakings/${sid}`)
-            );
-            const speakingResponses = await Promise.all(speakingPromises);
-            setSpeakings(speakingResponses.map(res => res.data.data));
-          }
+          const speakingResponses = await Promise.all(speakingPromises);
+          setSpeakings(speakingResponses.map(res => res.data.data));
+        }
         }
       } else {
         throw new Error(res.data.message || 'Failed to fetch packet.');

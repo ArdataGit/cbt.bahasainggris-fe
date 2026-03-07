@@ -85,18 +85,25 @@ export default function WritingTestPage() {
         const paketData = paketRes.data.data;
         setPaket(paketData);
 
-        const allWritingIds = paketData.writingCategories.flatMap((cat: any) => 
-          cat.writings.map((w: any) => w.id)
+        // Aggregate all writing IDs from all categories AND direct relations
+        const fromCategories = (paketData.writingCategories || []).flatMap((cat: any) => 
+          (cat.writings || []).map((w: any) => w.id)
         );
-
+        const directIds = (paketData.writings || []).map((w: any) => w.id);
+        
+        const allWritingIds = [...fromCategories, ...directIds];
         const uniqueWritingIds = Array.from(new Set(allWritingIds));
-
-        const promises = uniqueWritingIds.map((wid: any) => 
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing/${wid}`)
-        );
-        const responses = await Promise.all(promises);
-        const itemsData = responses.map(res => res.data.data);
-        setWritings(itemsData);
+        
+        if (uniqueWritingIds.length > 0) {
+          const writingPromises = uniqueWritingIds.map((wid: any) => 
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing/${wid}`)
+          );
+          const responses = await Promise.all(writingPromises);
+          const itemsData = responses.map(res => res.data.data);
+          setWritings(itemsData);
+        } else {
+          setWritings([]); // No writings found
+        }
 
         // Set timer from the first category if available
         if (paketData.writingCategories?.[0]?.timer) {

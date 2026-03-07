@@ -107,9 +107,12 @@ export default function ListeningTestPage() {
         console.log('Full Paket Data:', paketData);
         setPaket(paketData);
 
-        const allListeningIds = paketData.listeningCategories.flatMap((cat: any) => 
+        const fromCategories = paketData.listeningCategories.flatMap((cat: any) => 
           (cat.listenings || []).map((l: any) => l.id)
         );
+        const directIds = (paketData.listenings || []).map((l: any) => l.id);
+        
+        const allListeningIds = [...fromCategories, ...directIds];
         console.log('All Listening IDs extracted:', allListeningIds);
 
         const uniqueListeningIds = Array.from(new Set(allListeningIds));

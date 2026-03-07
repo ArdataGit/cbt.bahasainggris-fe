@@ -98,10 +98,13 @@ export default function ReadingTestPage() {
         const paketData = paketRes.data.data;
         setPaket(paketData);
 
-        // Aggregate all reading IDs from all categories
-        const allReadingIds = paketData.readingCategories.flatMap((cat: any) => 
-          cat.readings.map((r: any) => r.id)
+        // Aggregate all reading IDs from all categories AND direct relations
+        const fromCategories = paketData.readingCategories.flatMap((cat: any) => 
+          (cat.readings || []).map((r: any) => r.id)
         );
+        const directIds = (paketData.readings || []).map((r: any) => r.id);
+        
+        const allReadingIds = [...fromCategories, ...directIds];
 
         // Remove duplicates if any
         const uniqueReadingIds = Array.from(new Set(allReadingIds));
