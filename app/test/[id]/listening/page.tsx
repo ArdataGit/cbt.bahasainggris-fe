@@ -221,7 +221,25 @@ export default function ListeningTestPage() {
     }
   };
 
-  const toggleAudio = () => {
+  const toggleCheckAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Check audio playback failed:", error);
+            alert("Gagal memutar suara cek. Mohon periksa koneksi internet atau pengaturan audio Anda.");
+          });
+        }
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const toggleListeningAudio = () => {
     if (audioRef.current && currentListening) {
       const currentCount = playCounts[currentListening.id] || 0;
       
@@ -233,7 +251,13 @@ export default function ListeningTestPage() {
         const isResuming = audioRef.current.currentTime > 0 && !audioRef.current.ended;
         
         if (currentCount < 2 || isResuming) {
-          audioRef.current.play();
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(error => {
+              console.error("Listening audio playback failed:", error);
+              alert("Gagal memutar audio. Mohon periksa kembali materi audio di dashboard.");
+            });
+          }
           setIsPlaying(true);
           
           // Increment count ONLY if starting from the very beginning (0)
@@ -294,13 +318,13 @@ export default function ListeningTestPage() {
             <div className="mb-12 flex flex-col items-center">
               <audio 
                 ref={audioRef} 
-                src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                src="https://www.soundjay.com/buttons/beep-01a.mp3"
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 className="hidden"
               />
               <button 
-                onClick={toggleAudio}
+                onClick={toggleCheckAudio}
                 className="w-24 h-24 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-200 transition-all hover:scale-105"
               >
                 {isPlaying ? (
@@ -483,7 +507,7 @@ export default function ListeningTestPage() {
                       className="hidden"
                     />
                     <button 
-                      onClick={toggleAudio}
+                      onClick={toggleListeningAudio}
                       className="bg-white hover:bg-slate-50 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center shadow-sm border border-blue-200 transition-all active:scale-95"
                     >
                       {isPlaying ? (
