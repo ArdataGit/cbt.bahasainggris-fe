@@ -42,6 +42,15 @@ function ScoreContent() {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/history/user?userDataId=${userDataId}`);
                 if (response.data.success) {
                     setHistory(response.data.data);
+                    
+                    // Send score email if not already sent
+                    if (!response.data.data.isEmailSent) {
+                        const scoreUrl = window.location.href;
+                        axios.post(`${process.env.NEXT_PUBLIC_API_URL}/history/send-email`, {
+                            userDataId,
+                            scoreUrl
+                        }).catch(err => console.error('Failed to send email:', err));
+                    }
                 }
             } catch (err: any) {
                 setError(err.message || 'Failed to load results');
