@@ -48,11 +48,27 @@ export default function SpeakingTestIntroPage() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
   useEffect(() => {
-    if (id) {
+    if (!id) return;
+
+    const checkAccess = async () => {
+      const userDataId = localStorage.getItem('userDataId');
+      const storedPaketId = localStorage.getItem('paketId');
+
+      if (!userDataId || storedPaketId !== String(id)) {
+        window.location.href = `/test/${id}`;
+        setIsAuthorized(false);
+        return;
+      }
+
+      setIsAuthorized(true);
       fetchData();
       fetchSettings();
-    }
+    };
+
+    checkAccess();
   }, [id]);
 
   const fetchSettings = async () => {

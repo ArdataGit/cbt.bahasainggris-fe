@@ -50,11 +50,27 @@ export default function ReadingTestPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [settings, setSettings] = useState<any>(null);
 
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
   useEffect(() => {
-    if (id) {
+    if (!id) return;
+
+    const checkAccess = async () => {
+      const userDataId = localStorage.getItem('userDataId');
+      const storedPaketId = localStorage.getItem('paketId');
+
+      if (!userDataId || storedPaketId !== String(id)) {
+        window.location.href = `/test/${id}`;
+        setIsAuthorized(false);
+        return;
+      }
+
+      setIsAuthorized(true);
       fetchData();
       fetchSettings();
-    }
+    };
+
+    checkAccess();
   }, [id]);
 
   const fetchSettings = async () => {
@@ -200,7 +216,7 @@ export default function ReadingTestPage() {
 
   const currentReading = readings[currentReadingIndex];
 
-  if (loading) {
+  if (!isAuthorized || loading) {
     return (
       <div className="min-h-screen bg-[#E3F2FD] flex items-center justify-center">
         <Loader2 className="animate-spin text-blue-600" size={48} />

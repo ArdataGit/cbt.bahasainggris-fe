@@ -106,6 +106,7 @@ export default function PaketIntroductionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleStartTest = async () => {
+    if (!id) return;
     if (validateForm()) {
       try {
         setIsSubmitting(true);
@@ -115,9 +116,10 @@ export default function PaketIntroductionPage() {
         });
         
         if (response.data.success) {
-          // Store the User ID for history tracking
+          // Store the User ID and Paket ID for history tracking and access control
           const userDataId = response.data.data.id;
           localStorage.setItem('userDataId', userDataId.toString());
+          localStorage.setItem('paketId', id.toString());
 
           // Determine the first available section based on priority: Reading > Listening > Writing > Speaking
           if (paket && paket.readingCategories && paket.readingCategories.length > 0) {

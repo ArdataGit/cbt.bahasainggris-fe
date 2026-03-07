@@ -36,6 +36,11 @@ function ScoreContent() {
             return;
         }
 
+        // Clear session data to allow a fresh start if user navigates back to test sections
+        localStorage.removeItem('userDataId');
+        localStorage.removeItem('paketId');
+        localStorage.removeItem(`testCompleted_${id}`);
+
         const fetchHistory = async () => {
             try {
                 setLoading(true);
@@ -43,6 +48,9 @@ function ScoreContent() {
                 if (response.data.success) {
                     setHistory(response.data.data);
                     
+                    // Mark test as completed to prevent going back to sections
+                    localStorage.setItem(`testCompleted_${id}`, 'true');
+
                     // Send score email if not already sent
                     if (!response.data.data.isEmailSent) {
                         const scoreUrl = window.location.href;
