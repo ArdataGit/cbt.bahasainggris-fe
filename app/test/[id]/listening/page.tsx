@@ -104,13 +104,16 @@ export default function ListeningTestPage() {
       const paketRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${id}`);
       if (paketRes.data.success) {
         const paketData = paketRes.data.data;
+        console.log('Full Paket Data:', paketData);
         setPaket(paketData);
 
         const allListeningIds = paketData.listeningCategories.flatMap((cat: any) => 
-          cat.listenings.map((l: any) => l.id)
+          (cat.listenings || []).map((l: any) => l.id)
         );
+        console.log('All Listening IDs extracted:', allListeningIds);
 
         const uniqueListeningIds = Array.from(new Set(allListeningIds));
+        console.log('Unique Listening IDs:', uniqueListeningIds);
 
         const promises = uniqueListeningIds.map((lid: any) => 
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening/${lid}`)
