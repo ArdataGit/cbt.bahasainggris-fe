@@ -222,20 +222,31 @@ export default function ListeningTestPage() {
   };
 
   const toggleCheckAudio = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const audioCtx = new AudioContext();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4 note
+      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 1.5);
+
+      setIsPlaying(true);
+      oscillator.onended = () => {
         setIsPlaying(false);
-      } else {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Check audio playback failed:", error);
-            alert("Gagal memutar suara cek. Mohon periksa koneksi internet atau pengaturan audio Anda.");
-          });
-        }
-        setIsPlaying(true);
-      }
+        audioCtx.close();
+      };
+    } catch (error) {
+      console.error("Check audio playback failed:", error);
+      alert("Gagal memutar suara cek. Browser Anda mungkin tidak mendukung audio. Coba gunakan Chrome atau Firefox.");
     }
   };
 
@@ -323,13 +334,6 @@ export default function ListeningTestPage() {
             <p className="text-xl text-slate-600 mb-12 font-medium">Please check your audio settings before you start.</p>
             
             <div className="mb-12 flex flex-col items-center">
-              <audio 
-                ref={audioRef} 
-                src="https://www.soundjay.com/buttons/beep-01a.mp3"
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                className="hidden"
-              />
               <button 
                 onClick={toggleCheckAudio}
                 className="w-24 h-24 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-200 transition-all hover:scale-105"
