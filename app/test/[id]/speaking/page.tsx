@@ -244,6 +244,17 @@ export default function SpeakingTestIntroPage() {
     setView('test');
   };
 
+  const handleTestSpeaker = () => {
+    const testAudio = document.getElementById('speaker-test-audio') as HTMLAudioElement;
+    if (testAudio) {
+      testAudio.currentTime = 0;
+      testAudio.play().catch(err => {
+        console.error("Speaker test failed:", err);
+        alert("Gagal memutar suara tes. Mohon periksa pengaturan speaker Anda.");
+      });
+    }
+  };
+
   const cleanupAudioAnalysis = () => {
       if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
@@ -781,10 +792,18 @@ export default function SpeakingTestIntroPage() {
       )}
 
       {/* Floating Action Button (Speaker) */}
-      <div className="absolute bottom-6 right-6">
-        <button className="bg-[#1877F2] hover:bg-[#166FE5] text-white p-4 rounded-full shadow-lg transition-transform hover:scale-105 flex items-center justify-center">
+      <div className="absolute bottom-6 right-6 z-50">
+        <button 
+          onClick={handleTestSpeaker}
+          className="bg-[#1877F2] hover:bg-[#166FE5] text-white p-4 rounded-full shadow-lg transition-transform hover:scale-105 flex items-center justify-center group relative"
+          title="Test Speaker"
+        >
           <Volume2 size={24} />
+          <span className="absolute right-full mr-3 bg-slate-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Test Speaker
+          </span>
         </button>
+        <audio id="speaker-test-audio" src="https://www.soundjay.com/buttons/beep-01a.mp3" className="hidden" />
       </div>
       
       <style jsx global>{`
