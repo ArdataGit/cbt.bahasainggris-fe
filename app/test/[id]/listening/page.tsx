@@ -56,12 +56,25 @@ export default function ListeningTestPage() {
   // Audio state
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
       fetchData();
+      fetchSettings();
     }
   }, [id]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success) {
+        setSettings(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   useEffect(() => {
     document.getElementById('audio-container')?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -237,10 +250,14 @@ export default function ListeningTestPage() {
         </div>
 
         <header className="relative z-10 w-full h-20 bg-white border-b flex items-center justify-center shadow-sm">
-           <div className="flex items-center gap-0.5">
-            <span className="text-3xl font-black italic text-slate-800 tracking-tighter">CBT</span>
-            <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
-          </div>
+          {settings?.logoUrl ? (
+            <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+          ) : (
+            <div className="flex items-center gap-0.5">
+              <span className="text-3xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+              <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
+            </div>
+          )}
         </header>
 
         <main className="relative z-10 flex-grow flex items-center justify-center p-6">
@@ -343,19 +360,26 @@ export default function ListeningTestPage() {
               <h3 className="text-slate-800 font-medium text-lg">Listening</h3>
               <p className="text-slate-900 font-bold text-xl">{Math.floor(timeLeft / 60)} mins</p>
             </div>
-            <div className="p-10">
-              <ul className="space-y-6">
-                {[
-                  "Listen carefully as some recordings may only play a limited number of times.",
-                  "Make sure you can hear the audio clearly throughout the test.",
-                  "Once you submit a task, you cannot go back."
-                ].map((text, i) => (
-                  <li key={i} className="flex items-start gap-4">
-                    <div className="mt-2 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
-                    <p className="text-[16px] leading-relaxed text-slate-800">{text}</p>
-                  </li>
-                ))}
-              </ul>
+            <div className="p-10 flex-grow">
+              {settings?.listeningInstructions ? (
+                <div 
+                  className="prose prose-slate max-w-none text-[16px] leading-relaxed text-slate-800"
+                  dangerouslySetInnerHTML={{ __html: settings.listeningInstructions }}
+                />
+              ) : (
+                <ul className="space-y-6">
+                  {[
+                    "Listen carefully as some recordings may only play a limited number of times.",
+                    "Make sure you can hear the audio clearly throughout the test.",
+                    "Once you submit a task, you cannot go back."
+                  ].map((text, i) => (
+                    <li key={i} className="flex items-start gap-4">
+                      <div className="mt-2 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
+                      <p className="text-[16px] leading-relaxed text-slate-800">{text}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="px-10 pb-12 flex justify-center">
               <button 
@@ -375,10 +399,14 @@ export default function ListeningTestPage() {
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col font-sans">
       <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
-        <div className="flex items-center gap-0.5">
-          <span className="text-2xl font-black italic text-slate-800 tracking-tighter">CBT</span>
-          <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
-        </div>
+        {settings?.logoUrl ? (
+          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+        ) : (
+          <div className="flex items-center gap-0.5">
+            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+          </div>
+        )}
       </header>
 
       <div className="h-14 border-b flex items-center px-8 gap-6 bg-white z-20">

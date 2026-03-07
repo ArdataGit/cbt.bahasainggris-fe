@@ -36,12 +36,25 @@ export default function WritingTestPage() {
   const [timeLeft, setTimeLeft] = useState(35 * 60);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
       fetchData();
+      fetchSettings();
     }
   }, [id]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success) {
+        setSettings(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   useEffect(() => {
     document.getElementById('prompt-container')?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -193,10 +206,14 @@ export default function WritingTestPage() {
         </div>
 
         <header className="relative z-10 w-full h-20 bg-white border-b flex items-center justify-center shadow-sm">
-           <div className="flex items-center gap-0.5">
-            <span className="text-3xl font-black italic text-slate-800 tracking-tighter">EF</span>
-            <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">SET</span>
-          </div>
+          {settings?.logoUrl ? (
+            <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+          ) : (
+            <div className="flex items-center gap-0.5">
+              <span className="text-3xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+              <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
+            </div>
+          )}
         </header>
 
         <main className="relative z-10 flex-grow flex items-center justify-center p-6">
@@ -214,20 +231,27 @@ export default function WritingTestPage() {
               <p className="text-slate-900 font-black text-3xl tracking-tight">{Math.floor(timeLeft / 60)} mins</p>
             </div>
 
-            <div className="p-16">
-              <ul className="space-y-8">
-                {[
-                  `You will see ${writings.length} prompt${writings.length > 1 ? 's' : ''} in this section. The prompts are not all the same difficulty. Pace yourself so that you have time to answer all the prompts.`,
-                  "You can use any standard English spelling (UK, US, etc.).",
-                  "You do not have to answer the prompts truthfully. If you find a question too personal or don't have any relevant experience, feel free to make up a fictitious answer.",
-                  "Your score will include the complexity of vocabulary and linguistic structures used. Submitting shorter answers than the target length or using simple language may result in a lower score."
-                ].map((text, i) => (
-                  <li key={i} className="flex items-start gap-6">
-                    <div className="mt-2.5 w-2 h-2 rounded-full bg-slate-900 shrink-0"></div>
-                    <p className="text-[18px] leading-relaxed text-slate-800 font-medium">{text}</p>
-                  </li>
-                ))}
-              </ul>
+            <div className="p-16 flex-grow">
+              {settings?.writingInstructions ? (
+                <div 
+                  className="prose prose-slate max-w-none text-[18px] leading-relaxed text-slate-800 font-medium"
+                  dangerouslySetInnerHTML={{ __html: settings.writingInstructions }}
+                />
+              ) : (
+                <ul className="space-y-8">
+                  {[
+                    `You will see ${writings.length} prompt${writings.length > 1 ? 's' : ''} in this section. The prompts are not all the same difficulty. Pace yourself so that you have time to answer all the prompts.`,
+                    "You can use any standard English spelling (UK, US, etc.).",
+                    "You do not have to answer the prompts truthfully. If you find a question too personal or don't have any relevant experience, feel free to make up a fictitious answer.",
+                    "Your score will include the complexity of vocabulary and linguistic structures used. Submitting shorter answers than the target length or using simple language may result in a lower score."
+                  ].map((text, i) => (
+                    <li key={i} className="flex items-start gap-6">
+                      <div className="mt-2.5 w-2 h-2 rounded-full bg-slate-900 shrink-0"></div>
+                      <p className="text-[18px] leading-relaxed text-slate-800 font-medium">{text}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div className="px-16 pb-16 flex justify-center">
@@ -249,16 +273,23 @@ export default function WritingTestPage() {
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col font-sans">
       <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
-        <div className="flex items-center gap-0.5">
-          <span className="text-2xl font-black italic text-slate-800 tracking-tighter">EF</span>
-          <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">SET</span>
-        </div>
+        {settings?.logoUrl ? (
+          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+        ) : (
+          <div className="flex items-center gap-0.5">
+            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+          </div>
+        )}
       </header>
 
       <div className="h-14 border-b flex items-center px-8 gap-6 bg-white z-20">
         <div className="flex items-center gap-2 text-slate-600">
           <PenTool size={20} />
           <span className="font-semibold text-sm mr-4 uppercase tracking-wider">Writing</span>
+          <div className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-blue-100">
+            Task {currentWritingIndex + 1} of {writings.length}
+          </div>
         </div>
         
         <div className="flex-grow bg-slate-100 h-1.5 rounded-full relative overflow-hidden">

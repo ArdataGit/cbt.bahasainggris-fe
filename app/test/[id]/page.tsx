@@ -43,11 +43,25 @@ export default function PaketIntroductionPage() {
   
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
 
+  const [settings, setSettings] = useState<any>(null);
+
   useEffect(() => {
     if (id) {
       fetchPaketDetails();
+      fetchSettings();
     }
   }, [id]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success) {
+        setSettings(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   const fetchPaketDetails = async () => {
     try {
@@ -171,10 +185,14 @@ export default function PaketIntroductionPage() {
 
       {/* Top Logo Bar */}
       <div className="absolute top-0 w-full h-16 bg-white border-b border-slate-100 flex items-center justify-center shadow-sm">
-        <div className="flex items-center gap-1">
-          <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
-          <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
-        </div>
+        {settings?.logoUrl ? (
+          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+        ) : (
+          <div className="flex items-center gap-1">
+            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+          </div>
+        )}
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen pt-24 pb-12 px-4">
@@ -235,27 +253,34 @@ export default function PaketIntroductionPage() {
               </div>
             </div>
 
-            <div className="p-10 flex-grow">
-              <ul className="space-y-6">
-                <li className="flex items-start gap-4">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
-                  <p className="text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight">
-                    Pastikan Anda memiliki waktu yang cukup untuk menyelesaikan seluruh tes sebelum memulai. Setelah Anda memulai tes, Anda tidak dapat memberhentikan waktu atau memulai ulang tes. Anda dapat beristirahat sejenak di antara bagian tes jika diperlukan. Istirahat ini juga dibatasi waktunya.
-                  </p>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
-                  <p className="text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight">
-                    Anda hanya dapat mengikuti tes satu kali. Anda tidak dapat mengulang tes untuk berlatih.
-                  </p>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
-                  <p className="text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight">
-                    Anda tidak akan kehilangan poin untuk jawaban yang salah atau melewatkan pertanyaan yang tidak Anda pahami.
-                  </p>
-                </li>
-              </ul>
+            <div className="p-10 flex-grow overflow-y-auto custom-scrollbar">
+              {settings?.testInstructions ? (
+                <div 
+                  className="prose prose-slate max-w-none text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight"
+                  dangerouslySetInnerHTML={{ __html: settings.testInstructions }}
+                />
+              ) : (
+                <ul className="space-y-6">
+                  <li className="flex items-start gap-4">
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
+                    <p className="text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight">
+                      Pastikan Anda memiliki waktu yang cukup untuk menyelesaikan seluruh tes sebelum memulai. Setelah Anda memulai tes, Anda tidak dapat memberhentikan waktu atau memulai ulang tes. Anda dapat beristirahat sejenak di antara bagian tes jika diperlukan. Istirahat ini juga dibatasi waktunya.
+                    </p>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
+                    <p className="text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight">
+                      Anda hanya dapat mengikuti tes satu kali. Anda tidak dapat mengulang tes untuk berlatih.
+                    </p>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
+                    <p className="text-[15px] leading-relaxed text-slate-800 font-medium tracking-tight">
+                      Anda tidak akan kehilangan poin untuk jawaban yang salah atau melewatkan pertanyaan yang tidak Anda pahami.
+                    </p>
+                  </li>
+                </ul>
+              )}
             </div>
 
             <div className="px-10 pb-12 flex justify-center">

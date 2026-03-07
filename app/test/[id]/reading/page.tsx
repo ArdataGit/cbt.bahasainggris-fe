@@ -48,12 +48,25 @@ export default function ReadingTestPage() {
   const [error, setError] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(25 * 60); // Default 25 minutes in seconds
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
       fetchData();
+      fetchSettings();
     }
   }, [id]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success) {
+        setSettings(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   useEffect(() => {
     document.getElementById('passage-container')?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -225,10 +238,14 @@ export default function ReadingTestPage() {
         </div>
 
         <header className="relative z-10 w-full h-16 bg-white border-b flex items-center justify-center shadow-sm">
-          <div className="flex items-center gap-0.5">
-            <span className="text-2xl font-black italic text-slate-800">COBA</span>
-            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
-          </div>
+          {settings?.logoUrl ? (
+            <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+          ) : (
+            <div className="flex items-center gap-0.5">
+              <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+              <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+            </div>
+          )}
         </header>
 
         <main className="relative z-10 flex-grow flex items-center justify-center p-4">
@@ -242,19 +259,26 @@ export default function ReadingTestPage() {
               <h3 className="text-slate-800 font-medium text-lg">Reading</h3>
               <p className="text-slate-900 font-bold text-xl">{Math.floor(timeLeft / 60)} mins</p>
             </div>
-            <div className="p-10">
-              <ul className="space-y-6">
-                {[
-                  "The questions in this test may get harder or easier to adapt to your level. Use the progress bar so that you have time to answer all the questions",
-                  "You will not lose points for incorrect answers.",
-                  "Once you submit a task, you cannot go back."
-                ].map((text, i) => (
-                  <li key={i} className="flex items-start gap-4">
-                    <div className="mt-2 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
-                    <p className="text-[16px] leading-relaxed text-slate-800">{text}</p>
-                  </li>
-                ))}
-              </ul>
+            <div className="p-10 flex-grow">
+              {settings?.readingInstructions ? (
+                <div 
+                  className="prose prose-slate max-w-none text-[16px] leading-relaxed text-slate-800"
+                  dangerouslySetInnerHTML={{ __html: settings.readingInstructions }}
+                />
+              ) : (
+                <ul className="space-y-6">
+                  {[
+                    "The questions in this test may get harder or easier to adapt to your level. Use the progress bar so that you have time to answer all the questions",
+                    "You will not lose points for incorrect answers.",
+                    "Once you submit a task, you cannot go back."
+                  ].map((text, i) => (
+                    <li key={i} className="flex items-start gap-4">
+                      <div className="mt-2 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
+                      <p className="text-[16px] leading-relaxed text-slate-800">{text}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="px-10 pb-12 flex justify-center">
               <button 
@@ -274,10 +298,14 @@ export default function ReadingTestPage() {
     <div className="h-screen overflow-hidden bg-white flex flex-col font-sans">
       {/* Test Header */}
       <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
-        <div className="flex items-center gap-0.5">
-          <span className="text-2xl font-black italic text-slate-800">COBA</span>
-          <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
-        </div>
+        {settings?.logoUrl ? (
+          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+        ) : (
+          <div className="flex items-center gap-0.5">
+            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+          </div>
+        )}
       </header>
 
       {/* Control Bar */}

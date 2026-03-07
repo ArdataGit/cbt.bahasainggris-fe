@@ -22,6 +22,7 @@ export default function SpeakingTestIntroPage() {
   const [paket, setPaket] = useState<Paket | null>(null);
   const [totalTimer, setTotalTimer] = useState(15); // Default 15 mins
   const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [settings, setSettings] = useState<any>(null);
 
   const [speakings, setSpeakings] = useState<any[]>([]);
   const [currentSpeakingIndex, setCurrentSpeakingIndex] = useState(0);
@@ -50,8 +51,20 @@ export default function SpeakingTestIntroPage() {
   useEffect(() => {
     if (id) {
       fetchData();
+      fetchSettings();
     }
   }, [id]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success) {
+        setSettings(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   useEffect(() => {
     if (view === 'test' && speakings.length > 0 && audioState === 'idle') {
@@ -396,11 +409,15 @@ export default function SpeakingTestIntroPage() {
 
       {/* Header */}
       <header className="relative z-10 w-full bg-white border-t-[3px] border-blue-600 shadow-[0_2px_10px_rgba(0,0,0,0.05)] h-16 flex items-center justify-center">
-        <div className="flex items-center">
-          {/* Mock EF SET Logo or COBA TEST */}
-          <span className="text-2xl font-black italic tracking-tighter text-[#2D3748]">COBA</span>
-          <span className="text-2xl font-light tracking-[0.2em] text-[#A0AEC0] ml-1">TEST</span>
-        </div>
+        {settings?.logoUrl ? (
+          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+        ) : (
+          <div className="flex items-center">
+            {/* Mock EF SET Logo or COBA TEST */}
+            <span className="text-2xl font-black italic tracking-tighter text-[#2D3748]">COBA</span>
+            <span className="text-2xl font-light tracking-[0.2em] text-[#A0AEC0] ml-1">TEST</span>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -434,26 +451,33 @@ export default function SpeakingTestIntroPage() {
 
             {/* Bottom Instructions Section */}
             <div className="p-12 pb-14 bg-white flex flex-col items-center">
-              <ul className="space-y-6 max-w-xl self-center w-full px-4 mb-14">
-                <li className="flex items-start gap-4">
-                  <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#2D3748] shrink-0"></div>
-                  <p className="text-[15px] leading-[1.6] text-[#2D3748] font-medium">
-                    On the next screen, you will be asked to authorize your microphone. We need access to your microphone to record your answers.
-                  </p>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#2D3748] shrink-0"></div>
-                  <p className="text-[15px] leading-[1.6] text-[#2D3748] font-medium">
-                    Make sure you are in a quiet place so your recordings are clear. Use the practice question to check your recording levels.
-                  </p>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#2D3748] shrink-0"></div>
-                  <p className="text-[15px] leading-[1.6] text-[#2D3748] font-medium">
-                    Once you submit a recording, you cannot go back.
-                  </p>
-                </li>
-              </ul>
+              {settings?.speakingInstructions ? (
+                <div 
+                  className="prose prose-slate max-w-none text-[15px] leading-[1.6] text-[#2D3748] font-medium"
+                  dangerouslySetInnerHTML={{ __html: settings.speakingInstructions }}
+                />
+              ) : (
+                <ul className="space-y-6 max-w-xl self-center w-full px-4 mb-14">
+                  <li className="flex items-start gap-4">
+                    <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#2D3748] shrink-0"></div>
+                    <p className="text-[15px] leading-[1.6] text-[#2D3748] font-medium">
+                      On the next screen, you will be asked to authorize your microphone. We need access to your microphone to record your answers.
+                    </p>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#2D3748] shrink-0"></div>
+                    <p className="text-[15px] leading-[1.6] text-[#2D3748] font-medium">
+                      Make sure you are in a quiet place so your recordings are clear. Use the practice question to check your recording levels.
+                    </p>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-[#2D3748] shrink-0"></div>
+                    <p className="text-[15px] leading-[1.6] text-[#2D3748] font-medium">
+                      Once you submit a recording, you cannot go back.
+                    </p>
+                  </li>
+                </ul>
+              )}
 
               <button 
                 onClick={handleStart}
