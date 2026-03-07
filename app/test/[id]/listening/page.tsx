@@ -247,10 +247,15 @@ export default function ListeningTestPage() {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        // Allow playing if we haven't reached the limit OR if we're just resuming
-        const isResuming = audioRef.current.currentTime > 0 && !audioRef.current.ended;
-        
-        if (currentCount < 2 || isResuming) {
+        // Check if the user is resuming a paused audio (currentTime > 0 means it was started before)
+        const isStartingFresh = audioRef.current.currentTime === 0 || audioRef.current.ended;
+
+        // Allow: resuming a paused audio (always), OR starting fresh if count < 2
+        if (!isStartingFresh || currentCount < 2) {
+          // Reset time if it has ended, so it plays from start
+          if (audioRef.current.ended) {
+            audioRef.current.currentTime = 0;
+          }
           const playPromise = audioRef.current.play();
           if (playPromise !== undefined) {
             playPromise.catch(error => {
@@ -259,18 +264,20 @@ export default function ListeningTestPage() {
             });
           }
           setIsPlaying(true);
-          
-          // Increment count ONLY if starting from the very beginning (0)
-          if (audioRef.current.currentTime === 0) {
-            setPlayCounts(prev => ({
-              ...prev,
-              [currentListening.id]: currentCount + 1
-            }));
-          }
         } else {
           alert('You have reached the maximum of 2 plays for this audio.');
         }
       }
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsPlaying(false);
+    if (currentListening) {
+      setPlayCounts(prev => ({
+        ...prev,
+        [currentListening.id]: (prev[currentListening.id] || 0) + 1
+      }));
     }
   };
 
@@ -504,6 +511,7 @@ export default function ListeningTestPage() {
                       src={`${process.env.NEXT_PUBLIC_API_URL}${currentListening.audioUrl}`}
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
+                      onEnded={handleAudioEnded}
                       className="hidden"
                     />
                     <button 
