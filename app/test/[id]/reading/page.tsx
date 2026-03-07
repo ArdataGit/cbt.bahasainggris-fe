@@ -270,7 +270,7 @@ export default function ReadingTestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="h-screen overflow-hidden bg-white flex flex-col font-sans">
       {/* Test Header */}
       <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
         <div className="flex items-center gap-0.5">
