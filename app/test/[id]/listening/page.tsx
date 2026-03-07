@@ -117,6 +117,10 @@ export default function ListeningTestPage() {
         );
         const responses = await Promise.all(promises);
         const itemsData = responses.map(res => res.data.data);
+        console.log('Fetched Listenings:', itemsData);
+        itemsData.forEach((item, index) => {
+          console.log(`Listening ${index} audioUrl:`, item.audioUrl);
+        });
         setListenings(itemsData);
 
         if (itemsData.length > 0 && itemsData[0].categories?.[0]?.timer) {
