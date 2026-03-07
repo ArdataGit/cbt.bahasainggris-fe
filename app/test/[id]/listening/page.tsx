@@ -8,6 +8,7 @@ import axios from 'axios';
 interface Option {
   id: number;
   text: string;
+  imageUrl?: string;
   isCorrect: boolean;
 }
 
@@ -484,25 +485,37 @@ export default function ListeningTestPage() {
                   {soal.options?.map((option) => (
                     <label 
                       key={option.id}
-                      className={`block w-full p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-4 ${
+                      className={`block w-full p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-4 ${
                         answers[soal.id] === option.id 
                         ? 'border-blue-500 bg-blue-50/50 shadow-sm' 
                         : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
                       }`}
                     >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        answers[soal.id] === option.id ? 'border-blue-500' : 'border-slate-300'
-                      }`}>
-                        {answers[soal.id] === option.id && <div className="w-3 h-3 rounded-full bg-blue-500"></div>}
+                      <div className="flex items-center gap-4">
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          answers[soal.id] === option.id ? 'border-blue-500' : 'border-slate-300'
+                        }`}>
+                          {answers[soal.id] === option.id && <div className="w-3 h-3 rounded-full bg-blue-500"></div>}
+                        </div>
+                        <input 
+                          type="radio" 
+                          name={`q-${soal.id}`} 
+                          className="hidden"
+                          checked={answers[soal.id] === option.id}
+                          onChange={() => setAnswers(prev => ({ ...prev, [soal.id]: option.id }))}
+                        />
+                        <span className="text-slate-700 font-medium">{option.text}</span>
                       </div>
-                      <input 
-                        type="radio" 
-                        name={`q-${soal.id}`} 
-                        className="hidden"
-                        checked={answers[soal.id] === option.id}
-                        onChange={() => setAnswers(prev => ({ ...prev, [soal.id]: option.id }))}
-                      />
-                      <span className="text-slate-700 font-medium">{option.text}</span>
+
+                      {option.imageUrl && (
+                        <div className="pl-10">
+                          <img 
+                            src={option.imageUrl} 
+                            alt="Option visual" 
+                            className="max-w-full h-auto rounded-lg border border-slate-100 shadow-sm max-h-48 object-contain"
+                          />
+                        </div>
+                      )}
                     </label>
                   ))}
                 </div>

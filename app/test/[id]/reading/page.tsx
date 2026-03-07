@@ -8,6 +8,7 @@ import axios from 'axios';
 interface Option {
   id: number;
   text: string;
+  imageUrl?: string;
   isCorrect: boolean;
 }
 
@@ -324,16 +325,17 @@ export default function ReadingTestPage() {
                 <h3 className="text-lg font-bold text-slate-900 mb-6 leading-snug">
                   {soal.question}
                 </h3>
-                <div className="space-y-3">
-                  {soal.options?.map((option) => (
-                    <label 
-                      key={option.id}
-                      className={`block w-full p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-4 ${
-                        answers[soal.id] === option.id 
-                        ? 'border-blue-500 bg-blue-50/50 shadow-sm' 
-                        : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
-                      }`}
-                    >
+              <div className="space-y-3">
+                {soal.options?.map((option) => (
+                  <label 
+                    key={option.id}
+                    className={`block w-full p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-4 ${
+                      answers[soal.id] === option.id 
+                      ? 'border-blue-500 bg-blue-50/50 shadow-sm' 
+                      : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         answers[soal.id] === option.id ? 'border-blue-500' : 'border-slate-300'
                       }`}>
@@ -347,9 +349,20 @@ export default function ReadingTestPage() {
                         onChange={() => setAnswers(prev => ({ ...prev, [soal.id]: option.id }))}
                       />
                       <span className="text-slate-700 font-medium">{option.text}</span>
-                    </label>
-                  ))}
-                </div>
+                    </div>
+
+                    {option.imageUrl && (
+                      <div className="pl-10">
+                        <img 
+                          src={option.imageUrl} 
+                          alt="Option visual" 
+                          className="max-w-full h-auto rounded-lg border border-slate-100 shadow-sm max-h-48 object-contain"
+                        />
+                      </div>
+                    )}
+                  </label>
+                ))}
+              </div>
               </div>
             ))}
           </div>

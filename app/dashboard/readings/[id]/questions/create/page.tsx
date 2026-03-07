@@ -11,14 +11,15 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
   const { id: readingId } = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     readingId: readingId,
     question: '',
     options: [
-      { text: '', isCorrect: true },
-      { text: '', isCorrect: false },
-      { text: '', isCorrect: false },
-      { text: '', isCorrect: false },
+      { text: '', isCorrect: true, imageUrl: '' },
+      { text: '', isCorrect: false, imageUrl: '' },
+      { text: '', isCorrect: false, imageUrl: '' },
+      { text: '', isCorrect: false, imageUrl: '' },
     ]
   });
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,41 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
     setFormData({ ...formData, options: newOptions });
   };
 
+  const handleImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingIndex(index);
+    setError(null);
+
+    const formDataUpload = new FormData();
+    formDataUpload.append('image', file);
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload`, formDataUpload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (response.data.success) {
+        const newOptions = [...formData.options];
+        newOptions[index].imageUrl = response.data.data.url;
+        setFormData({ ...formData, options: newOptions });
+      } else {
+        throw new Error(response.data.message || 'Failed to upload image.');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Upload failed.');
+    } finally {
+      setUploadingIndex(null);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newOptions = [...formData.options];
+    newOptions[index].imageUrl = '';
+    setFormData({ ...formData, options: newOptions });
+  };
+
   const handleCorrectAnswerChange = (index: number) => {
     const newOptions = formData.options.map((opt, i) => ({
       ...opt,
@@ -44,7 +80,7 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
   const addOption = () => {
     setFormData({
       ...formData,
-      options: [...formData.options, { text: '', isCorrect: false }]
+      options: [...formData.options, { text: '', isCorrect: false, imageUrl: '' }]
     });
   };
 
@@ -63,8 +99,9 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
     setLoading(true);
     setError(null);
 
-    if (formData.options.some(opt => !opt.text.trim())) {
-      setError('Please fill in all options.');
+    // Validation: Require either text or image
+    if (formData.options.some(opt => !opt.text.trim() && !opt.imageUrl)) {
+      setError('Each option must have either text or an image.');
       setLoading(false);
       return;
     }
@@ -153,9 +190,9 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {formData.options.map((opt, index) => (
-                  <div key={index} className="flex gap-3 items-start group">
+                  <div key={index} className="flex gap-4 items-start group p-4 border border-gray-100 rounded-xl hover:bg-gray-50/50 transition-all">
                     <div className="mt-2.5">
                       <input
                         type="radio"
@@ -166,25 +203,68 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
                         title="Mark as correct answer"
                       />
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="relative">
-                        <span className="absolute left-3 top-3 text-xs font-bold text-gray-400">
-                          {String.fromCharCode(65 + index)}
-                        </span>
-                        <input
-                          type="text"
-                          value={opt.text}
-                          onChange={(e) => handleOptionChange(index, e.target.value)}
-                          required
-                          className={`w-full pl-8 pr-4 py-2.5 rounded-lg border transition-all outline-none bg-white ${
-                            opt.isCorrect 
-                              ? 'border-green-500 ring-2 ring-green-100' 
-                              : 'border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500'
-                          }`}
-                          placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                        />
+                    
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-3">
+                         <span className="text-xs font-bold text-gray-400">
+                            {String.fromCharCode(65 + index)}
+                         </span>
+                         <input
+                           type="text"
+                           value={opt.text}
+                           onChange={(e) => handleOptionChange(index, e.target.value)}
+                           className={`flex-1 px-4 py-2 rounded-lg border transition-all outline-none bg-white ${
+                             opt.isCorrect 
+                               ? 'border-green-500 ring-2 ring-green-100' 
+                               : 'border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500'
+                           }`}
+                           placeholder={`Option ${String.fromCharCode(65 + index)} Text`}
+                         />
+                      </div>
+
+                      {/* Image Preview / Upload Section */}
+                      <div className="pl-7">
+                        {opt.imageUrl ? (
+                          <div className="relative inline-block group/img">
+                            <img 
+                              src={opt.imageUrl} 
+                              alt={`Option ${index} Preview`} 
+                              className="w-32 h-32 object-cover rounded-lg border border-gray-200 shadow-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-md opacity-0 group-hover/img:opacity-100 transition-opacity"
+                              title="Remove image"
+                            >
+                              <Plus size={14} className="rotate-45" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-4">
+                            <label className="cursor-pointer">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(index, e)}
+                                className="hidden"
+                                disabled={uploadingIndex === index}
+                              />
+                              <div className={`px-4 py-2 border-2 border-dashed border-gray-200 rounded-lg text-xs font-medium text-gray-500 hover:border-blue-400 hover:text-blue-500 transition-all flex items-center gap-2 ${uploadingIndex === index ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                {uploadingIndex === index ? (
+                                  <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                  <Plus size={12} />
+                                )}
+                                {uploadingIndex === index ? 'Uploading...' : 'Add Image'}
+                              </div>
+                            </label>
+                            <p className="text-[10px] text-gray-400">Optional: Upload an image for this option</p>
+                          </div>
+                        )}
                       </div>
                     </div>
+
                     <button
                       type="button"
                       onClick={() => removeOption(index)}
@@ -198,7 +278,7 @@ export default function CreateQuestionPage({ params }: { params: Promise<{ id: s
                 ))}
               </div>
               <p className="text-xs text-gray-500 italic">
-                * Click the radio button next to an option to mark it as the correct answer.
+                * Click the radio button next to an option to mark it as the correct answer. Each option must have text, an image, or both.
               </p>
             </div>
           </div>
