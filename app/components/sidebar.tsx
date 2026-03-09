@@ -29,6 +29,12 @@ const sidebarItems = [
   { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian', adminOnly: true },
   { icon: Package, label: 'Landing Page Pakets', href: '/dashboard/landing-pakets', adminOnly: true },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings', adminOnly: true },
+
+
+
+
+  { icon: Users, label: 'Paket Latihan', href: '/dashboard/paket-latihan-user', userOnly: true },
+  { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian-user', userOnly: true },
 ];
 
 export default function Sidebar() {
@@ -49,7 +55,12 @@ export default function Sidebar() {
   }, []);
 
   const filteredItems = sidebarItems.filter(item => {
-    if (item.adminOnly && userRole !== 'admin') {
+    // Hide admin-only items from non-admins
+    if ((item as any).adminOnly && userRole !== 'admin') {
+      return false;
+    }
+    // Hide user-only items from admins
+    if ((item as any).userOnly && userRole === 'admin') {
       return false;
     }
     return true;
