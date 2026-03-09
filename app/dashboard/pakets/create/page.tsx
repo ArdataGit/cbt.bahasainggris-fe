@@ -24,6 +24,7 @@ export default function CreatePaketPage() {
     listeningCategoryIds: [] as number[],
     writingCategoryIds: [] as number[],
     speakingCategoryIds: [] as number[],
+    isFree: false,
   });
   
   const [paketCategories, setPaketCategories] = useState<Category[]>([]);
@@ -64,7 +65,13 @@ export default function CreatePaketPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData({ ...formData, [name]: checked });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,6 +89,7 @@ export default function CreatePaketPage() {
         listeningCategoryIds: formData.listeningCategoryIds,
         writingCategoryIds: formData.writingCategoryIds,
         speakingCategoryIds: formData.speakingCategoryIds,
+        isFree: formData.isFree,
       };
 
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pakets`, payload);
@@ -276,6 +284,23 @@ export default function CreatePaketPage() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-lg font-medium"
                 placeholder="e.g., TOEFL Simulation Test 1..."
               />
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-lg border border-amber-100">
+               <input
+                type="checkbox"
+                id="isFree"
+                name="isFree"
+                checked={formData.isFree}
+                onChange={handleChange}
+                className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+              />
+              <div>
+                <label htmlFor="isFree" className="block text-sm font-bold text-amber-900 cursor-pointer">
+                  Mark as Free Package
+                </label>
+                <p className="text-xs text-amber-700">Free packages will be displayed in the "Gratis" section on the landing page.</p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

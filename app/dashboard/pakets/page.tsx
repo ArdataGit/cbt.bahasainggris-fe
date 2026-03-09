@@ -12,6 +12,7 @@ interface Paket {
   description: string | null;
   paketCategory: { categoryName: string } | null;
   subPaketCategory: { subCategoryName: string } | null;
+  isFree: boolean;
   createdAt: string;
   _count: {
     readingCategories: number;
@@ -174,6 +175,11 @@ export default function PaketListPage() {
                               {item.subPaketCategory && (
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-100">
                                   {item.subPaketCategory.subCategoryName}
+                                </span>
+                              )}
+                              {item.isFree && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100 uppercase">
+                                  Free
                                 </span>
                               )}
                             </div>

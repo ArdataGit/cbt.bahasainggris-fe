@@ -26,6 +26,7 @@ const sidebarItems = [
   { icon: Package, label: 'Paket Category Master', href: '/dashboard/paket-category', adminOnly: true },
   { icon: Package, label: 'Sub Paket Category Master', href: '/dashboard/sub-paket-category', adminOnly: true },
   { icon: Users, label: 'History', href: '/dashboard/history', adminOnly: true },
+  { icon: Package, label: 'Landing Page Pakets', href: '/dashboard/landing-pakets', adminOnly: true },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings', adminOnly: true },
 ];
 
