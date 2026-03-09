@@ -26,6 +26,8 @@ interface PaketPembelian {
   name: string;
   price: number;
   label: string;
+  description: string | null;
+  duration: number;
   pakets: Paket[];
   createdAt: string;
 }
@@ -124,6 +126,7 @@ export default function PaketPembelianListPage() {
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Info Paket</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Label</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Harga</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Masa Aktif</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Isi Paket</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Aksi</th>
               </tr>
@@ -168,8 +171,11 @@ export default function PaketPembelianListPage() {
                         {item.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-gray-900">{formatPrice(item.price)}</span>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-bold text-gray-900">{formatPrice(item.price)}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-600 italic">{item.duration} Hari</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1 max-w-md">

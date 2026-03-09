@@ -32,6 +32,8 @@ export default function CreatePaketPembelianPage() {
     name: '',
     price: '',
     label: 'FREE',
+    description: '',
+    duration: '0',
     paketIds: [] as number[],
   });
   const [error, setError] = useState<string | null>(null);
@@ -174,6 +176,40 @@ export default function CreatePaketPembelianPage() {
                 <option value="PREMIUM">PREMIUM</option>
                 <option value="VIP">VIP</option>
               </select>
+            </div>
+
+            <div>
+              <label htmlFor="duration" className="block text-sm font-bold text-gray-700 mb-2">
+                Masa Aktif (Hari)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="duration"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-black"
+                  placeholder="0"
+                  required
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Hari</div>
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label htmlFor="description" className="block text-sm font-bold text-gray-700 mb-2">
+                Deskripsi Paket
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-black"
+                placeholder="Jelaskan apa saja keunggulan paket ini..."
+              />
             </div>
           </div>
 

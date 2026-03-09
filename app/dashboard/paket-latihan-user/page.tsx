@@ -13,10 +13,25 @@ import {
   Headphones, 
   PenTool, 
   Mic,
-  Plus
+  Plus,
+  CheckCircle2,
+  X,
+  AlertTriangle,
+  ShoppingCart,
+  CreditCard
 } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
+
+interface PaketPembelian {
+  id: number;
+  name: string;
+  price: number;
+  label: string;
+  description: string | null;
+  duration: number;
+  pakets: { id: number; name: string }[];
+}
 
 interface Paket {
   id: number;
@@ -24,6 +39,7 @@ interface Paket {
   description: string | null;
   createdAt: string;
   isFree: boolean;
+  paketPembelians: PaketPembelian[];
   _count: {
     readingCategories: number;
     listeningCategories: number;
@@ -38,9 +54,36 @@ export default function UserPracticeListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  const [selectedBundle, setSelectedBundle] = useState<PaketPembelian | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     fetchPakets();
   }, []);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  const handleMulaiClick = (e: React.MouseEvent, item: Paket) => {
+    if (!item.isFree) {
+      e.preventDefault();
+      if (item.paketPembelians && item.paketPembelians.length > 0) {
+        // Find the first available bundle or let user pick? 
+        // User asked for the popup from the shop page, which is for a specific bundle.
+        // We'll pick the first bundle for simplicity, or ideally show a picker.
+        // For now, let's take the first one.
+        setSelectedBundle(item.paketPembelians[0]);
+        setIsModalOpen(true);
+      } else {
+        alert('Paket ini memerlukan pembelian, namun belum tersedia di paket pembelian manapun.');
+      }
+    }
+  };
 
   const fetchPakets = async () => {
     try {
@@ -199,12 +242,15 @@ export default function UserPracticeListPage() {
                   </div>
                   <Link 
                     href={`/test/${item.id}`}
+                    onClick={(e) => {
+                      if (totalItems === 0) e.preventDefault();
+                      else handleMulaiClick(e, item);
+                    }}
                     className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 font-black px-8 py-4 rounded-full transition-all shadow-xl active:scale-95 uppercase tracking-tighter text-sm ${
                       totalItems > 0 
                         ? 'bg-slate-900 hover:bg-blue-600 text-white shadow-slate-900/20 hover:shadow-blue-600/20' 
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
-                    onClick={(e) => totalItems === 0 && e.preventDefault()}
                   >
                     Mulai Tes
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -213,6 +259,109 @@ export default function UserPracticeListPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Confirmation Modal (Bundled Purchase) */}
+      {isModalOpen && selectedBundle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+            onClick={() => setIsModalOpen(false)}
+          />
+          
+          <div className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl shadow-slate-900/20 overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
+            <div className={`p-8 ${
+              selectedBundle.label === 'VIP' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
+              selectedBundle.label === 'PREMIUM' ? 'bg-gradient-to-r from-amber-600 to-orange-600' :
+              'bg-gradient-to-r from-blue-600 to-cyan-600'
+            } text-white relative`}>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute right-6 top-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <X size={20} />
+              </button>
+              <div className="flex items-center gap-3 mb-2">
+                <ShoppingCart size={24} />
+                <h2 className="text-xl font-black uppercase tracking-widest italic">Ops! Paket Berbayar</h2>
+              </div>
+              <p className="text-white/80 text-sm font-medium">Beli paket materi ini untuk melanjutkan tes.</p>
+            </div>
+
+            <div className="p-8 space-y-6">
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                <div className="flex justify-between items-start mb-4">
+                   <div>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tersedia di Paket</span>
+                     <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight">{selectedBundle.name}</h3>
+                   </div>
+                   <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                    selectedBundle.label === 'VIP' ? 'bg-purple-600 text-white border-purple-400' :
+                    selectedBundle.label === 'PREMIUM' ? 'bg-amber-600 text-white border-amber-400' :
+                    'bg-blue-600 text-white border-blue-400'
+                  }`}>
+                    {selectedBundle.label}
+                  </div>
+                </div>
+                <div className="flex justify-between items-center py-4 border-t border-slate-200/50">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Harga Paket</span>
+                  <span className="text-2xl font-black text-slate-900 tracking-tighter">{formatPrice(selectedBundle.price)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-slate-200/50">
+                   <div className="flex items-center gap-2">
+                     <Clock size={16} className="text-slate-400" />
+                     <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Masa Aktif</span>
+                   </div>
+                   <span className="text-sm font-black text-slate-900 uppercase italic">{selectedBundle.duration} Hari</span>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-slate-200/50 space-y-4">
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-blue-500" />
+                    Terdiri dari {selectedBundle.pakets.length} Paket Test:
+                  </div>
+                  <ul className="grid grid-cols-1 gap-2">
+                    {selectedBundle.pakets.map(p => (
+                      <li key={p.id} className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <div className="w-4 h-4 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100">
+                          <CheckCircle2 size={10} className="text-emerald-500" />
+                        </div>
+                        <span className="uppercase truncate">{p.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800">
+                <div className="mt-0.5"><ShoppingCart size={20} /></div>
+                <div className="text-xs font-medium leading-relaxed">
+                  Lanjutkan ke pembayaran untuk mendapatkan akses ke paket ini dan semua materi di dalamnya.
+                </div>
+              </div>
+            </div>
+
+            <div className="px-8 pb-8 pt-2 flex gap-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs text-slate-500 hover:bg-slate-50 transition-colors"
+              >
+                Nanti Saja
+              </button>
+              <Link
+                href={`/checkout/${selectedBundle.id}`}
+                className={`flex-[2] py-4 rounded-xl flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs text-white transition-all shadow-lg active:scale-95 ${
+                  selectedBundle.label === 'VIP' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20' :
+                  selectedBundle.label === 'PREMIUM' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' :
+                  'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
+                }`}
+              >
+                Beli Sekarang
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
         </div>
       )}
     </div>

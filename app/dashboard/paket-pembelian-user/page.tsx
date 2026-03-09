@@ -9,8 +9,10 @@ import {
   CheckCircle2,
   Clock,
   ArrowRight,
-  ShieldCheck,
-  Zap
+  ShieldCheck, 
+  Zap,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
@@ -27,6 +29,8 @@ interface PaketPembelian {
   name: string;
   price: number;
   label: string;
+  description: string | null;
+  duration: number;
   pakets: Paket[];
   createdAt: string;
 }
@@ -35,10 +39,17 @@ export default function UserPaketPembelianPage() {
   const [pakets, setPakets] = useState<PaketPembelian[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPaket, setSelectedPaket] = useState<PaketPembelian | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPakets();
   }, []);
+
+  const handleBuyClick = (paket: PaketPembelian) => {
+    setSelectedPaket(paket);
+    setIsModalOpen(true);
+  };
 
   const fetchPakets = async () => {
     try {
@@ -124,12 +135,23 @@ export default function UserPaketPembelianPage() {
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic mb-2 mt-2 group-hover:text-blue-600 transition-colors">
                   {item.name}
                 </h3>
+
+                {item.description && (
+                  <p className="text-slate-500 text-xs font-medium mb-4 line-clamp-2 italic">
+                    {item.description}
+                  </p>
+                )}
                 
-                <div className="flex items-baseline gap-2 mb-8">
-                  <span className="text-3xl font-black text-slate-900 tracking-tighter">
-                    {formatPrice(item.price)}
-                  </span>
-                  <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">/ Selamanya</span>
+                <div className="flex flex-col mb-8">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-slate-900 tracking-tighter">
+                      {formatPrice(item.price)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Clock size={12} className="text-slate-400" />
+                    <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Masa Aktif: {item.duration} Hari</span>
+                  </div>
                 </div>
 
                 <div className="space-y-4 mb-8 flex-1">
@@ -149,8 +171,8 @@ export default function UserPaketPembelianPage() {
                   </ul>
                 </div>
 
-                <Link
-                  href={`/checkout/${item.id}`}
+                <button
+                  onClick={() => handleBuyClick(item)}
                   className={`w-full py-5 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-tighter text-lg transition-all shadow-xl active:scale-95 ${
                     item.label === 'VIP' 
                       ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-600/20' 
@@ -161,7 +183,7 @@ export default function UserPaketPembelianPage() {
                 >
                   Beli Sekarang
                   <ArrowRight size={20} />
-                </Link>
+                </button>
 
                 <div className="mt-6 flex items-center justify-center gap-2 text-slate-400">
                   <ShieldCheck size={16} />
@@ -172,6 +194,97 @@ export default function UserPaketPembelianPage() {
           ))
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {isModalOpen && selectedPaket && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
+            onClick={() => setIsModalOpen(false)}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl shadow-slate-900/20 overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
+            {/* Modal Header */}
+            <div className={`p-8 ${
+              selectedPaket.label === 'VIP' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
+              selectedPaket.label === 'PREMIUM' ? 'bg-gradient-to-r from-amber-600 to-orange-600' :
+              'bg-gradient-to-r from-blue-600 to-cyan-600'
+            } text-white relative`}>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute right-6 top-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <X size={20} />
+              </button>
+              <div className="flex items-center gap-3 mb-2">
+                <ShoppingCart size={24} />
+                <h2 className="text-xl font-black uppercase tracking-widest italic">Konfirmasi Pembelian</h2>
+              </div>
+              <p className="text-white/80 text-sm font-medium">Anda akan membeli paket materi premium.</p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-8 space-y-6">
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                <div className="flex justify-between items-start mb-4">
+                   <div>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nama Paket</span>
+                     <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight">{selectedPaket.name}</h3>
+                   </div>
+                   <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                    selectedPaket.label === 'VIP' ? 'bg-purple-600 text-white border-purple-400' :
+                    selectedPaket.label === 'PREMIUM' ? 'bg-amber-600 text-white border-amber-400' :
+                    'bg-blue-600 text-white border-blue-400'
+                  }`}>
+                    {selectedPaket.label}
+                  </div>
+                </div>
+                <div className="flex justify-between items-center py-4 border-t border-slate-200/50">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Total Bayar</span>
+                  <span className="text-2xl font-black text-slate-900 tracking-tighter">{formatPrice(selectedPaket.price)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-slate-200/50">
+                   <div className="flex items-center gap-2">
+                     <Clock size={16} className="text-slate-400" />
+                     <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Masa Aktif</span>
+                   </div>
+                   <span className="text-sm font-black text-slate-900 uppercase italic">{selectedPaket.duration} Hari</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl border border-amber-100 text-amber-800">
+                <div className="mt-0.5"><AlertTriangle size={20} /></div>
+                <div className="text-xs font-medium leading-relaxed">
+                  Lanjutkan ke pembayaran untuk mengaktifkan paket ini. Pastikan pilihan Anda sudah benar karena pembelian tidak dapat dibatalkan.
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-8 pb-8 pt-2 flex gap-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 py-4 rounded-xl font-black uppercase tracking-widest text-xs text-slate-500 hover:bg-slate-50 transition-colors"
+              >
+                Batal
+              </button>
+              <Link
+                href={`/checkout/${selectedPaket.id}`}
+                className={`flex-[2] py-4 rounded-xl flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs text-white transition-all shadow-lg active:scale-95 ${
+                  selectedPaket.label === 'VIP' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20' :
+                  selectedPaket.label === 'PREMIUM' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' :
+                  'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
+                }`}
+              >
+                Lanjut Pembayaran
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
