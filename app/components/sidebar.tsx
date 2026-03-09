@@ -23,8 +23,11 @@ const sidebarItems = [
   { icon: Edit3, label: 'Writing', href: '/dashboard/writing' },
   { icon: Mic, label: 'Speaking', href: '/dashboard/speaking' },
   { icon: Package, label: 'Pakets', href: '/dashboard/pakets' },
+  { icon: Package, label: 'Paket Category Master', href: '/dashboard/paket-category' },
+  { icon: Package, label: 'Sub Paket Category Master', href: '/dashboard/sub-paket-category' },
   { icon: Users, label: 'History', href: '/dashboard/history' },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
+
 ];
 
 export default function Sidebar() {

@@ -10,6 +10,8 @@ interface Paket {
   id: number;
   name: string;
   description: string | null;
+  paketCategory: { categoryName: string } | null;
+  subPaketCategory: { subCategoryName: string } | null;
   createdAt: string;
   _count: {
     readingCategories: number;
@@ -163,7 +165,19 @@ export default function PaketListPage() {
                           </div>
                           <div>
                             <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{item.name}</span>
-                            <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{item.description || 'No description'}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {item.paketCategory && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100">
+                                  {item.paketCategory.categoryName}
+                                </span>
+                              )}
+                              {item.subPaketCategory && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                  {item.subPaketCategory.subCategoryName}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500 mt-1 line-clamp-1">{item.description || 'No description'}</p>
                           </div>
                         </div>
                       </td>

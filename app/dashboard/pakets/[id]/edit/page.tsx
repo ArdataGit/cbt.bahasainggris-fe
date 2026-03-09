@@ -21,12 +21,16 @@ export default function EditPaketPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    paketCategoryId: '',
+    subPaketCategoryId: '',
     readingCategoryIds: [] as number[],
     listeningCategoryIds: [] as number[],
     writingCategoryIds: [] as number[],
     speakingCategoryIds: [] as number[],
   });
   
+  const [paketCategories, setPaketCategories] = useState<Category[]>([]);
+  const [subPaketCategories, setSubPaketCategories] = useState<any[]>([]);
   const [readingCategories, setReadingCategories] = useState<Category[]>([]);
   const [listeningCategories, setListeningCategories] = useState<Category[]>([]);
   const [writingCategories, setWritingCategories] = useState<Category[]>([]);
@@ -40,24 +44,30 @@ export default function EditPaketPage() {
   const fetchInitialData = async () => {
     try {
       setFetchingData(true);
-      const [resPaket, resR, resL, resW, resS] = await Promise.all([
+      const [resPaket, resR, resL, resW, resS, resPC, resSPC] = await Promise.all([
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`),
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reading-categories`),
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`),
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-categories`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sub-paket-categories`)
       ]);
 
       if (resR.data.success) setReadingCategories(resR.data.data);
       if (resL.data.success) setListeningCategories(resL.data.data);
       if (resW.data.success) setWritingCategories(resW.data.data);
       if (resS.data.success) setSpeakingCategories(resS.data.data);
+      if (resPC.data.success) setPaketCategories(resPC.data.data.map((c: any) => ({ id: c.id, name: c.categoryName })));
+      if (resSPC.data.success) setSubPaketCategories(resSPC.data.data);
 
       if (resPaket.data.success) {
         const paket = resPaket.data.data;
         setFormData({
           name: paket.name || '',
           description: paket.description || '',
+          paketCategoryId: paket.paketCategoryId?.toString() || '',
+          subPaketCategoryId: paket.subPaketCategoryId?.toString() || '',
           readingCategoryIds: paket.readingCategories?.map((c: any) => c.id) || [],
           listeningCategoryIds: paket.listeningCategories?.map((c: any) => c.id) || [],
           writingCategoryIds: paket.writingCategories?.map((c: any) => c.id) || [],
@@ -75,7 +85,7 @@ export default function EditPaketPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -88,6 +98,8 @@ export default function EditPaketPage() {
       const payload = {
         name: formData.name,
         description: formData.description,
+        paketCategoryId: formData.paketCategoryId || null,
+        subPaketCategoryId: formData.subPaketCategoryId || null,
         readingCategoryIds: formData.readingCategoryIds,
         listeningCategoryIds: formData.listeningCategoryIds,
         writingCategoryIds: formData.writingCategoryIds,
@@ -295,6 +307,46 @@ export default function EditPaketPage() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-lg font-medium"
                 placeholder="e.g., TOEFL Simulation Test 1..."
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="paketCategoryId" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Paket Category
+                </label>
+                <select
+                  id="paketCategoryId"
+                  name="paketCategoryId"
+                  value={formData.paketCategoryId}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-medium bg-white"
+                >
+                  <option value="">Select Category</option>
+                  {paketCategories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="subPaketCategoryId" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Sub Paket Category
+                </label>
+                <select
+                  id="subPaketCategoryId"
+                  name="subPaketCategoryId"
+                  value={formData.subPaketCategoryId}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-medium bg-white"
+                >
+                  <option value="">Select Sub Category</option>
+                  {subPaketCategories
+                    .filter(sub => !formData.paketCategoryId || sub.paketCategoryId === parseInt(formData.paketCategoryId))
+                    .map(sub => (
+                      <option key={sub.id} value={sub.id}>{sub.subCategoryName}</option>
+                    ))}
+                </select>
+              </div>
             </div>
 
             <div>
