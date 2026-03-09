@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   Edit3,
   Mic,
-  Package
+  Package,
+  CreditCard
 } from 'lucide-react';
 
 const sidebarItems = [
@@ -28,6 +29,7 @@ const sidebarItems = [
   { icon: Users, label: 'History', href: '/dashboard/history', adminOnly: true },
   { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian', adminOnly: true },
   { icon: Package, label: 'Landing Page Pakets', href: '/dashboard/landing-pakets', adminOnly: true },
+  { icon: CreditCard, label: 'Pembelian User', href: '/dashboard/pembelian-user', adminOnly: true },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings', adminOnly: true },
 
 
@@ -35,6 +37,7 @@ const sidebarItems = [
 
   { icon: Users, label: 'Paket Latihan', href: '/dashboard/paket-latihan-user', userOnly: true },
   { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian-user', userOnly: true },
+  { icon: CreditCard, label: 'Riwayat Pembelian', href: '/dashboard/history-pembelian', userOnly: true },
 ];
 
 export default function Sidebar() {

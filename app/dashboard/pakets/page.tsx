@@ -36,7 +36,10 @@ export default function PaketListPage() {
   const fetchPakets = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       if (response.data.success) {
         setPakets(response.data.data);
       } else {
@@ -61,7 +64,10 @@ export default function PaketListPage() {
     if (!confirm('Are you sure you want to delete this Paket? Unlinked passages are NOT deleted, only their association to this Paket.')) return;
 
     try {
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${id}`);
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       if (response.data.success) {
         setPakets(pakets.filter(item => item.id !== id));
       } else {

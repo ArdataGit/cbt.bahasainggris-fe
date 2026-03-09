@@ -69,14 +69,10 @@ export default function UserPracticeListPage() {
     }).format(price);
   };
 
-  const handleMulaiClick = (e: React.MouseEvent, item: Paket) => {
-    if (!item.isFree) {
+  const handleMulaiClick = (e: React.MouseEvent, item: Paket & { isPurchased?: boolean }) => {
+    if (!item.isFree && !item.isPurchased) {
       e.preventDefault();
       if (item.paketPembelians && item.paketPembelians.length > 0) {
-        // Find the first available bundle or let user pick? 
-        // User asked for the popup from the shop page, which is for a specific bundle.
-        // We'll pick the first bundle for simplicity, or ideally show a picker.
-        // For now, let's take the first one.
         setSelectedBundle(item.paketPembelians[0]);
         setIsModalOpen(true);
       } else {
@@ -88,7 +84,10 @@ export default function UserPracticeListPage() {
   const fetchPakets = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       if (response.data.success) {
         setPakets(response.data.data);
       } else {

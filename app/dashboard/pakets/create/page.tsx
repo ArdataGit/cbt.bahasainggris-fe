@@ -92,7 +92,10 @@ export default function CreatePaketPage() {
         isFree: formData.isFree,
       };
 
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pakets`, payload);
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/pakets`, payload, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
 
       if (response.data.success) {
         router.push('/dashboard/pakets');
