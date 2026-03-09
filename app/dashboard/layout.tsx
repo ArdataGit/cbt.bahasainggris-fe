@@ -22,7 +22,7 @@ export default function AdminLayout({
     } else {
       try {
         const userData = JSON.parse(user);
-        if (userData.role !== 'admin') {
+        if (userData.role !== 'admin' && userData.role !== 'user') {
           router.push('/login');
         } else {
           setIsAuthenticated(true);
