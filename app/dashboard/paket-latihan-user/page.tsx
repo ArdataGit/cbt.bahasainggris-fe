@@ -18,7 +18,8 @@ import {
   X,
   AlertTriangle,
   ShoppingCart,
-  CreditCard
+  CreditCard,
+  Lock
 } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
@@ -39,6 +40,7 @@ interface Paket {
   description: string | null;
   createdAt: string;
   isFree: boolean;
+  isPurchased?: boolean;
   paketPembelians: PaketPembelian[];
   _count: {
     readingCategories: number;
@@ -182,25 +184,42 @@ export default function UserPracticeListPage() {
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 border border-blue-100">
                       <Package size={28} />
                     </div>
-                    <div className="flex gap-2">
-                       {item.isFree && (
-                         <span className="text-[10px] font-black text-emerald-600 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100 uppercase tracking-widest">
-                           Free
-                         </span>
-                       )}
-                       <span className="text-[10px] font-black text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase tracking-widest">
-                         EN-CBT
-                       </span>
-                    </div>
+                     <div className="flex gap-2">
+                        {item.isFree ? (
+                          <span className="text-[10px] font-black text-emerald-600 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100 uppercase tracking-widest">
+                            Free
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-black text-amber-600 px-3 py-1 bg-amber-50 rounded-full border border-amber-100 uppercase tracking-widest">
+                            Berbayar
+                          </span>
+                        )}
+                        <span className="text-[10px] font-black text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase tracking-widest">
+                          EN-CBT
+                        </span>
+                     </div>
                   </div>
                   
                   <h3 className="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors mb-3 uppercase tracking-tighter italic">
                     {item.name}
                   </h3>
                   
-                  <p className="text-slate-500 text-sm leading-relaxed mb-8 line-clamp-2 font-medium italic opacity-80">
+                  <p className="text-slate-500 text-sm leading-relaxed mb-4 line-clamp-2 font-medium italic opacity-80">
                     {item.description || 'Uji kemampuan bahasa Inggris Anda dengan paket ujian komprehensif ini.'}
                   </p>
+
+                  {!item.isFree && item.paketPembelians && item.paketPembelians.length > 0 && (
+                    <div className="mb-6">
+                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Tersedia di Paket:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {item.paketPembelians.map(bundle => (
+                          <span key={bundle.id} className="text-[10px] font-bold text-blue-700 px-2 py-0.5 bg-blue-50 rounded-md border border-blue-100 uppercase">
+                            {bundle.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 group-hover:bg-blue-50/50 transition-colors border border-transparent group-hover:border-blue-100/50">
@@ -245,14 +264,19 @@ export default function UserPracticeListPage() {
                       if (totalItems === 0) e.preventDefault();
                       else handleMulaiClick(e, item);
                     }}
-                    className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 font-black px-8 py-4 rounded-full transition-all shadow-xl active:scale-95 uppercase tracking-tighter text-sm ${
+                    className={`w-full sm:w-auto min-w-[120px] inline-flex items-center justify-center gap-2 font-black px-6 py-3 rounded-full transition-all shadow-lg active:scale-95 uppercase tracking-tighter text-xs ${
                       totalItems > 0 
                         ? 'bg-slate-900 hover:bg-blue-600 text-white shadow-slate-900/20 hover:shadow-blue-600/20' 
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
-                    Mulai Tes
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    {!item.isFree && !item.isPurchased ? (
+                      <Lock size={16} className="text-amber-400" />
+                    ) : null}
+                    <span>Mulai Tes</span>
+                    {(item.isFree || item.isPurchased) && (
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    )}
                   </Link>
                 </div>
               </div>

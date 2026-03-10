@@ -34,7 +34,7 @@ const sidebarItems = [
 
 
 
-
+{ icon: Users, label: 'Paket Saya', href: '/dashboard/paket-saya', userOnly: true },
   { icon: Users, label: 'Paket Latihan', href: '/dashboard/paket-latihan-user', userOnly: true },
   { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian-user', userOnly: true },
   { icon: CreditCard, label: 'Riwayat Pembelian', href: '/dashboard/history-pembelian', userOnly: true },
