@@ -15,7 +15,8 @@ import {
   Filter,
   ArrowRight,
   ExternalLink,
-  Loader2
+  Loader2,
+  Phone
 } from 'lucide-react';
 
 interface PembelianUser {
@@ -32,6 +33,8 @@ interface PembelianUser {
   amount: number;
   status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'EXPIRED' | 'OVERDUE';
   merchantRef: string | null;
+  bank: string | null;
+  phone: string | null;
   createdAt: string;
   expiredDuration: string;
 }
@@ -207,6 +210,8 @@ export default function PembelianUserAdminPage() {
                 <tr className="bg-slate-50/50 border-b border-slate-100">
                   <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User & Paket</th>
                   <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nominal</th>
+                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Bank</th>
+                  <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
                   <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                   <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
                   <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Aksi</th>
@@ -233,6 +238,15 @@ export default function PembelianUserAdminPage() {
                       <div className="space-y-1">
                         <p className="text-sm font-black text-slate-900">Rp {item.amount.toLocaleString('id-ID')}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">REF: {item.merchantRef || '-'}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 font-bold text-xs uppercase text-slate-600">
+                      {item.bank || '-'}
+                    </td>
+                    <td className="px-6 py-6 font-bold text-xs text-slate-600">
+                      <div className="flex items-center gap-1.5 capitalize">
+                        <Phone size={12} className="text-slate-400" />
+                        {item.phone || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-6">
