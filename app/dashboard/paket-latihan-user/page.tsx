@@ -264,18 +264,18 @@ export default function UserPracticeListPage() {
                       if (totalItems === 0) e.preventDefault();
                       else handleMulaiClick(e, item);
                     }}
-                    className={`w-full sm:w-auto min-w-[120px] inline-flex items-center justify-center gap-2 font-black px-6 py-3 rounded-full transition-all shadow-lg active:scale-95 uppercase tracking-tighter text-xs ${
+                    className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 font-black px-5 py-2.5 rounded-full transition-all shadow-lg active:scale-95 uppercase tracking-tighter text-[10px] whitespace-nowrap ${
                       totalItems > 0 
                         ? 'bg-slate-900 hover:bg-blue-600 text-white shadow-slate-900/20 hover:shadow-blue-600/20' 
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
                     {!item.isFree && !item.isPurchased ? (
-                      <Lock size={16} className="text-amber-400" />
+                      <Lock size={14} className="text-amber-400" />
                     ) : null}
                     <span>Mulai Tes</span>
                     {(item.isFree || item.isPurchased) && (
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     )}
                   </Link>
                 </div>

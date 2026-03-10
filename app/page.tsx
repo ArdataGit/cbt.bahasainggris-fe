@@ -249,7 +249,7 @@ export default function Home() {
                         </div>
                         <Link 
                           href={`/test/${item.id}`}
-                          className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 font-black px-8 py-4 rounded-full transition-all shadow-xl active:scale-95 uppercase tracking-tighter text-sm ${
+                          className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 font-black px-6 py-3 rounded-full transition-all shadow-xl active:scale-95 uppercase tracking-tighter text-xs ${
                             totalItems > 0 
                               ? 'bg-slate-900 hover:bg-blue-600 text-white shadow-slate-900/20 hover:shadow-blue-600/20' 
                               : 'bg-slate-200 text-slate-400 cursor-not-allowed'
@@ -257,7 +257,7 @@ export default function Home() {
                           onClick={(e) => totalItems === 0 && e.preventDefault()}
                         >
                           Mulai Tes
-                          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                       </div>
                     </div>
