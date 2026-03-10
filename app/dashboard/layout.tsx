@@ -18,17 +18,17 @@ export default function AdminLayout({
     const user = localStorage.getItem('user');
 
     if (!token || !user) {
-      router.push('/login');
+      router.replace('/login');
     } else {
       try {
         const userData = JSON.parse(user);
         if (userData.role !== 'admin' && userData.role !== 'user') {
-          router.push('/login');
+          router.replace('/login');
         } else {
           setIsAuthenticated(true);
         }
       } catch (e) {
-        router.push('/login');
+        router.replace('/login');
       }
     }
   }, [router]);

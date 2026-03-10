@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, ChevronDown, Loader2 } from 'lucide-react';
 
 interface Region {
@@ -9,7 +9,7 @@ interface Region {
   name: string;
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -37,7 +37,9 @@ export default function LoginPage() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+   const router = useRouter();
+   const searchParams = useSearchParams();
+   const redirectPath = searchParams.get('redirect') || '/dashboard';
 
   useEffect(() => {
     if (isRegister) {
@@ -147,7 +149,7 @@ export default function LoginPage() {
         localStorage.setItem('token', result.data.token);
         localStorage.setItem('user', JSON.stringify(result.data.user));
 
-        router.push('/dashboard');
+        router.push(redirectPath);
       }
     } catch (err: any) {
       setError(err.message);
@@ -383,5 +385,20 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-blue-600" size={48} />
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Loading Security...</p>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

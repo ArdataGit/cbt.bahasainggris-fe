@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { Package, Loader2, Search, ArrowRight, LayoutTemplate, Clock, BookOpen, Headphones, PenTool, Mic } from 'lucide-react';
 import axios from 'axios';
 
@@ -19,12 +20,18 @@ interface Paket {
 }
 
 export default function TestListPage() {
+  const router = useRouter();
   const [pakets, setPakets] = useState<Paket[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.replace('/login?redirect=/test');
+      return;
+    }
     fetchPakets();
   }, []);
 
@@ -202,7 +209,7 @@ export default function TestListPage() {
                           ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200' 
                           : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       }`}
-                      onClick={(e) => totalItems === 0 && e.preventDefault()}
+                      onClick={(e: React.MouseEvent) => totalItems === 0 && e.preventDefault()}
                     >
                       <span className="text-sm">Mulai</span>
                       <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

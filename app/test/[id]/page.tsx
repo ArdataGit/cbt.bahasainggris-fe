@@ -8,6 +8,7 @@ import axios from 'axios';
 interface Paket {
   id: number;
   name: string;
+  isFree?: boolean;
   description: string | null;
   readingCategories: any[];
   listeningCategories: any[];
@@ -51,8 +52,19 @@ export default function PaketIntroductionPage() {
     if (id) {
       fetchPaketDetails();
       fetchSettings();
+      checkUserAuth();
     }
   }, [id]);
+
+  useEffect(() => {
+    // If paket is loaded and it's not free, check for auth
+    if (paket && !paket.isFree) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.replace(`/login?redirect=/test/${id}`);
+      }
+    }
+  }, [id, paket, router]);
 
   const fetchSettings = async () => {
     try {
@@ -88,13 +100,6 @@ export default function PaketIntroductionPage() {
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      fetchPaketDetails();
-      fetchSettings();
-      checkUserAuth();
-    }
-  }, [id]);
 
   const fetchPaketDetails = async () => {
     try {
