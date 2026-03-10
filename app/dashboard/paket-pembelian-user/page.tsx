@@ -35,8 +35,16 @@ interface PaketPembelian {
   createdAt: string;
 }
 
+interface UserPembelian {
+  id: number;
+  paketPembelianId: number;
+  status: string;
+  expiredDuration: string;
+}
+
 export default function UserPaketPembelianPage() {
   const [pakets, setPakets] = useState<PaketPembelian[]>([]);
+  const [activePurchases, setActivePurchases] = useState<UserPembelian[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPaket, setSelectedPaket] = useState<PaketPembelian | null>(null);
@@ -44,6 +52,7 @@ export default function UserPaketPembelianPage() {
 
   useEffect(() => {
     fetchPakets();
+    fetchUserPurchases();
   }, []);
 
   const handleBuyClick = (paket: PaketPembelian) => {
@@ -63,6 +72,45 @@ export default function UserPaketPembelianPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchUserPurchases = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/history/pembelian`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.data.success) {
+        // Only keep active/success ones
+        const active = response.data.data.filter((p: any) => p.status === 'SUCCESS');
+        setActivePurchases(active);
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch user purchases', err);
+    }
+  };
+
+  const getRemainingTime = (expiryDate: string) => {
+    const now = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry.getTime() - now.getTime();
+    if (diffTime <= 0) return null;
+    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Intl.DateTimeFormat('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(new Date(dateString));
   };
 
   const formatPrice = (price: number) => {
@@ -109,10 +157,17 @@ export default function UserPaketPembelianPage() {
              <p className="text-slate-400 font-bold uppercase tracking-widest text-xs italic">Belum ada paket yang tersedia saat ini.</p>
           </div>
         ) : (
-          pakets.map((item) => (
+          pakets.map((item) => {
+            const activePurchase = activePurchases.find(p => p.paketPembelianId === item.id);
+            const remainingDays = activePurchase ? getRemainingTime(activePurchase.expiredDuration) : null;
+            const isActive = activePurchase && remainingDays !== null;
+
+            return (
             <div 
               key={item.id} 
-              className="group relative bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col overflow-hidden hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2"
+              className={`group relative bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 ${
+                isActive ? 'ring-2 ring-emerald-500 border-emerald-500' : 'hover:border-blue-500 hover:shadow-blue-500/10'
+              }`}
             >
               {/* Header Visual */}
               <div className={`h-24 px-10 pt-10 flex justify-between items-start ${
@@ -140,6 +195,21 @@ export default function UserPaketPembelianPage() {
                   <p className="text-slate-500 text-xs font-medium mb-4 line-clamp-2 italic">
                     {item.description}
                   </p>
+                )}
+
+                {isActive && (
+                  <div className="mb-4 p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <ShieldCheck size={14} className="text-emerald-600" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Paket Aktif</span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-700">
+                      Sisa: <span className="text-emerald-600 font-black">{remainingDays} Hari</span>
+                    </div>
+                    <div className="text-[9px] text-slate-500 uppercase font-bold mt-0.5">
+                      Sampai {formatDate(activePurchase.expiredDuration)}
+                    </div>
+                  </div>
                 )}
                 
                 <div className="flex flex-col mb-8">
@@ -174,24 +244,29 @@ export default function UserPaketPembelianPage() {
                 <button
                   onClick={() => handleBuyClick(item)}
                   className={`w-full py-5 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-tighter text-lg transition-all shadow-xl active:scale-95 ${
-                    item.label === 'VIP' 
+                    isActive
+                      ? 'bg-slate-100 text-slate-500 cursor-not-allowed shadow-none'
+                      : item.label === 'VIP' 
                       ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-600/20' 
                       : item.label === 'PREMIUM'
                       ? 'bg-slate-900 text-white hover:bg-amber-600 shadow-amber-600/20'
                       : 'bg-slate-900 text-white hover:bg-blue-600 shadow-blue-600/20'
                   }`}
+                  disabled={isActive}
                 >
-                  Beli Sekarang
-                  <ArrowRight size={20} />
+                  {isActive ? 'Sudah Aktif' : 'Beli Sekarang'}
+                  {!isActive && <ArrowRight size={20} />}
+                  {isActive && <CheckCircle2 size={20} className="text-emerald-500" />}
                 </button>
 
                 <div className="mt-6 flex items-center justify-center gap-2 text-slate-400">
                   <ShieldCheck size={16} />
                   <span className="text-[10px] font-black uppercase tracking-widest">Pembayaran Aman & Instan</span>
                 </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -208,8 +283,8 @@ export default function UserPaketPembelianPage() {
           <div className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl shadow-slate-900/20 overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
             {/* Modal Header */}
             <div className={`p-8 ${
-              selectedPaket.label === 'VIP' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
-              selectedPaket.label === 'PREMIUM' ? 'bg-gradient-to-r from-amber-600 to-orange-600' :
+              selectedPaket?.label === 'VIP' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
+              selectedPaket?.label === 'PREMIUM' ? 'bg-gradient-to-r from-amber-600 to-orange-600' :
               'bg-gradient-to-r from-blue-600 to-cyan-600'
             } text-white relative`}>
               <button 
@@ -231,26 +306,26 @@ export default function UserPaketPembelianPage() {
                 <div className="flex justify-between items-start mb-4">
                    <div>
                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nama Paket</span>
-                     <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight">{selectedPaket.name}</h3>
+                     <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight">{selectedPaket?.name}</h3>
                    </div>
                    <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                    selectedPaket.label === 'VIP' ? 'bg-purple-600 text-white border-purple-400' :
-                    selectedPaket.label === 'PREMIUM' ? 'bg-amber-600 text-white border-amber-400' :
+                    selectedPaket?.label === 'VIP' ? 'bg-purple-600 text-white border-purple-400' :
+                    selectedPaket?.label === 'PREMIUM' ? 'bg-amber-600 text-white border-amber-400' :
                     'bg-blue-600 text-white border-blue-400'
                   }`}>
-                    {selectedPaket.label}
+                    {selectedPaket?.label}
                   </div>
                 </div>
                 <div className="flex justify-between items-center py-4 border-t border-slate-200/50">
                   <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Total Bayar</span>
-                  <span className="text-2xl font-black text-slate-900 tracking-tighter">{formatPrice(selectedPaket.price)}</span>
+                  <span className="text-2xl font-black text-slate-900 tracking-tighter">{formatPrice(selectedPaket?.price || 0)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-4 border-t border-slate-200/50">
                    <div className="flex items-center gap-2">
                      <Clock size={16} className="text-slate-400" />
                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Masa Aktif</span>
                    </div>
-                   <span className="text-sm font-black text-slate-900 uppercase italic">{selectedPaket.duration} Hari</span>
+                   <span className="text-sm font-black text-slate-900 uppercase italic">{selectedPaket?.duration} Hari</span>
                 </div>
               </div>
 
@@ -271,10 +346,10 @@ export default function UserPaketPembelianPage() {
                 Batal
               </button>
               <Link
-                href={`/checkout/${selectedPaket.id}`}
+                href={`/checkout/${selectedPaket?.id}`}
                 className={`flex-[2] py-4 rounded-xl flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs text-white transition-all shadow-lg active:scale-95 ${
-                  selectedPaket.label === 'VIP' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20' :
-                  selectedPaket.label === 'PREMIUM' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' :
+                  selectedPaket?.label === 'VIP' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20' :
+                  selectedPaket?.label === 'PREMIUM' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' :
                   'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
                 }`}
               >
