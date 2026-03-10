@@ -307,7 +307,7 @@ export default function UserPracticeListPage() {
               </button>
               <div className="flex items-center gap-3 mb-2">
                 <ShoppingCart size={24} />
-                <h2 className="text-xl font-black uppercase tracking-widest italic">Ops! Paket Berbayar</h2>
+                <h2 className="text-xl font-black uppercase tracking-widest italic">Opsi Paket Berbayar</h2>
               </div>
               <p className="text-white/80 text-sm font-medium">Beli paket materi ini untuk melanjutkan tes.</p>
             </div>
