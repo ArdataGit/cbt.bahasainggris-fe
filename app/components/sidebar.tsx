@@ -33,7 +33,7 @@ const sidebarItems = [
   { icon: Settings, label: 'Settings', href: '/dashboard/settings', adminOnly: true },
 
 
-
+{ icon: Users, label: 'History', href: '/dashboard/history-user', userOnly: true },
 { icon: Users, label: 'Paket Saya', href: '/dashboard/paket-saya', userOnly: true },
   { icon: Users, label: 'Paket Latihan', href: '/dashboard/paket-latihan-user', userOnly: true },
   { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian-user', userOnly: true },

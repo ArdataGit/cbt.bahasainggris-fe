@@ -22,6 +22,7 @@ interface FormData {
   email: string;
   confirmEmail: string;
   phone: string;
+  userId?: number;
 }
 
 export default function PaketIntroductionPage() {
@@ -38,7 +39,8 @@ export default function PaketIntroductionPage() {
     fullName: '',
     email: '',
     confirmEmail: '',
-    phone: ''
+    phone: '',
+    userId: undefined
   });
   
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
@@ -62,6 +64,37 @@ export default function PaketIntroductionPage() {
       console.error('Failed to fetch settings');
     }
   };
+
+  const checkUserAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.success) {
+          const userData = response.data.data;
+          setFormData({
+            fullName: userData.name || '',
+            email: userData.email || '',
+            confirmEmail: userData.email || '',
+            phone: userData.phone || '',
+            userId: userData.id
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch user profile for auto-fill');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchPaketDetails();
+      fetchSettings();
+      checkUserAuth();
+    }
+  }, [id]);
 
   const fetchPaketDetails = async () => {
     try {
@@ -105,42 +138,44 @@ export default function PaketIntroductionPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleStartTest = async () => {
+  const handleStartTest = async (isManual = false) => {
     if (!id) return;
-    if (validateForm()) {
-      try {
-        setIsSubmitting(true);
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/data-users`, {
-          ...formData,
-          paketId: id
-        });
-        
-        if (response.data.success) {
-          // Store the User ID and Paket ID for history tracking and access control
-          const userDataId = response.data.data.id;
-          localStorage.setItem('userDataId', userDataId.toString());
-          localStorage.setItem('paketId', id.toString());
+    
+    // Validate if it's a manual submission from the form
+    if (isManual && !validateForm()) return;
 
-          // Determine the first available section based on priority: Reading > Listening > Writing > Speaking
-          if (paket && paket.readingCategories && paket.readingCategories.length > 0) {
-            router.push(`/test/${id}/reading`);
-          } else if (paket && paket.listeningCategories && paket.listeningCategories.length > 0) {
-            router.push(`/test/${id}/listening`);
-          } else if (paket && paket.writingCategories && paket.writingCategories.length > 0) {
-            router.push(`/test/${id}/writing`);
-          } else if (paket && paket.speakingCategories && paket.speakingCategories.length > 0) {
-            router.push(`/test/${id}/speaking`);
-          } else {
-            alert('Paket tidak memiliki modul tes.');
-          }
+    try {
+      setIsSubmitting(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/data-users`, {
+        ...formData,
+        paketId: id
+      });
+      
+      if (response.data.success) {
+        // Store the User ID and Paket ID for history tracking and access control
+        const userDataId = response.data.data.id;
+        localStorage.setItem('userDataId', userDataId.toString());
+        localStorage.setItem('paketId', id.toString());
+
+        // Determine the first available section based on priority: Reading > Listening > Writing > Speaking
+        if (paket && paket.readingCategories && paket.readingCategories.length > 0) {
+          router.push(`/test/${id}/reading`);
+        } else if (paket && paket.listeningCategories && paket.listeningCategories.length > 0) {
+          router.push(`/test/${id}/listening`);
+        } else if (paket && paket.writingCategories && paket.writingCategories.length > 0) {
+          router.push(`/test/${id}/writing`);
+        } else if (paket && paket.speakingCategories && paket.speakingCategories.length > 0) {
+          router.push(`/test/${id}/speaking`);
         } else {
-          throw new Error(response.data.message || 'Gagal menyimpan data.');
+          alert('Paket tidak memiliki modul tes.');
         }
-      } catch (err: any) {
-        alert(`Gagal: ${err.message || 'Terjadi kesalahan saat menyimpan data.'}`);
-      } finally {
-        setIsSubmitting(false);
+      } else {
+        throw new Error(response.data.message || 'Gagal menyiapkan sesi ujian.');
       }
+    } catch (err: any) {
+      alert(`Gagal: ${err.message || 'Terjadi kesalahan saat menyiapkan sesi ujian.'}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -202,7 +237,9 @@ export default function PaketIntroductionPage() {
           /* Step 1: Welcome Introduction Card */
           <div className="bg-white rounded-[40px] shadow-2xl shadow-blue-900/10 w-full max-w-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-500">
             <div className="pt-12 pb-10 px-8 text-center bg-white">
-              <h1 className="text-[32px] font-bold text-slate-900 mb-2 leading-tight">Selamat datang</h1>
+              <h1 className="text-[32px] font-bold text-slate-900 mb-2 leading-tight">
+                {formData.fullName ? `Selamat datang kembali, ${formData.fullName.split(' ')[0]}` : 'Selamat datang'}
+              </h1>
               <p className="text-lg text-slate-600 font-medium">Anda akan segera memulai {paket.name}</p>
             </div>
 
@@ -287,11 +324,28 @@ export default function PaketIntroductionPage() {
 
             <div className="px-10 pb-12 flex justify-center">
               <button 
-                onClick={() => setCurrentStep('registration')}
-                className="bg-[#2463EB] hover:bg-[#1D4ED8] text-white text-lg font-bold px-12 py-4 rounded-full shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-3 group"
+                onClick={async () => {
+                  if (formData.email && formData.fullName) {
+                    // Automatically proceed if logged in
+                    await handleStartTest();
+                  } else {
+                    setCurrentStep('registration');
+                  }
+                }}
+                disabled={isSubmitting}
+                className={`${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-[#2463EB] hover:bg-[#1D4ED8]'} text-white text-lg font-bold px-12 py-4 rounded-full shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-3 group`}
               >
-                Mulai
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    Menyiapkan...
+                  </>
+                ) : (
+                  <>
+                    Mulai
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -380,7 +434,7 @@ export default function PaketIntroductionPage() {
 
             <div className="px-10 pb-16 pt-8 flex flex-col items-center gap-4">
               <button 
-                onClick={handleStartTest}
+                onClick={() => handleStartTest(true)}
                 disabled={isSubmitting}
                 className={`${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-[#2463EB] hover:bg-[#1D4ED8]'} text-white text-lg font-bold px-16 py-4 rounded-full shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02] active:scale-95 group flex items-center gap-3`}
               >
