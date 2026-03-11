@@ -14,18 +14,32 @@ export default function SettingsPage() {
   const [listeningInstructions, setListeningInstructions] = useState('');
   const [writingInstructions, setWritingInstructions] = useState('');
   const [speakingInstructions, setSpeakingInstructions] = useState('');
+  const [banners, setBanners] = useState<any[]>([]);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
 
   useEffect(() => {
     fetchSettings();
+    fetchBanners();
   }, []);
+
+  const fetchBanners = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/banners`);
+      if (response.data.success) {
+        setBanners(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch banners:', error);
+    }
+  };
 
   const fetchSettings = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
-      if (response.data.success) {
+      if (response.data.success && response.data.data) {
         setLogoUrl(response.data.data.logoUrl);
         setTestInstructions(response.data.data.testInstructions || '');
         setReadingInstructions(response.data.data.readingInstructions || '');
@@ -90,6 +104,56 @@ export default function SettingsPage() {
 
   const removeLogo = () => {
     setLogoUrl(null);
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingBanner(true);
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/banners`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        setBanners(prev => [response.data.data, ...prev]);
+        setMessage({ type: 'success', text: 'Banner berhasil diupload!' });
+      }
+    } catch (error: any) {
+      console.error('Banner upload failed:', error);
+      alert('Gagal mengupload banner.');
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
+  const handleDeleteBanner = async (id: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus banner ini?')) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/banners/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        setBanners(prev => prev.filter(b => b.id !== id));
+        setMessage({ type: 'success', text: 'Banner berhasil dihapus!' });
+      }
+    } catch (error: any) {
+      console.error('Delete banner failed:', error);
+      alert('Gagal menghapus banner.');
+    }
   };
 
   if (loading) {
@@ -229,6 +293,47 @@ export default function SettingsPage() {
                   onChange={setSpeakingInstructions}
                   placeholder="Masukkan instruksi speaking..."
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Banner Management */}
+        <div className="md:col-span-1 space-y-4">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <ImageIcon size={20} className="text-blue-500" />
+              Banner Dashboard
+            </h2>
+            
+            <div className="space-y-4">
+              <label className="flex flex-col items-center justify-center w-full py-4 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-blue-400 cursor-pointer transition-all group">
+                {uploadingBanner ? (
+                  <Loader2 className="animate-spin text-blue-500" size={24} />
+                ) : (
+                  <>
+                    <Upload className="text-slate-400 group-hover:text-blue-500 mb-1" size={24} />
+                    <span className="text-xs font-medium text-slate-500 group-hover:text-blue-600">Tambah Banner</span>
+                  </>
+                )}
+                <input type="file" className="hidden" onChange={handleBannerUpload} accept="image/*" disabled={uploadingBanner} />
+              </label>
+
+              <div className="grid grid-cols-1 gap-4">
+                {banners.map((banner) => (
+                  <div key={banner.id} className="relative group rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[21/9]">
+                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/banners/${banner.imageUrl}`} alt="Banner" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => handleDeleteBanner(banner.id)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+                {banners.length === 0 && !uploadingBanner && (
+                  <p className="text-center text-xs text-slate-400 italic py-4">Belum ada banner.</p>
+                )}
               </div>
             </div>
           </div>
