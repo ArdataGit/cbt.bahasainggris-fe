@@ -15,6 +15,7 @@ function DashboardContent() {
   });
   const [banners, setBanners] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [history, setHistory] = useState<any[]>([]);
   const tripayRef = searchParams.get('tripay_reference');
   const merchantRef = searchParams.get('tripay_merchant_ref');
   const [showStatus, setShowStatus] = useState(!!tripayRef);
@@ -27,6 +28,7 @@ function DashboardContent() {
         setUser(parsedUser);
         fetchStats(parsedUser);
         fetchBanners();
+        fetchHistory();
       } catch (e) {
         console.error('Failed to parse user data');
       }
@@ -41,6 +43,33 @@ function DashboardContent() {
       return () => clearInterval(interval);
     }
   }, [banners]);
+
+  const fetchHistory = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await api.get('/history/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setHistory(response.data.data.slice(0, 5));
+      }
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+    }
+  };
+
+  const getScoreSummary = (item: any) => {
+    const reading = item.readingHistories.length > 0 ? 
+      item.readingHistories.reduce((acc: number, rh: any) => acc + rh.score, 0) : null;
+    const listening = item.listeningHistories.length > 0 ? 
+      item.listeningHistories.reduce((acc: number, lh: any) => acc + lh.score, 0) : null;
+    const writing = item.writingHistories.length > 0 ? 
+      item.writingHistories.reduce((acc: number, wh: any) => acc + wh.score, 0) : null;
+    const speaking = item.speakingHistories.length > 0 ? 
+      item.speakingHistories.reduce((acc: number, sh: any) => acc + sh.score, 0) : null;
+
+    return { reading, listening, writing, speaking };
+  };
 
   const fetchBanners = async () => {
     try {
@@ -177,36 +206,65 @@ function DashboardContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between group cursor-pointer hover:border-blue-500 transition-all active:scale-[0.98]">
-            <div className="flex items-center gap-8">
-               <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-lg shadow-blue-500/5 group-hover:shadow-blue-500/20">
-                  <Package size={28} />
-               </div>
-               <div>
-                  <h4 className="font-black text-slate-900 uppercase italic tracking-tight text-xl">Latihan Terbaru</h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mt-1 italic">Mulai asah kemampuanmu</p>
-               </div>
+      {/* Recent History Section */}
+      <div className="bg-white p-8 md:p-14 rounded-[3.5rem] shadow-2xl shadow-slate-200/50 border border-slate-50 relative overflow-hidden group">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h4 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Aktivitas Terakhir</h4>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mt-1 italic">5 percobaan terbaru Anda</p>
+          </div>
+          <button 
+            onClick={() => window.location.href = '/dashboard/history-user'}
+            className="text-xs font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 underline underline-offset-4"
+          >
+            Lihat Semua
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {history.length > 0 ? (
+            history.map((item) => {
+              const scores = getScoreSummary(item);
+              return (
+                <div key={item.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-[2rem] border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group cursor-pointer" onClick={() => window.location.href = `/dashboard/history-user/detail?paketId=${item.paketId}`}>
+                  <div className="flex items-center gap-6 mb-4 md:mb-0">
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 uppercase italic tracking-tight text-lg">Attempt #{item.id}</p>
+                      <p className="font-bold text-slate-400 uppercase tracking-tighter text-[10px] -mt-1 mb-1">{item.paket?.name || 'Paket Soal'}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                        {new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {[
+                      { l: 'R', v: scores.reading, c: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+                      { l: 'L', v: scores.listening, c: 'text-blue-700 bg-blue-50 border-blue-100' },
+                      { l: 'W', v: scores.writing, c: 'text-amber-700 bg-amber-50 border-amber-100' },
+                      { l: 'S', v: scores.speaking, c: 'text-purple-700 bg-purple-50 border-purple-100' }
+                    ].map((sc, i) => (
+                      <div key={i} className={`w-10 h-11 rounded-xl flex flex-col items-center justify-center border transition-all ${sc.v !== null ? sc.c : 'bg-slate-100/50 text-slate-300 border-slate-100'}`}>
+                        <span className="text-[8px] font-black opacity-40 mb-0.5">{sc.l}</span>
+                        <span className="text-xs font-black tracking-tighter">{sc.v ?? '-'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-slate-400 text-sm font-medium italic">Belum ada riwayat pengerjaan soal.</p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
-               <Sparkles size={20} />
-            </div>
-         </div>
-         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between group cursor-pointer hover:border-indigo-500 transition-all active:scale-[0.98]">
-            <div className="flex items-center gap-8">
-               <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-[1.5rem] flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-lg shadow-indigo-500/5 group-hover:shadow-indigo-500/20">
-                  <BookOpen size={28} />
-               </div>
-               <div>
-                  <h4 className="font-black text-slate-900 uppercase italic tracking-tight text-xl">Lihat History</h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mt-1 italic">Pantau progres belajar</p>
-               </div>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
-               <Zap size={20} />
-            </div>
-         </div>
+          )}
+        </div>
       </div>
+
+      
     </div>
   );
 }
