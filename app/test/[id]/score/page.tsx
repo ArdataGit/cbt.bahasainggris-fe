@@ -417,7 +417,7 @@ function ScoreContent() {
                 {/* Footer Actions */}
                 <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden">
                     <button 
-                        onClick={() => router.push('/')}
+                        onClick={() => router.push('/dashboard')}
                         className="w-full sm:w-auto px-10 py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-slate-200 group"
                     >
                         <RotateCcw size={20} className="group-hover:-rotate-45 transition-transform" />
