@@ -114,7 +114,7 @@ function HistoryUserDetail() {
     return (
       <div className="max-w-7xl mx-auto py-12 px-4 flex flex-col items-center justify-center text-gray-500 bg-white/50 rounded-3xl min-h-[600px] border border-gray-100 shadow-sm">
         <Loader2 className="animate-spin mb-4 text-blue-600" size={48} />
-        <p className="font-bold text-lg">Loading attempts...</p>
+        <p className="font-bold text-lg">Memuat pengerjaan...</p>
       </div>
     );
   }
@@ -125,7 +125,7 @@ function HistoryUserDetail() {
         items={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'My History', href: '/dashboard/history-user' },
-          { label: selectedPaket ? selectedPaket.name : 'Attempts', active: true },
+          { label: selectedPaket ? selectedPaket.name : 'Pengerjaan', active: true },
         ]} 
       />
 
@@ -139,9 +139,9 @@ function HistoryUserDetail() {
           </button>
           <div>
             <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-              {selectedPaket ? `${selectedPaket.name} Attempts` : 'Test Attempts History'}
+              {selectedPaket ? `Pengerjaan ${selectedPaket.name}` : 'Riwayat Pengerjaan Tes'}
             </h1>
-            <p className="text-gray-500 mt-1">Review your results for each attempt of this test package.</p>
+            <p className="text-gray-500 mt-1">Tinjau hasil Anda untuk setiap pengerjaan paket tes ini.</p>
           </div>
         </div>
       </div>
@@ -158,8 +158,8 @@ function HistoryUserDetail() {
           <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <Calendar size={40} />
           </div>
-          <h3 className="text-2xl font-black text-gray-900 mb-2">No attempts found</h3>
-          <p className="text-gray-500 max-w-xs mx-auto">You haven't attempted this test package yet.</p>
+          <h3 className="text-2xl font-black text-gray-900 mb-2">Pengerjaan tidak ditemukan</h3>
+          <p className="text-gray-500 max-w-xs mx-auto">Anda belum pernah mengerjakan paket tes ini.</p>
         </div>
       ) : (
         <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-blue-900/5 overflow-hidden">
@@ -167,15 +167,16 @@ function HistoryUserDetail() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-gray-100">
-                  <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Attempt Info</th>
+                  <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Info Pengerjaan</th>
                   <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Test Date</th>
                   <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Score Matrix</th>
                   <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {attempts.map((attempt) => {
+                {attempts.map((attempt, index) => {
                   const s = getScoreSummary(attempt);
+                  const urutan = attempts.length - index;
                   return (
                     <tr key={attempt.id} className="hover:bg-blue-50/20 transition-all group">
                       <td className="px-8 py-6">
@@ -184,7 +185,7 @@ function HistoryUserDetail() {
                             <Clock size={20} />
                           </div>
                           <div>
-                            <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">Attempt #{attempt.id}</p>
+                            <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">Pengerjaan {urutan}</p>
                             <div className="flex items-center gap-3 mt-1">
                               <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-100">
                                 <CheckCircle2 size={12} /> COMPLETED

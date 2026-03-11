@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Bell, Search, LogOut, ChevronDown } from 'lucide-react';
+import { Bell, LogOut, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
@@ -37,15 +37,8 @@ export default function Navbar() {
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 shrink-0">
-      {/* Search Bar */}
-      <div className="flex bg-gray-50 items-center px-3 py-2 rounded-lg lg:w-96 border border-gray-200 focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-400 transition-all">
-        <Search size={18} className="text-gray-400 mr-2" />
-        <input 
-          type="text" 
-          placeholder="Search anything..." 
-          className="bg-transparent border-none outline-none text-sm w-full text-gray-700 placeholder-gray-400"
-        />
-      </div>
+      {/* Left side spacer or empty div */}
+      <div></div>
 
       {/* Right Side Icons & Profile */}
       <div className="flex items-center gap-3">

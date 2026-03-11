@@ -51,7 +51,12 @@ function DashboardContent() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
-        setHistory(response.data.data.slice(0, 5));
+        const allData = response.data.data;
+        const recentData = allData.slice(0, 5).map((item: any, index: number) => ({
+          ...item,
+          urutan: allData.length - index
+        }));
+        setHistory(recentData);
       }
     } catch (error) {
       console.error('Failed to fetch history:', error);
@@ -232,7 +237,7 @@ function DashboardContent() {
                       <Clock size={20} />
                     </div>
                     <div>
-                      <p className="font-black text-slate-900 uppercase italic tracking-tight text-lg">Attempt #{item.id}</p>
+                      <p className="font-black text-slate-900 uppercase italic tracking-tight text-lg">Pengerjaan {item.urutan}</p>
                       <p className="font-bold text-slate-400 uppercase tracking-tighter text-[10px] -mt-1 mb-1">{item.paket?.name || 'Paket Soal'}</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                         {new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}

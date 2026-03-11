@@ -182,18 +182,18 @@ export default function WritingTestPage() {
         };
       });
 
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/history/writing`, {
-        userDataId: parseInt(userDataId),
-        results
-      });
+      // Defer saving: Store in localStorage
+      localStorage.setItem(`pending_writing_${id}`, JSON.stringify(results));
 
-      if (response.data.success) {
-        // Navigate to Speaking or Score
-        if (paket?.speakingCategories && paket.speakingCategories.length > 0) {
-          router.push(`/test/${id}/speaking`);
-        } else {
-          router.push(`/test/${id}/score?userId=${userDataId}`);
-        }
+      // Navigate to Speaking or Score
+      const hasNextSection = paket?.speakingCategories && paket.speakingCategories.length > 0;
+      
+      if (hasNextSection) {
+        router.push(`/test/${id}/speaking`);
+      } else {
+        // This is the last section, perform bulk save
+        await saveAllResults(userDataId);
+        router.push(`/test/${id}/score?userId=${userDataId}`);
       }
     } catch (err: any) {
       console.error('Error finishing test:', err);
@@ -201,6 +201,39 @@ export default function WritingTestPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveAllResults = async (userDataId: string) => {
+    const readingData = localStorage.getItem(`pending_reading_${id}`);
+    const listeningData = localStorage.getItem(`pending_listening_${id}`);
+    const writingData = localStorage.getItem(`pending_writing_${id}`);
+    
+    const promises = [];
+
+    if (readingData) {
+      promises.push(axios.post(`${process.env.NEXT_PUBLIC_API_URL}/history/reading`, {
+        userDataId: parseInt(userDataId),
+        results: JSON.parse(readingData)
+      }));
+    }
+    if (listeningData) {
+      promises.push(axios.post(`${process.env.NEXT_PUBLIC_API_URL}/history/listening`, {
+        userDataId: parseInt(userDataId),
+        results: JSON.parse(listeningData)
+      }));
+    }
+    if (writingData) {
+      promises.push(axios.post(`${process.env.NEXT_PUBLIC_API_URL}/history/writing`, {
+        userDataId: parseInt(userDataId),
+        results: JSON.parse(writingData)
+      }));
+    }
+    
+    await Promise.all(promises);
+    
+    localStorage.removeItem(`pending_reading_${id}`);
+    localStorage.removeItem(`pending_listening_${id}`);
+    localStorage.removeItem(`pending_writing_${id}`);
   };
 
   if (loading && writings.length === 0) {
