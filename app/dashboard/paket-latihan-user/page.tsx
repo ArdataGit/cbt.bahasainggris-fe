@@ -34,6 +34,17 @@ interface PaketPembelian {
   pakets: { id: number; name: string }[];
 }
 
+interface Category {
+  id: number;
+  categoryName: string;
+}
+
+interface SubCategory {
+  id: number;
+  subCategoryName: string;
+  paketCategoryId: number;
+}
+
 interface Paket {
   id: number;
   name: string;
@@ -41,6 +52,12 @@ interface Paket {
   createdAt: string;
   isFree: boolean;
   isPurchased?: boolean;
+  paketCategoryId: number | null;
+  subPaketCategoryId: number | null;
+  paketCategory?: {
+    id: number;
+    categoryName: string;
+  };
   paketPembelians: PaketPembelian[];
   _count: {
     readingCategories: number;
@@ -52,15 +69,20 @@ interface Paket {
 
 export default function UserPracticeListPage() {
   const [pakets, setPakets] = useState<Paket[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number | null>(null);
+  const [freeFilter, setFreeFilter] = useState<'all' | 'free' | 'paid'>('all');
   const [error, setError] = useState<string | null>(null);
 
   const [selectedBundle, setSelectedBundle] = useState<PaketPembelian | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchPakets();
+    Promise.all([fetchPakets(), fetchCategories(), fetchSubCategories()]);
   }, []);
 
   const formatPrice = (price: number) => {
@@ -102,9 +124,45 @@ export default function UserPracticeListPage() {
     }
   };
 
-  const filteredPakets = pakets.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-categories`);
+      if (response.data.success) {
+        setCategories(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+    }
+  };
+
+  const fetchSubCategories = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sub-paket-categories`);
+      if (response.data.success) {
+        setSubCategories(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch sub-categories:', err);
+    }
+  };
+
+  const filteredPakets = pakets.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesCategory = selectedCategoryId === null || item.paketCategoryId === selectedCategoryId;
+    const matchesSubCategory = selectedSubCategoryId === null || item.subPaketCategoryId === selectedSubCategoryId;
+    
+    const matchesFree = 
+      freeFilter === 'all' || 
+      (freeFilter === 'free' && item.isFree) || 
+      (freeFilter === 'paid' && !item.isFree);
+    
+    return matchesSearch && matchesCategory && matchesSubCategory && matchesFree;
+  });
+
+  const availableSubCategories = subCategories.filter(
+    (sub) => selectedCategoryId !== null && sub.paketCategoryId === selectedCategoryId
   );
 
   return (
@@ -126,17 +184,113 @@ export default function UserPracticeListPage() {
           </p>
         </div>
         
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search test bundles..." 
-            className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white font-medium"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+          {/* Free/Paid Filter Toggle */}
+          <div className="flex bg-slate-100 p-1 rounded-2xl w-full md:w-auto">
+            <button
+              onClick={() => setFreeFilter('all')}
+              className={`flex-1 md:flex-none px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                freeFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Semua
+            </button>
+            <button
+              onClick={() => setFreeFilter('free')}
+              className={`flex-1 md:flex-none px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                freeFilter === 'free' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Gratis
+            </button>
+            <button
+              onClick={() => setFreeFilter('paid')}
+              className={`flex-1 md:flex-none px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                freeFilter === 'paid' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Berbayar
+            </button>
+          </div>
+
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search test bundles..." 
+              className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white font-medium text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
+
+      {/* Category Filter */}
+      {!loading && !error && categories.length > 0 && (
+        <div className="space-y-4 mb-8">
+          <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-left-4 duration-500">
+            <button
+              onClick={() => {
+                setSelectedCategoryId(null);
+                setSelectedSubCategoryId(null);
+              }}
+              className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                selectedCategoryId === null 
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                  : 'bg-white text-slate-500 border border-slate-200 hover:border-blue-300'
+              }`}
+            >
+              Semua
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setSelectedCategoryId(cat.id);
+                  setSelectedSubCategoryId(null);
+                }}
+                className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                  selectedCategoryId === cat.id 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                    : 'bg-white text-slate-500 border border-slate-200 hover:border-blue-300'
+                }`}
+              >
+                {cat.categoryName}
+              </button>
+            ))}
+          </div>
+
+          {/* Sub-Category Filter */}
+          {selectedCategoryId !== null && availableSubCategories.length > 0 && (
+            <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-left-4 duration-500 delay-150">
+               <button
+                onClick={() => setSelectedSubCategoryId(null)}
+                className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                  selectedSubCategoryId === null 
+                    ? 'bg-slate-800 text-white shadow-md' 
+                    : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                }`}
+              >
+                Semua Sub
+              </button>
+              {availableSubCategories.map((sub) => (
+                <button
+                  key={sub.id}
+                  onClick={() => setSelectedSubCategoryId(sub.id)}
+                  className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                    selectedSubCategoryId === sub.id 
+                      ? 'bg-slate-800 text-white shadow-md' 
+                      : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                  }`}
+                >
+                  {sub.subCategoryName}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 animate-in fade-in duration-500">
@@ -195,7 +349,7 @@ export default function UserPracticeListPage() {
                           </span>
                         )}
                         <span className="text-[10px] font-black text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase tracking-widest">
-                          EN-CBT
+                          {item.paketCategory?.categoryName || 'General'}
                         </span>
                      </div>
                   </div>

@@ -43,13 +43,16 @@ export default function CreatePaketPage() {
   const fetchAllCategories = async () => {
     try {
       setFetching(true);
+      const token = localStorage.getItem('token');
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
       const [resR, resL, resW, resS, resPC, resSPC] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reading-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sub-paket-categories`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reading-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sub-paket-categories`, config)
       ]);
       if (resR.data.success) setReadingCategories(resR.data.data);
       if (resL.data.success) setListeningCategories(resL.data.data);

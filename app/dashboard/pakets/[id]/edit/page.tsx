@@ -45,14 +45,17 @@ export default function EditPaketPage() {
   const fetchInitialData = async () => {
     try {
       setFetchingData(true);
+      const token = localStorage.getItem('token');
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
       const [resPaket, resR, resL, resW, resS, resPC, resSPC] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reading-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-categories`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sub-paket-categories`)
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reading-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/listening-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/writing-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/speaking-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-categories`, config),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/sub-paket-categories`, config)
       ]);
 
       if (resR.data.success) setReadingCategories(resR.data.data);
@@ -115,7 +118,10 @@ export default function EditPaketPage() {
         isFree: formData.isFree,
       };
 
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`, payload);
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/pakets/${params.id}`, payload, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
 
       if (response.data.success) {
         router.push('/dashboard/pakets');
