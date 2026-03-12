@@ -39,8 +39,16 @@ export default function Navbar() {
       if (response.data.success) {
         setUnreadCount(response.data.data.unreadCount);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch notifications:', error);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        // Token invalid or expired - force re-login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          router.push('/login?redirect=' + window.location.pathname);
+        }
+      }
     }
   };
 
