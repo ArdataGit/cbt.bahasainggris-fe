@@ -226,41 +226,62 @@ function DashboardContent() {
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
           {history.length > 0 ? (
-            history.map((item) => {
-              const scores = getScoreSummary(item);
-              return (
-                <div key={item.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-[2rem] border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group cursor-pointer" onClick={() => window.location.href = `/dashboard/history-user/detail?paketId=${item.paketId}`}>
-                  <div className="flex items-center gap-6 mb-4 md:mb-0">
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                      <Clock size={20} />
-                    </div>
-                    <div>
-                      <p className="font-black text-slate-900 uppercase italic tracking-tight text-lg">Pengerjaan {item.urutan}</p>
-                      <p className="font-bold text-slate-400 uppercase tracking-tighter text-[10px] -mt-1 mb-1">{item.paket?.name || 'Paket Soal'}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                        {new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    {[
-                      { l: 'R', v: scores.reading, c: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
-                      { l: 'L', v: scores.listening, c: 'text-blue-700 bg-blue-50 border-blue-100' },
-                      { l: 'W', v: scores.writing, c: 'text-amber-700 bg-amber-50 border-amber-100' },
-                      { l: 'S', v: scores.speaking, c: 'text-purple-700 bg-purple-50 border-purple-100' }
-                    ].map((sc, i) => (
-                      <div key={i} className={`w-10 h-11 rounded-xl flex flex-col items-center justify-center border transition-all ${sc.v !== null ? sc.c : 'bg-slate-100/50 text-slate-300 border-slate-100'}`}>
-                        <span className="text-[8px] font-black opacity-40 mb-0.5">{sc.l}</span>
-                        <span className="text-xs font-black tracking-tighter">{sc.v ?? '-'}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
+            <table className="w-full text-left border-separate border-spacing-y-3">
+              <thead>
+                <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                  <th className="px-6 pb-2">Aktivitas</th>
+                  <th className="px-6 pb-2">Paket</th>
+                  <th className="px-6 pb-2 text-center">Tanggal</th>
+                  <th className="px-2 pb-2 text-center">R</th>
+                  <th className="px-2 pb-2 text-center">L</th>
+                  <th className="px-2 pb-2 text-center">W</th>
+                  <th className="px-2 pb-2 text-center">S</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((item) => {
+                  const scores = getScoreSummary(item);
+                  return (
+                    <tr 
+                      key={item.id} 
+                      className="group bg-slate-50 hover:bg-white hover:shadow-2xl hover:shadow-blue-500/10 transition-all cursor-pointer"
+                      onClick={() => window.location.href = `/dashboard/history-user/detail?paketId=${item.paketId}`}
+                    >
+                      <td className="px-6 py-4 rounded-l-[1.5rem] border-y border-l border-slate-100 group-hover:border-blue-100">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                            <Clock size={16} />
+                          </div>
+                          <span className="font-black text-slate-900 uppercase italic tracking-tight">Pengerjaan {item.urutan}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 border-y border-slate-100 group-hover:border-blue-100">
+                          <span className="font-bold text-slate-600 uppercase tracking-tighter text-xs block truncate max-w-[150px]">{item.paket?.name || 'Paket Soal'}</span>
+                      </td>
+                      <td className="px-6 py-4 border-y border-slate-100 group-hover:border-blue-100 text-center">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          {new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                      </td>
+                      {[
+                        { v: scores.reading, c: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+                        { v: scores.listening, c: 'text-blue-700 bg-blue-50 border-blue-100' },
+                        { v: scores.writing, c: 'text-amber-700 bg-amber-50 border-amber-100' },
+                        { v: scores.speaking, c: 'text-purple-700 bg-purple-50 border-purple-100' }
+                      ].map((sc, i) => (
+                        <td key={i} className={`px-2 py-4 border-y border-slate-100 group-hover:border-blue-100 text-center ${i === 3 ? 'rounded-r-[1.5rem] border-r' : ''}`}>
+                          <div className={`inline-flex w-10 h-10 rounded-xl flex-col items-center justify-center border transition-all ${sc.v !== null ? sc.c : 'bg-slate-100/40 text-slate-300 border-slate-100/50'}`}>
+                            <span className="text-xs font-black tracking-tighter">{sc.v ?? '-'}</span>
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           ) : (
             <div className="text-center py-10">
               <p className="text-slate-400 text-sm font-medium italic">Belum ada riwayat pengerjaan soal.</p>

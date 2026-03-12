@@ -17,6 +17,7 @@ import Breadcrumbs from '@/app/components/breadcrumbs';
 
 interface HistoryPembelian {
   id: number;
+  paketPembelianId: number;
   paketPembelian: {
     name: string;
     price: number;
@@ -162,7 +163,7 @@ export default function HistoryPembelianPage() {
                 
                 {item.status === 'PENDING' && (
                    <button 
-                    onClick={() => window.location.href = `/checkout/${item.id}`} // Should ideally link back to instructions
+                    onClick={() => window.location.href = `/checkout/${item.paketPembelianId}`}
                     className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all active:scale-95"
                    >
                      Bayar Sekarang

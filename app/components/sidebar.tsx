@@ -14,30 +14,40 @@ import {
   Edit3,
   Mic,
   Package,
-  CreditCard
+  CreditCard,
+  History,
+  List,
+  Layers,
+  ShoppingBag,
+  Globe,
+  Library,
+  Target,
+  Receipt,
+  Bell
 } from 'lucide-react';
 
 const sidebarItems = [
   { icon: Home, label: 'Dashboard', href: '/dashboard' },
+  { icon: Bell, label: 'Notifikasi', href: '/dashboard/admin-notifications', adminOnly: true },
   { icon: BookOpen, label: 'Readings', href: '/dashboard/readings', adminOnly: true },
   { icon: Headphones, label: 'Listening', href: '/dashboard/listening', adminOnly: true },
   { icon: Edit3, label: 'Writing', href: '/dashboard/writing', adminOnly: true },
   { icon: Mic, label: 'Speaking', href: '/dashboard/speaking', adminOnly: true },
   { icon: Package, label: 'Pakets', href: '/dashboard/pakets', adminOnly: true },
-  { icon: Package, label: 'Paket Category Master', href: '/dashboard/paket-category', adminOnly: true },
-  { icon: Package, label: 'Sub Paket Category Master', href: '/dashboard/sub-paket-category', adminOnly: true },
-  { icon: Users, label: 'History', href: '/dashboard/history', adminOnly: true },
-  { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian', adminOnly: true },
-  { icon: Package, label: 'Landing Page Pakets', href: '/dashboard/landing-pakets', adminOnly: true },
+  { icon: List, label: 'Paket Category Master', href: '/dashboard/paket-category', adminOnly: true },
+  { icon: Layers, label: 'Sub Paket Category Master', href: '/dashboard/sub-paket-category', adminOnly: true },
+  { icon: History, label: 'History', href: '/dashboard/history', adminOnly: true },
+  { icon: ShoppingBag, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian', adminOnly: true },
+  { icon: Globe, label: 'Landing Page Pakets', href: '/dashboard/landing-pakets', adminOnly: true },
   { icon: CreditCard, label: 'Pembelian User', href: '/dashboard/pembelian-user', adminOnly: true },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings', adminOnly: true },
 
 
-{ icon: Users, label: 'History', href: '/dashboard/history-user', userOnly: true },
-{ icon: Users, label: 'Paket Saya', href: '/dashboard/paket-saya', userOnly: true },
-  { icon: Users, label: 'Paket Latihan', href: '/dashboard/paket-latihan-user', userOnly: true },
-  { icon: Package, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian-user', userOnly: true },
-  { icon: CreditCard, label: 'Riwayat Pembelian', href: '/dashboard/history-pembelian', userOnly: true },
+{ icon: History, label: 'History', href: '/dashboard/history-user', userOnly: true },
+{ icon: Library, label: 'Paket Saya', href: '/dashboard/paket-saya', userOnly: true },
+  { icon: Target, label: 'Paket Latihan', href: '/dashboard/paket-latihan-user', userOnly: true },
+  { icon: ShoppingBag, label: 'Paket Pembelian', href: '/dashboard/paket-pembelian-user', userOnly: true },
+  { icon: Receipt, label: 'Riwayat Pembelian', href: '/dashboard/history-pembelian', userOnly: true },
 ];
 
 export default function Sidebar() {

@@ -3,22 +3,46 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, LogOut, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import api from '@/app/lib/api';
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
+        fetchNotifications();
       } catch (e) {
         console.error('Failed to parse user from localStorage', e);
       }
     }
+    
+    // Refresh notifications every 60 seconds
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await api.get('/notifications', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        setUnreadCount(response.data.data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -43,14 +67,21 @@ export default function Navbar() {
       {/* Right Side Icons & Profile */}
       <div className="flex items-center gap-3">
         {/* Notifications */}
-        <button className="relative p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors">
-          <Bell size={20} />
-          {/* Notification Dot */}
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+        <button 
+          onClick={() => router.push('/dashboard/notifications')}
+          className="relative p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all group"
+        >
+          <Bell size={20} className="group-hover:scale-110 transition-transform" />
+          {/* Notification Dot/Badge */}
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full ring-2 ring-white flex items-center justify-center animate-bounce shadow-sm">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </button>
         
         {/* Divider */}
-        <div className="h-6 w-px bg-gray-200 mx-2"></div>
+        <div className="h-6 w-px bg-gray-100 mx-2"></div>
 
         {/* User Profile & Dropdown */}
         <div className="relative">
