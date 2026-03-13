@@ -246,9 +246,9 @@ export default function WritingTestPage() {
 
   if (view === 'introduction') {
     return (
-      <div className="min-h-screen bg-[#E3F2FD] relative flex flex-col font-sans">
+      <div className="min-h-screen bg-[#E3F2FD] relative flex flex-col font-sans overflow-hidden">
         {/* Background Geometric Patterns - matching the user image style */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-between px-10">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden sm:flex items-center justify-between px-10">
            <div className="flex flex-col gap-4 opacity-40">
             {[...Array(8)].map((_, i) => (
               <div key={`l-${i}`} className="w-48 h-48 border-r-[4px] border-t-[4px] border-blue-400 rotate-45" style={{ marginLeft: i * 16 }}></div>
@@ -261,59 +261,59 @@ export default function WritingTestPage() {
           </div>
         </div>
 
-        <header className="relative z-10 w-full h-20 bg-white border-b flex items-center justify-center shadow-sm">
+        <header className="relative z-10 w-full h-16 md:h-20 bg-white border-b flex items-center justify-center shadow-sm shrink-0">
           {settings?.logoUrl ? (
-            <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+            <img src={settings.logoUrl} alt="Logo" className="h-8 md:h-10 object-contain" />
           ) : (
             <div className="flex items-center gap-0.5">
-              <span className="text-3xl font-black italic text-slate-800 tracking-tighter">COBA</span>
-              <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
+              <span className="text-xl md:text-3xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+              <span className="text-xl md:text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
             </div>
           )}
         </header>
 
-        <main className="relative z-10 flex-grow flex items-center justify-center p-6">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col">
-            <div className="pt-16 pb-12 px-12 text-center">
-              <h1 className="text-5xl font-black text-slate-900 mb-6 tracking-tight">Writing</h1>
-              <p className="text-2xl text-slate-600 font-medium tracking-tight">You are about to start the writing section.</p>
+        <main className="relative z-10 flex-grow flex items-center justify-center p-4 md:p-6">
+          <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col">
+            <div className="pt-8 pb-6 md:pt-16 md:pb-12 px-6 md:px-12 text-center">
+              <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 md:mb-6 tracking-tight">Writing</h1>
+              <p className="text-lg md:text-2xl text-slate-600 font-medium tracking-tight">You are about to start the writing section.</p>
             </div>
             
-            <div className="bg-[#F4F9FF] py-16 flex flex-col items-center border-y border-blue-50">
-              <div className="w-20 h-20 bg-white rounded-xl shadow-sm border border-blue-100 flex items-center justify-center mb-6">
-                 <PenTool size={40} className="text-blue-500" strokeWidth={1.5} />
+            <div className="bg-[#F4F9FF] py-8 md:py-16 flex flex-col items-center border-y border-blue-50">
+              <div className="w-14 h-14 md:w-20 md:h-20 bg-white rounded-xl shadow-sm border border-blue-100 flex items-center justify-center mb-4 md:mb-6">
+                 <PenTool size={32} className="text-blue-500" strokeWidth={1.5} />
               </div>
-              <h3 className="text-slate-800 font-bold text-xl mb-2">Writing</h3>
-              <p className="text-slate-900 font-black text-3xl tracking-tight">{Math.floor(timeLeft / 60)} mins</p>
+              <h3 className="text-slate-800 font-bold text-lg md:text-xl mb-1 md:mb-2">Writing</h3>
+              <p className="text-slate-900 font-black text-2xl md:text-3xl tracking-tight">{Math.floor(timeLeft / 60)} mins</p>
             </div>
 
-            <div className="p-16 flex-grow">
+            <div className="p-6 md:p-16 flex-grow max-h-[30vh] md:max-h-none overflow-y-auto">
               {settings?.writingInstructions ? (
                 <div 
-                  className="prose prose-slate max-w-none text-[18px] leading-relaxed text-slate-800 font-medium"
+                  className="prose prose-slate max-w-none text-sm md:text-[18px] leading-relaxed text-slate-800 font-medium"
                   dangerouslySetInnerHTML={{ __html: settings.writingInstructions }}
                 />
               ) : (
-                <ul className="space-y-8">
+                <ul className="space-y-4 md:space-y-8">
                   {[
                     `You will see ${writings.length} prompt${writings.length > 1 ? 's' : ''} in this section. The prompts are not all the same difficulty. Pace yourself so that you have time to answer all the prompts.`,
                     "You can use any standard English spelling (UK, US, etc.).",
                     "You do not have to answer the prompts truthfully. If you find a question too personal or don't have any relevant experience, feel free to make up a fictitious answer.",
                     "Your score will include the complexity of vocabulary and linguistic structures used. Submitting shorter answers than the target length or using simple language may result in a lower score."
                   ].map((text, i) => (
-                    <li key={i} className="flex items-start gap-6">
-                      <div className="mt-2.5 w-2 h-2 rounded-full bg-slate-900 shrink-0"></div>
-                      <p className="text-[18px] leading-relaxed text-slate-800 font-medium">{text}</p>
+                    <li key={i} className="flex items-start gap-4 md:gap-6">
+                      <div className="mt-2 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-slate-900 shrink-0"></div>
+                      <p className="text-sm md:text-[18px] leading-relaxed text-slate-800 font-medium">{text}</p>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
 
-            <div className="px-16 pb-16 flex justify-center">
+            <div className="px-6 pb-8 md:px-16 md:pb-16 flex justify-center">
               <button 
                 onClick={() => setView('test')}
-                className="bg-[#007BFF] hover:bg-[#0069D9] text-white text-2xl font-black px-20 py-5 rounded-full shadow-xl shadow-blue-200 transition-all active:scale-95"
+                className="w-full sm:w-auto bg-[#007BFF] hover:bg-[#0069D9] text-white text-xl md:text-2xl font-black px-12 md:px-20 py-4 md:py-5 rounded-full shadow-xl shadow-blue-200 transition-all active:scale-95"
               >
                 Start
               </button>
@@ -327,72 +327,64 @@ export default function WritingTestPage() {
   const currentWriting = writings[currentWritingIndex];
 
   return (
-    <div className="h-screen overflow-hidden bg-white flex flex-col font-sans">
-      <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
+    <div className="h-screen bg-white flex flex-col font-sans overflow-hidden">
+      <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm shrink-0">
         {settings?.logoUrl ? (
-          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+          <img src={settings.logoUrl} alt="Logo" className="h-8 md:h-10 object-contain" />
         ) : (
           <div className="flex items-center gap-0.5">
-            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
-            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+            <span className="text-xl md:text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+            <span className="text-xl md:text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
           </div>
         )}
       </header>
 
-      <div className="h-14 border-b flex items-center px-8 gap-6 bg-white z-20">
-        <div className="flex items-center gap-2 text-slate-600">
-          <PenTool size={20} />
-          <span className="font-semibold text-sm mr-4 uppercase tracking-wider">Writing</span>
-          <div className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-blue-100">
-            Task {currentWritingIndex + 1} of {writings.length}
+      {/* Control Bar */}
+      <div className="h-auto md:h-14 border-b flex flex-col md:flex-row items-center px-4 md:px-8 py-2 md:py-0 gap-3 md:gap-6 bg-white z-20 shrink-0">
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <div className="flex items-center gap-2 text-slate-600">
+            <PenTool size={18} />
+            <span className="font-semibold text-xs md:text-sm md:mr-4 uppercase tracking-wider">Writing</span>
+            <div className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] md:text-[10px] font-black tracking-[0.1em] md:tracking-[0.2em] uppercase rounded border border-blue-100 italic">
+              T{currentWritingIndex + 1}/{writings.length}
+            </div>
+          </div>
+          <div className="flex items-center gap-3 md:hidden">
+            <span className="font-bold text-slate-800 font-mono text-base">{formatTime(timeLeft)}</span>
+            <div className="w-4 h-4 rounded-full bg-blue-500 shadow-sm animate-pulse"></div>
           </div>
         </div>
         
-        <div className="flex-grow bg-slate-100 h-1.5 rounded-full relative overflow-hidden">
+        <div className="w-full md:flex-grow bg-slate-100 h-1 md:h-1.5 rounded-full relative overflow-hidden">
           <div 
             className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-500"
             style={{ width: `${((currentWritingIndex + 1) / writings.length) * 100}%` }}
           ></div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <span className="font-bold text-slate-800 font-mono text-lg">{formatTime(timeLeft)}</span>
           <div className="w-5 h-5 rounded-full bg-blue-500 shadow-sm animate-pulse"></div>
         </div>
       </div>
 
-      <main className="flex-grow flex overflow-hidden">
+      <main className="flex-grow flex flex-col lg:flex-row overflow-hidden">
         {/* Left Column: Prompt / Instructions - Hidden for Short Answer */}
         {currentWriting?.jenis !== 'SHORT_ANSWER' && (
           <div 
             id="prompt-container"
-            className="w-1/2 p-12 overflow-y-auto border-r border-slate-100 bg-white"
+            className="w-full lg:w-1/2 p-6 md:p-12 overflow-y-auto border-b lg:border-b-0 lg:border-r border-slate-100 bg-white h-1/2 lg:h-full"
           >
             <div className="max-w-2xl mx-auto">
-               {/* <div className="flex items-center gap-3 mb-6">
-                  <div className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-blue-100">
-                     Task {currentWritingIndex + 1} of {writings.length}
-                  </div>
-                  {currentWriting?.jenis && (
-                    <div className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black tracking-[0.2em] uppercase rounded border border-purple-100">
-                      {currentWriting.jenis.replace('_', ' ')}
-                    </div>
-                  )}
-               </div> */}
-
-               {/* <h1 className="text-4xl font-black text-slate-900 mb-8 leading-tight tracking-tight">
-                 {currentWriting?.title || 'Writing Prompt'}
-               </h1> */}
-               
                <div 
-                 className="prose prose-slate max-w-none text-[18px] leading-relaxed text-slate-700 font-medium"
+                 className="prose prose-slate max-w-none text-base md:text-[18px] leading-relaxed text-slate-700 font-medium"
                  dangerouslySetInnerHTML={{ __html: currentWriting?.content || '' }}
                />
 
-               <div className="mt-12 p-6 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-4">
+               <div className="mt-8 md:mt-12 p-4 md:p-6 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-4">
                   <Info className="text-blue-500 shrink-0 mt-0.5" size={20} />
-                  <div className="text-sm text-slate-600 font-medium">
-                     Please provide your response in the writing area on the right. 
+                  <div className="text-xs md:text-sm text-slate-600 font-medium">
+                     Please provide your response in the writing area. 
                      {currentWriting?.targetWords > 0 && (
                        <span className="block mt-1 font-bold text-blue-700">
                          Recommended length: {currentWriting.targetWords} words.
@@ -405,56 +397,51 @@ export default function WritingTestPage() {
         )}
 
         {/* Right Column: Writing Area */}
-        <div className={`${currentWriting?.jenis === 'SHORT_ANSWER' ? 'w-full px-4 sm:px-12 py-12 sm:py-20' : 'w-1/2 p-12'} bg-[#F8FBFF] flex flex-col relative overflow-y-auto`}>
+        <div className={`${currentWriting?.jenis === 'SHORT_ANSWER' ? 'w-full' : 'w-full lg:w-1/2 h-1/2 lg:h-full'} p-6 md:p-12 bg-[#F8FBFF] flex flex-col relative overflow-y-auto custom-scrollbar`}>
            <div className={`flex-grow flex flex-col ${currentWriting?.jenis === 'SHORT_ANSWER' ? 'max-w-4xl' : 'max-w-3xl'} w-full mx-auto`}>
-                <div className="mb-8">
-                   <h2 className="text-xl font-bold text-slate-900 mb-4 leading-relaxed">
-                     Read the following questions and provide your short answers.
-                   </h2>
-                </div>
+                {currentWriting?.jenis === 'SHORT_ANSWER' && (
+                   <div className="mb-6 md:mb-8">
+                      <h2 className="text-lg md:text-xl font-bold text-slate-900 mb-2 md:mb-4 leading-relaxed">
+                        Read the following questions and provide your short answers.
+                      </h2>
+                   </div>
+                )}
 
               <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                  {/* <span className="text-[12px] font-black text-slate-400 tracking-widest uppercase italic">
-                    {currentWriting?.jenis === 'SHORT_ANSWER' ? 'Your Answer' : 'Your Response'}
-                  </span> */}
-                  {savingStatus !== 'idle' && (
-                       <div className="flex items-center gap-2 px-3 py-1 bg-white border border-slate-100 rounded-full text-xs text-slate-500 animate-in fade-in slide-in-from-left-2 transition-all">
-                          {savingStatus === 'saving' ? (
-                            <>
-                              <Loader2 size={12} className="animate-spin text-blue-500" />
-                              <span className="font-bold">Auto-saving...</span>
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle size={12} className="text-green-500" />
-                              <span className="font-bold">Draft Saved</span>
-                            </>
-                          )}
-                       </div>
-                    )}
+                 <div className="flex items-center gap-4">
+                    {savingStatus !== 'idle' && (
+                         <div className="flex items-center gap-2 px-3 py-1 bg-white border border-slate-100 rounded-full text-xs text-slate-500 animate-in fade-in slide-in-from-left-2 transition-all">
+                            {savingStatus === 'saving' ? (
+                              <>
+                                <Loader2 size={12} className="animate-spin text-blue-500" />
+                                <span className="font-bold">Auto-saving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle size={12} className="text-green-500" />
+                                <span className="font-bold">Draft Saved</span>
+                              </>
+                            )}
+                         </div>
+                      )}
                  </div>
-                  {/* <div className="flex items-center gap-3">
-                    <Clock size={16} className="text-slate-400" />
-                    <span className="text-[12px] font-black text-slate-500 tracking-widest uppercase font-mono">{formatTime(timeLeft)}</span>
-                  </div> */}
               </div>
 
-              <div className="flex-grow flex flex-col gap-10">
+              <div className="flex-grow flex flex-col gap-6 md:gap-10">
                 {currentWriting?.jenis === 'SHORT_ANSWER' ? (
                   currentWriting.SoalWriting.map((sw, idx) => (
-                    <div key={sw.id} className="flex flex-col gap-4">
+                    <div key={sw.id} className="flex flex-col gap-3 md:gap-4">
                        <div className="flex items-center gap-3">
-                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white text-sm font-black">
+                          <span className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg bg-blue-600 text-white text-xs md:text-sm font-black">
                              {idx + 1}
                           </span>
-                          <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                          <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
                              {sw.question}
                           </h3>
                        </div>
-                       <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col p-6 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+                       <div className="bg-white rounded-[1.5rem] md:rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col p-4 md:p-6 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all">
                           <textarea 
-                             className="w-full h-32 resize-none outline-none text-xl leading-relaxed text-slate-800 placeholder:text-slate-200 font-medium"
+                             className="w-full h-24 md:h-32 resize-none outline-none text-lg md:text-xl leading-relaxed text-black placeholder:text-slate-200 font-medium"
                              placeholder="Type your answer here..."
                              value={answers[`q-${sw.id}`] || ''}
                              onChange={(e) => handleAnswerChange(`q-${sw.id}`, e.target.value)}
@@ -463,52 +450,50 @@ export default function WritingTestPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="flex-grow bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col p-8 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all group">
+                  <div className="flex-grow bg-white rounded-[1.5rem] md:rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col p-6 md:p-8 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all group min-h-[250px] lg:min-h-0">
                     <textarea 
-                        className="flex-grow w-full resize-none outline-none text-xl leading-relaxed text-slate-800 placeholder:text-slate-200 font-medium"
+                        className="flex-grow w-full resize-none outline-none text-lg md:text-xl leading-relaxed text-black placeholder:text-slate-200 font-medium"
                         placeholder="Start typing your response here..."
                         value={answers[currentWriting?.id] || ''}
                         onChange={(e) => handleAnswerChange(currentWriting.id, e.target.value)}
                     />
 
-                    <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-center sm:justify-between">
-                        <div className="flex items-center gap-6">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase mb-0.5 text-center sm:text-left">Word Count</span>
-                                <span className={`text-2xl font-black text-center sm:text-left ${
-                                  currentWriting?.targetWords > 0 && getWordCount(answers[currentWriting.id] || '') < currentWriting.targetWords
-                                  ? 'text-slate-400' 
-                                  : 'text-blue-600'
-                                }`}>
-                                  {getWordCount(answers[currentWriting?.id] || '')}
-                                  {currentWriting?.targetWords > 0 && (
-                                    <span className="text-sm text-slate-300 font-bold ml-1">/ {currentWriting.targetWords} recommended</span>
-                                  )}
-                                </span>
-                            </div>
+                    <div className="mt-4 md:mt-8 pt-4 md:pt-6 border-t border-slate-50 flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <span className="text-[8px] md:text-[10px] font-black text-slate-400 tracking-[0.1em] md:tracking-[0.2em] uppercase mb-0.5">Word Count</span>
+                            <span className={`text-xl md:text-2xl font-black ${
+                              currentWriting?.targetWords > 0 && getWordCount(answers[currentWriting.id] || '') < currentWriting.targetWords
+                              ? 'text-slate-400' 
+                              : 'text-blue-600'
+                            }`}>
+                              {getWordCount(answers[currentWriting?.id] || '')}
+                              {currentWriting?.targetWords > 0 && (
+                                <span className="text-[10px] md:text-sm text-slate-300 font-bold ml-1">/ {currentWriting.targetWords} rec.</span>
+                              )}
+                            </span>
                         </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="mt-12 flex justify-end gap-6">
+              <div className="mt-8 md:mt-12 flex justify-center md:justify-end gap-6 mb-8 lg:mb-0">
                  {currentWritingIndex < writings.length - 1 ? (
                    <button 
                      onClick={() => {
                         setCurrentWritingIndex(prev => prev + 1);
                      }}
-                     className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full font-black shadow-xl shadow-blue-100 transition-all flex items-center gap-3 hover:scale-105 active:scale-95 text-lg"
+                     className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 md:px-12 py-3.5 md:py-4 rounded-full font-black shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-3 hover:scale-105 active:scale-95 text-base md:text-lg"
                    >
                      Next Task
-                     <ArrowRight size={20} strokeWidth={3} />
+                     <ArrowRight size={18} strokeWidth={3} />
                    </button>
                  ) : (
                    <button 
                      onClick={handleFinish}
-                     className="bg-[#007BFF] hover:bg-[#0069D9] text-white px-14 py-4 rounded-full font-black shadow-xl shadow-blue-100 transition-all flex items-center gap-3 hover:scale-105 active:scale-95 text-lg"
+                     className="w-full sm:w-auto bg-[#007BFF] hover:bg-[#0069D9] text-white px-10 md:px-14 py-3.5 md:py-4 rounded-full font-black shadow-xl shadow-blue-100 transition-all flex items-center justify-center gap-3 hover:scale-105 active:scale-95 text-base md:text-lg"
                    >
-                     Finish Writing Section
+                     Finish Section
                    </button>
                  )}
               </div>
@@ -525,6 +510,20 @@ export default function WritingTestPage() {
 
         .prose p {
           margin-bottom: 1.5rem;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1;
         }
       `}</style>
     </div>

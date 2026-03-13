@@ -334,9 +334,9 @@ export default function ListeningTestPage() {
 
   if (view === 'audio-check') {
     return (
-      <div className="min-h-screen bg-[#E3F2FD] relative flex flex-col font-sans">
-        {/* Background Geometric Patterns */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-between px-10">
+      <div className="min-h-screen bg-[#E3F2FD] relative flex flex-col font-sans overflow-hidden">
+        {/* Background Geometric Patterns - Hidden on very small screens */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden sm:flex items-center justify-between px-10">
            <div className="flex flex-col gap-4 opacity-40">
             {[...Array(8)].map((_, i) => (
               <div key={`l-${i}`} className="w-48 h-48 border-r-[4px] border-t-[4px] border-blue-400 rotate-45" style={{ marginLeft: i * 16 }}></div>
@@ -349,47 +349,47 @@ export default function ListeningTestPage() {
           </div>
         </div>
 
-        <header className="relative z-10 w-full h-20 bg-white border-b flex items-center justify-center shadow-sm">
+        <header className="relative z-10 w-full h-16 md:h-20 bg-white border-b flex items-center justify-center shadow-sm shrink-0">
           {settings?.logoUrl ? (
-            <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+            <img src={settings.logoUrl} alt="Logo" className="h-8 md:h-10 object-contain" />
           ) : (
             <div className="flex items-center gap-0.5">
-              <span className="text-3xl font-black italic text-slate-800 tracking-tighter">COBA</span>
-              <span className="text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
+              <span className="text-xl md:text-3xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+              <span className="text-xl md:text-3xl font-light text-slate-500 tracking-[0.3em] ml-2">TEST</span>
             </div>
           )}
         </header>
 
-        <main className="relative z-10 flex-grow flex items-center justify-center p-6">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl p-16 text-center">
-            <h1 className="text-4xl font-black text-slate-900 mb-6 tracking-tight">Audio check</h1>
-            <p className="text-xl text-slate-600 mb-12 font-medium">Please check your audio settings before you start.</p>
+        <main className="relative z-10 flex-grow flex items-center justify-center p-4 md:p-6">
+          <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-2xl w-full max-w-2xl p-8 md:p-16 text-center">
+            <h1 className="text-2xl md:text-4xl font-black text-slate-900 mb-4 md:mb-6 tracking-tight">Audio check</h1>
+            <p className="text-base md:text-xl text-slate-600 mb-8 md:mb-12 font-medium">Please check your audio settings before you start.</p>
             
-            <div className="mb-12 flex flex-col items-center">
+            <div className="mb-8 md:mb-12 flex flex-col items-center">
               <button 
                 onClick={toggleCheckAudio}
-                className="w-24 h-24 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-200 transition-all hover:scale-105"
+                className="w-16 h-16 md:w-24 md:h-24 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-200 transition-all hover:scale-105"
               >
                 {isPlaying ? (
-                  <div className="flex gap-2 items-center">
-                    <div className="w-2 h-10 bg-white rounded-full animate-pulse"></div>
-                    <div className="w-2 h-10 bg-white rounded-full animate-pulse delay-75"></div>
+                  <div className="flex gap-1 md:gap-2 items-center">
+                    <div className="w-1.5 md:w-2 h-8 md:h-10 bg-white rounded-full animate-pulse"></div>
+                    <div className="w-1.5 md:w-2 h-8 md:h-10 bg-white rounded-full animate-pulse delay-75"></div>
                   </div>
                 ) : (
-                  <Play size={40} fill="currentColor" />
+                  <Play size={32} fill="currentColor" />
                 )}
               </button>
-              <p className="mt-4 text-slate-500 font-bold uppercase tracking-widest text-xs">
+              <p className="mt-4 text-slate-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">
                 {isPlaying ? 'Audio is playing...' : 'Press play button'}
               </p>
             </div>
 
-            <h2 className="text-2xl font-bold text-slate-800 mb-8">Can you hear the recording?</h2>
+            <h2 className="text-lg md:text-2xl font-bold text-slate-800 mb-6 md:mb-8">Can you hear the recording?</h2>
 
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
               <button 
                 onClick={() => alert('Please check your device volume or headphones.')}
-                className="px-10 py-4 border-2 border-blue-600 text-blue-600 font-bold rounded-full hover:bg-blue-50 transition-colors min-w-[140px]"
+                className="w-full sm:w-auto px-6 md:px-10 py-3 md:py-4 border-2 border-blue-600 text-blue-600 font-bold rounded-full hover:bg-blue-50 transition-colors"
               >
                 No
               </button>
@@ -401,7 +401,7 @@ export default function ListeningTestPage() {
                   }
                   setView('introduction');
                 }}
-                className="px-10 py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95 min-w-[200px]"
+                className="w-full sm:w-auto px-6 md:px-10 py-3 md:py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95"
               >
                 Yes, continue to test
               </button>
@@ -409,9 +409,9 @@ export default function ListeningTestPage() {
           </div>
         </main>
 
-        <div className="absolute bottom-10 right-10">
-            <button className="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg">
-                <Volume2 size={24} />
+        <div className="absolute bottom-6 md:bottom-10 right-6 md:right-10 z-20">
+            <button className="w-12 h-12 md:w-14 md:h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg">
+                <Volume2 size={20} />
             </button>
         </div>
       </div>
@@ -420,9 +420,9 @@ export default function ListeningTestPage() {
 
   if (view === 'introduction') {
     return (
-      <div className="min-h-screen bg-[#E3F2FD] relative flex flex-col">
-         {/* Background Geometric Patterns */}
-         <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="min-h-screen bg-[#E3F2FD] relative flex flex-col overflow-x-hidden">
+         {/* Background Geometric Patterns - Hidden on very small screens */}
+         <div className="absolute inset-0 pointer-events-none overflow-hidden hidden sm:block">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 opacity-40">
             {[...Array(6)].map((_, i) => (
               <div key={`l-${i}`} className="w-32 h-32 border-r-[3px] border-t-[3px] border-blue-400 rotate-45" style={{ marginLeft: i * 12 }}></div>
@@ -435,32 +435,32 @@ export default function ListeningTestPage() {
           </div>
         </div>
 
-        <header className="relative z-10 w-full h-16 bg-white border-b flex items-center justify-center shadow-sm">
+        <header className="relative z-10 w-full h-16 bg-white border-b flex items-center justify-center shadow-sm shrink-0">
           <div className="flex items-center gap-0.5">
-            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">CBT</span>
-            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+            <span className="text-xl md:text-2xl font-black italic text-slate-800 tracking-tighter">CBT</span>
+            <span className="text-xl md:text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
           </div>
         </header>
 
         <main className="relative z-10 flex-grow flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col">
-            <div className="pt-10 pb-8 px-8 text-center">
-              <h1 className="text-[32px] font-bold text-slate-900 mb-2">Listening</h1>
-              <p className="text-lg text-slate-600">You are about to start the listening section.</p>
+            <div className="pt-8 pb-6 md:pt-10 md:pb-8 px-6 md:px-8 text-center">
+              <h1 className="text-2xl md:text-[32px] font-bold text-slate-900 mb-2">Listening</h1>
+              <p className="text-base md:text-lg text-slate-600">You are about to start the listening section.</p>
             </div>
-            <div className="bg-[#F4F9FF] py-12 px-8 flex flex-col items-center border-y">
-              <Headphones size={64} className="text-blue-500 mb-4" strokeWidth={1.2} />
+            <div className="bg-[#F4F9FF] py-8 md:py-12 px-6 md:px-8 flex flex-col items-center border-y">
+              <Headphones size={48} className="text-blue-500 mb-4" strokeWidth={1.2} />
               <h3 className="text-slate-800 font-medium text-lg">Listening</h3>
               <p className="text-slate-900 font-bold text-xl">{Math.floor(timeLeft / 60)} mins</p>
             </div>
-            <div className="p-10 flex-grow">
+            <div className="p-6 md:p-10 flex-grow max-h-[40vh] md:max-h-none overflow-y-auto">
               {settings?.listeningInstructions ? (
                 <div 
-                  className="prose prose-slate max-w-none text-[16px] leading-relaxed text-slate-800"
+                  className="prose prose-slate max-w-none text-sm md:text-[16px] leading-relaxed text-slate-800"
                   dangerouslySetInnerHTML={{ __html: settings.listeningInstructions }}
                 />
               ) : (
-                <ul className="space-y-6">
+                <ul className="space-y-4 md:space-y-6">
                   {[
                     "Listen carefully as some recordings may only play a limited number of times.",
                     "Make sure you can hear the audio clearly throughout the test.",
@@ -468,16 +468,16 @@ export default function ListeningTestPage() {
                   ].map((text, i) => (
                     <li key={i} className="flex items-start gap-4">
                       <div className="mt-2 w-1.5 h-1.5 rounded-full bg-slate-900 shrink-0"></div>
-                      <p className="text-[16px] leading-relaxed text-slate-800">{text}</p>
+                      <p className="text-sm md:text-[16px] leading-relaxed text-slate-800">{text}</p>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
-            <div className="px-10 pb-12 flex justify-center">
+            <div className="px-6 pb-8 md:px-10 md:pb-12 flex justify-center">
               <button 
                 onClick={() => setView('test')}
-                className="bg-[#007BFF] hover:bg-[#0069D9] text-white text-lg font-bold px-12 py-3 rounded-full transition-all"
+                className="bg-[#007BFF] hover:bg-[#0069D9] text-white text-base md:text-lg font-bold px-10 md:px-12 py-2.5 md:py-3 rounded-full transition-all"
               >
                 Start
               </button>
@@ -490,52 +490,59 @@ export default function ListeningTestPage() {
 
 
   return (
-    <div className="h-screen overflow-hidden bg-white flex flex-col font-sans">
-      <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm">
+    <div className="h-screen bg-white flex flex-col font-sans overflow-hidden">
+      <header className="h-16 bg-white border-b flex items-center justify-center relative shadow-sm shrink-0">
         {settings?.logoUrl ? (
-          <img src={settings.logoUrl} alt="Logo" className="h-10 object-contain" />
+          <img src={settings.logoUrl} alt="Logo" className="h-8 md:h-10 object-contain" />
         ) : (
           <div className="flex items-center gap-0.5">
-            <span className="text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
-            <span className="text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
+            <span className="text-xl md:text-2xl font-black italic text-slate-800 tracking-tighter">COBA</span>
+            <span className="text-xl md:text-2xl font-light text-slate-500 tracking-[0.2em] ml-1">TEST</span>
           </div>
         )}
       </header>
 
-      <div className="h-14 border-b flex items-center px-8 gap-6 bg-white z-20">
-        <div className="flex items-center gap-2 text-slate-600">
-          <Headphones size={20} />
-          <span className="font-semibold text-sm mr-4">Listening</span>
+      {/* Control Bar */}
+      <div className="h-auto md:h-14 border-b flex flex-col md:flex-row items-center px-4 md:px-8 py-2 md:py-0 gap-3 md:gap-6 bg-white z-20 shrink-0">
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <div className="flex items-center gap-2 text-slate-600">
+            <Headphones size={18} />
+            <span className="font-semibold text-xs md:text-sm md:mr-4">Listening</span>
+          </div>
+          <div className="flex items-center gap-3 md:hidden">
+            <span className="font-bold text-slate-800 font-mono text-base">{formatTime(timeLeft)}</span>
+            <div className="w-4 h-4 rounded-full bg-blue-500 shadow-sm"></div>
+          </div>
         </div>
         
-        <div className="flex-grow bg-slate-100 h-1.5 rounded-full relative overflow-hidden">
+        <div className="w-full md:flex-grow bg-slate-100 h-1 md:h-1.5 rounded-full relative overflow-hidden">
           <div 
             className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-500"
             style={{ width: `${((currentListeningIndex + 1) / listenings.length) * 100}%` }}
           ></div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <span className="font-bold text-slate-800 font-mono text-lg">{formatTime(timeLeft)}</span>
           <div className="w-5 h-5 rounded-full bg-blue-500 shadow-sm"></div>
         </div>
       </div>
 
-      <main className="flex-grow flex overflow-hidden">
+      <main className="flex-grow flex flex-col lg:flex-row overflow-hidden">
         {/* Left Column: Audio and Instructions */}
         <div 
           id="audio-container"
-          className="w-1/2 p-12 overflow-y-auto border-r border-slate-100 bg-white custom-scrollbar"
+          className="w-full lg:w-1/2 p-6 md:p-12 overflow-y-auto border-b lg:border-b-0 lg:border-r border-slate-100 bg-white custom-scrollbar h-1/2 lg:h-full"
         >
           <div className="max-w-2xl mx-auto">
             {/* Audio Player Card - More compact and integrated */}
-            <div className="bg-[#F8FBFF] rounded-2xl p-6 border border-blue-100 mb-10 flex items-center gap-6 shadow-sm">
-               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
-                  <Volume2 className="text-white" size={28} />
+            <div className="bg-[#F8FBFF] rounded-2xl p-4 md:p-6 border border-blue-100 mb-6 md:mb-10 flex items-center gap-4 md:gap-6 shadow-sm">
+               <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                  <Volume2 className="text-white" size={20} />
                </div>
                <div className="flex-grow">
-                 <h4 className="text-slate-900 font-bold mb-1">Audio Recording</h4>
-                 <p className="text-slate-500 text-sm">
+                 <h4 className="text-slate-900 font-bold mb-0.5 md:mb-1 text-sm md:text-base">Audio Recording</h4>
+                 <p className="text-slate-500 text-xs md:text-sm">
                    Plays remaining: <span className="font-bold text-blue-600">{Math.max(0, 2 - (playCounts[currentListening?.id] || 0))}</span>/2
                  </p>
                </div>
@@ -552,72 +559,66 @@ export default function ListeningTestPage() {
                     />
                     <button 
                       onClick={toggleListeningAudio}
-                      className="bg-white hover:bg-slate-50 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center shadow-sm border border-blue-200 transition-all active:scale-95"
+                      className="bg-white hover:bg-slate-50 text-blue-600 w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-sm border border-blue-200 transition-all active:scale-95"
                     >
                       {isPlaying ? (
-                        <div className="flex gap-1 items-center">
-                           <div className="w-1.5 h-6 bg-blue-600 rounded-full animate-pulse"></div>
-                           <div className="w-1.5 h-6 bg-blue-600 rounded-full animate-pulse delay-75"></div>
+                        <div className="flex gap-0.5 md:gap-1 items-center">
+                           <div className="w-1 md:w-1.5 h-4 md:h-6 bg-blue-600 rounded-full animate-pulse"></div>
+                           <div className="w-1 md:w-1.5 h-4 md:h-6 bg-blue-600 rounded-full animate-pulse delay-75"></div>
                         </div>
                       ) : (
-                        <Play fill="#2563eb" className="ml-1" size={24} />
+                        <Play fill="#2563eb" className="ml-1" size={18} />
                       )}
                     </button>
                  </div>
                ) : (
-                 <div className="px-4 py-2 bg-red-50 text-red-500 text-xs font-bold rounded-lg border border-red-100">
+                 <div className="px-3 py-1.5 bg-red-50 text-red-500 text-[10px] md:text-xs font-bold rounded-lg border border-red-100">
                     Audio Missing
                  </div>
                )}
             </div>
 
             {/* Dynamic Content - Like Reading Page */}
-            {/* <h1 className="text-3xl font-black text-slate-900 mb-8 leading-tight">
-              {currentListening?.title || 'Listening Task'}
-            </h1> */}
-            
-            <h2 className="text-xl font-bold text-slate-900 mb-8 leading-relaxed">
+            <h2 className="text-lg md:text-xl font-bold text-slate-900 mb-6 md:mb-8 leading-relaxed">
               Listen to the recording about a specific topic and choose the best answer for each question.
             </h2>
             <div 
-              className="prose prose-slate max-w-none text-[17px] leading-relaxed text-slate-700"
+              className="prose prose-slate max-w-none text-[15px] md:text-[17px] leading-relaxed text-slate-700"
               dangerouslySetInnerHTML={{ __html: currentListening?.content || '' }}
             />
-
-           
           </div>
         </div>
 
         {/* Right Column: Questions */}
         <div 
           id="questions-container"
-          className="w-1/2 bg-[#F8FBFF] p-12 overflow-y-auto relative custom-scrollbar"
+          className="w-full lg:w-1/2 bg-[#F8FBFF] p-6 md:p-12 overflow-y-auto relative custom-scrollbar h-1/2 lg:h-full"
         >
-          <div className="max-w-xl mx-auto space-y-8">
+          <div className="max-w-xl mx-auto space-y-6 md:space-y-8">
             {currentListening?.SoalListeing?.map((soal) => (
               <div 
                 key={soal.id} 
                 id={`q-${soal.id}`}
-                className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100"
+                className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100"
               >
-                <h3 className="text-lg font-bold text-slate-900 mb-6 leading-snug">
+                <h3 className="text-base md:text-lg font-bold text-slate-900 mb-4 md:mb-6 leading-snug">
                   {soal.question}
                 </h3>
                 <div className="space-y-3">
                   {soal.options?.map((option) => (
                     <label 
                       key={option.id}
-                      className={`block w-full p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-4 ${
+                      className={`block w-full p-3 md:p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-3 md:gap-4 ${
                         answers[soal.id] === option.id 
                         ? 'border-blue-500 bg-blue-50/50 shadow-sm' 
                         : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
                       }`}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
                           answers[soal.id] === option.id ? 'border-blue-500' : 'border-slate-300'
                         }`}>
-                          {answers[soal.id] === option.id && <div className="w-3 h-3 rounded-full bg-blue-500"></div>}
+                          {answers[soal.id] === option.id && <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-blue-500"></div>}
                         </div>
                         <input 
                           type="radio" 
@@ -626,15 +627,15 @@ export default function ListeningTestPage() {
                           checked={answers[soal.id] === option.id}
                           onChange={() => setAnswers(prev => ({ ...prev, [soal.id]: option.id }))}
                         />
-                        <span className="text-slate-700 font-medium">{option.text}</span>
+                        <span className="text-black font-medium">{option.text}</span>
                       </div>
 
                       {option.imageUrl && (
-                        <div className="pl-10">
+                        <div className="pl-8 md:pl-10">
                           <img 
                             src={option.imageUrl} 
                             alt="Option visual" 
-                            className="max-w-full h-auto rounded-lg border border-slate-100 shadow-sm max-h-48 object-contain"
+                            className="max-w-full h-auto rounded-lg border border-slate-100 shadow-sm max-h-32 md:max-h-48 object-contain"
                           />
                         </div>
                       )}
@@ -645,14 +646,14 @@ export default function ListeningTestPage() {
             ))}
           </div>
 
-          <div className="mt-12 flex justify-end gap-4 max-w-xl mx-auto pb-12">
+          <div className="mt-8 md:mt-12 flex justify-center md:justify-end gap-4 max-w-xl mx-auto pb-12">
               {currentListeningIndex < listenings.length - 1 ? (
                 <button 
                   onClick={() => {
                     setCurrentListeningIndex(prev => prev + 1);
                     setIsPlaying(false);
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center gap-2 group"
+                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 md:px-10 py-3 md:py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center justify-center gap-2 group"
                 >
                   Next Task
                   <ArrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -660,19 +661,19 @@ export default function ListeningTestPage() {
               ) : (
                 <button 
                   onClick={handleFinish}
-                  className="bg-[#007BFF] hover:bg-[#0069D9] text-white px-10 py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center gap-2"
+                  className="w-full md:w-auto bg-[#007BFF] hover:bg-[#0069D9] text-white px-8 md:px-10 py-3 md:py-3.5 rounded-full font-bold shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   Finish Listening
                 </button>
               )}
           </div>
 
-          {/* Navigation Dots on Right edge - Represents Questions */}
-          <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30">
+          {/* Navigation Dots on Right edge - Represents Questions - Hidden on Mobile */}
+          <div className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30 hidden md:flex">
               {currentListening?.SoalListeing?.map((soal, i) => (
                 <div 
                   key={soal.id}
-                  className={`w-2.5 h-2.5 rounded-full border-2 border-blue-300 transition-all cursor-pointer ${
+                  className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border-2 border-blue-300 transition-all cursor-pointer ${
                     answers[soal.id] ? 'bg-blue-400 border-blue-400' : 'bg-transparent'
                   }`}
                   title={`Question ${i + 1}`}

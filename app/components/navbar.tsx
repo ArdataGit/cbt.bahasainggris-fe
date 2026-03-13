@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Bell, LogOut, ChevronDown } from 'lucide-react';
+import { Bell, LogOut, ChevronDown, Menu as MenuIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import api from '@/app/lib/api';
+import { useSidebar } from '@/app/context/SidebarContext';
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; role: string } | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { toggleMobileSidebar } = useSidebar();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -68,9 +70,17 @@ export default function Navbar() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 shrink-0">
-      {/* Left side spacer or empty div */}
-      <div></div>
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 z-10 shrink-0">
+      {/* Left side: Mobile Menu Toggle */}
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={toggleMobileSidebar}
+          className="lg:hidden p-2 -ml-2 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors"
+          aria-label="Open Sidebar"
+        >
+          <MenuIcon size={24} />
+        </button>
+      </div>
 
       {/* Right Side Icons & Profile */}
       <div className="flex items-center gap-3">
