@@ -47,7 +47,7 @@ export default function Navbar() {
         setNotifications(response.data.data.notifications.slice(0, 5)); // Only show latest 5 in dropdown
       }
     } catch (error: any) {
-      console.error('Failed to fetch notifications:', error.response?.data || error.message);
+      console.error('Failed to fetch notifications:', error);
       if (error.response?.status === 401 || error.response?.status === 403) {
         // Token invalid or expired - force re-login
         if (typeof window !== 'undefined') {
