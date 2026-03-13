@@ -5,7 +5,7 @@ import {
   Loader2, 
   AlertCircle, 
   ChevronRight,
-  Package
+  ClipboardCheck
 } from 'lucide-react';
 import axios from 'axios';
 import Breadcrumbs from '@/app/components/breadcrumbs';
@@ -100,7 +100,7 @@ export default function HistoryUserPage() {
       {pakets.length === 0 ? (
         <div className="bg-white border border-gray-100 rounded-[2.5rem] p-20 text-center shadow-xl shadow-blue-900/5">
           <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Package size={40} />
+            <ClipboardCheck size={40} />
           </div>
           <h3 className="text-2xl font-black text-gray-900 mb-2">No History Found</h3>
           <p className="text-gray-500 max-w-xs mx-auto">You haven't completed any tests yet. Start a test to see your results here.</p>
@@ -122,11 +122,11 @@ export default function HistoryUserPage() {
                 className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-blue-900/5 hover:shadow-blue-900/10 hover:scale-[1.02] cursor-pointer transition-all group relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-                  <Package size={120} />
+                  <ClipboardCheck size={120} />
                 </div>
 
                 <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <Package size={28} />
+                  <ClipboardCheck size={28} />
                 </div>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-2 truncate group-hover:text-blue-600 transition-colors uppercase tracking-tight">{paket.name}</h3>

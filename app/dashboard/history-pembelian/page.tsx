@@ -4,12 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { 
   Loader2, 
   AlertCircle, 
-  CreditCard,
+  ShoppingCart,
   Clock,
   CheckCircle2,
   XCircle,
   ExternalLink,
-  Package,
+  CreditCard,
   Calendar
 } from 'lucide-react';
 import axios from 'axios';
@@ -132,7 +132,7 @@ export default function HistoryPembelianPage() {
             >
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <Package size={28} />
+                  <ShoppingCart size={28} />
                 </div>
                 <div>
                    <div className="flex items-center gap-3 mb-1">

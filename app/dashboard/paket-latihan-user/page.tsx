@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
-  Package, 
+  GraduationCap, 
   Loader2, 
   Search, 
   ArrowRight, 
@@ -300,7 +300,7 @@ export default function UserPracticeListPage() {
       ) : error ? (
         <div className="bg-red-50 border border-red-100 rounded-[2rem] p-12 text-center max-w-xl mx-auto shadow-xl shadow-red-100/20">
           <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Package size={32} />
+            <GraduationCap size={32} />
           </div>
           <h3 className="text-xl font-bold text-red-900 mb-2">Gagal Memuat Data</h3>
           <p className="text-red-700 font-medium mb-6">{error}</p>
@@ -336,7 +336,7 @@ export default function UserPracticeListPage() {
                 <div className="p-8 flex-grow">
                   <div className="flex items-start justify-between mb-6">
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 border border-blue-100">
-                      <Package size={28} />
+                      <GraduationCap size={28} />
                     </div>
                      <div className="flex gap-2">
                         {item.isFree ? (

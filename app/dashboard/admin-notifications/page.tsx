@@ -18,7 +18,7 @@ import Breadcrumbs from '@/app/components/breadcrumbs';
 export default function AdminNotificationsPage() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  const [type, setType] = useState('INFO');
+  const [type, setType] = useState('ADMIN');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -43,7 +43,7 @@ export default function AdminNotificationsPage() {
         setStatus({ success: true, message: response.data.message });
         setTitle('');
         setMessage('');
-        setType('INFO');
+        setType('ADMIN');
       }
     } catch (error: any) {
       setStatus({ 
@@ -56,6 +56,7 @@ export default function AdminNotificationsPage() {
   };
 
   const notificationTypes = [
+    { value: 'ADMIN', label: 'Admin', icon: <Bell size={16} />, color: 'red' },
     { value: 'INFO', label: 'Informasi', icon: <Info size={16} />, color: 'blue' },
     { value: 'PURCHASE', label: 'Pembelian', icon: <ShoppingBag size={16} />, color: 'emerald' },
     { value: 'TEST_COMPLETION', label: 'Tes Selesai', icon: <BookOpen size={16} />, color: 'indigo' },
