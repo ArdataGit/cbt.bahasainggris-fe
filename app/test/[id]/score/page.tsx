@@ -168,7 +168,13 @@ function ScoreContent() {
                 <div className="hidden print:grid grid-cols-2 gap-8 mb-10 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
                     <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Candidate Name</p>
-                        <p className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{history.name}</p>
+                        <p className="text-2xl font-black text-slate-900 tracking-tighter uppercase">
+                            {(() => {
+                                const name = history.name || 'User';
+                                if (name.includes('@')) return name.split('@')[0];
+                                return name.split(' ').slice(0, 2).join(' ');
+                            })()}
+                        </p>
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Score Validation ID</p>
@@ -187,7 +193,13 @@ function ScoreContent() {
                             <span className="bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-sm font-semibold mb-4 inline-block">
                                 Test Completed
                             </span>
-                            <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tight">Great Work, {history.name}!</h1>
+                            <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tight">
+                                Great Work, {(() => {
+                                    const name = history.name || 'User';
+                                    if (name.includes('@')) return name.split('@')[0];
+                                    return name.split(' ').slice(0, 2).join(' ');
+                                })()}!
+                            </h1>
                             <p className="text-blue-100 text-lg opacity-90 max-w-md">
                                 You've successfully finished the test. Here's a breakdown of your performance across all sections.
                             </p>

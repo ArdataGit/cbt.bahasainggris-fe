@@ -371,9 +371,19 @@ export default function UserHistoryMeDetailPage({ params }: { params: Promise<{ 
         <div className="lg:w-80 flex-shrink-0">
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-blue-900/5 p-8 text-center sticky top-24">
             <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-tr from-blue-600 to-indigo-700 text-white flex items-center justify-center text-4xl font-black mx-auto mb-6 shadow-2xl shadow-blue-500/20 uppercase">
-              {data.name[0]}
+              {(() => {
+                const name = data.name || 'User';
+                if (name.includes('@')) return name.split('@')[0][0];
+                return name[0];
+              })()}
             </div>
-            <h1 className="text-2xl font-black text-gray-900 tracking-tighter uppercase leading-tight mb-2">{data.name}</h1>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tighter uppercase leading-tight mb-2">
+              {(() => {
+                const name = data.name || 'User';
+                if (name.includes('@')) return name.split('@')[0];
+                return name.split(' ').slice(0, 2).join(' ');
+              })()}
+            </h1>
             <p className="text-xs font-bold text-blue-600 mb-8 tracking-wider uppercase opacity-80">Test Report</p>
             
             <div className="space-y-4 text-left border-t border-gray-50 pt-8">
@@ -419,8 +429,8 @@ export default function UserHistoryMeDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcfcfc; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #fcfcfc; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
     </div>

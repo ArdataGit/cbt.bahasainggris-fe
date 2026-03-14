@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, AlertCircle, Sparkles, Package, BookOpen, Clock, Zap } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Sparkles, Package, BookOpen, Clock, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/app/lib/api';
 
 function DashboardContent() {
@@ -43,6 +43,23 @@ function DashboardContent() {
       return () => clearInterval(interval);
     }
   }, [banners]);
+
+  const formatDateJoined = (dateString: string) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % banners.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+  };
 
   const fetchHistory = async () => {
     try {
@@ -118,6 +135,7 @@ function DashboardContent() {
     { label: 'Paket Pembelian Saya', value: counts.myPackages.toString(), color: 'bg-blue-50 text-blue-700' },
     { label: 'Paket Tersedia', value: counts.availablePackages.toString(), color: 'bg-emerald-50 text-emerald-700' },
     { label: 'Jumlah Siswa', value: counts.totalUsers.toString(), color: 'bg-amber-50 text-amber-700' },
+    { label: 'Tanggal Bergabung', value: formatDateJoined(user?.createdAt), color: 'bg-purple-50 text-purple-700' },
   ];
 
   return (
@@ -149,8 +167,14 @@ function DashboardContent() {
            <span className="px-2.5 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase tracking-[0.1em] rounded-full shadow-md shadow-blue-200/50">
              {user?.role === 'admin' ? 'Administrator' : 'Student'}
            </span>
-           <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight uppercase italic leading-tight">
-            Selamat Datang, <span className="text-blue-600">{user?.name || 'User'}</span>
+            <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight uppercase italic leading-tight">
+            Selamat Datang, <span className="text-blue-600">
+              {(() => {
+                const name = user?.name || 'User';
+                if (name.includes('@')) return name.split('@')[0];
+                return name.split(' ').slice(0, 2).join(' ');
+              })()}
+            </span>
           </h2>
         </div>
       </div>
@@ -173,13 +197,40 @@ function DashboardContent() {
             </div>
           ))}
 
+          {/* Slider Arrows */}
+          {banners.length > 1 && (
+            <div className="absolute inset-0 z-20 flex items-center justify-between px-4 md:px-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevSlide();
+                }}
+                className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white border border-white/30 transition-all pointer-events-auto"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextSlide();
+                }}
+                className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white border border-white/30 transition-all pointer-events-auto"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          )}
+
           {/* Slider Dots */}
           {banners.length > 1 && (
             <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
               {banners.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentSlide(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentSlide(index);
+                  }}
                   className={`h-1 md:h-1.5 transition-all duration-300 rounded-full ${
                     index === currentSlide ? 'w-6 md:w-8 bg-white shadow-lg' : 'w-1.5 md:w-2 bg-white/40 hover:bg-white/60'
                   }`}
@@ -196,10 +247,10 @@ function DashboardContent() {
         </div>
         
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 relative z-10 w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 relative z-10 w-full">
           {stats.map((stat, i) => (
             <div key={i} className={`${stat.color} rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-8 border border-white/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group/stat flex flex-col justify-between min-h-[120px] md:min-h-[140px]`}>
-              <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] opacity-60 mb-2 group-hover/stat:tracking-[0.3em] transition-all">{stat.label}</p>
+              <p className="text-xs md:text-sm font-black uppercase tracking-[0.1em] md:tracking-[0.15em] opacity-80 mb-2 group-hover/stat:opacity-100 transition-all">{stat.label}</p>
               <div className="flex items-end justify-between">
                 <p className="text-2xl md:text-4xl font-black tracking-tighter">{stat.value}</p>
                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/40 flex items-center justify-center opacity-0 group-hover/stat:opacity-100 transition-opacity">

@@ -153,7 +153,7 @@ export default function Navbar() {
                 className="fixed inset-0 z-[101] bg-transparent" 
                 onClick={() => setIsNotificationOpen(false)}
               ></div>
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[102] animate-in fade-in zoom-in duration-200 origin-top-right">
+              <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 sm:w-96 mt-2 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[102] animate-in fade-in zoom-in duration-200 origin-top sm:origin-top-right">
                 <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-slate-50/50">
                   <h3 className="font-black uppercase italic tracking-tight text-slate-900 flex items-center gap-2">
                     <Bell size={16} className="text-blue-600" />
@@ -268,7 +268,11 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:flex flex-col">
               <span className="font-medium text-gray-700 text-sm leading-tight">
-                {user ? user.name : 'Admin User'}
+                {(() => {
+                  const name = user?.name || 'User';
+                  if (name.includes('@')) return name.split('@')[0];
+                  return name.split(' ').slice(0, 2).join(' ');
+                })()}
               </span>
               <span className="text-xs text-gray-500 capitalize">
                 {user ? user.role : 'Administrator'}
@@ -286,7 +290,13 @@ export default function Navbar() {
               ></div>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-[102] animate-in fade-in zoom-in duration-200 origin-top-right">
                 <div className="px-4 py-2 border-b border-gray-50 md:hidden">
-                  <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin User'}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {(() => {
+                      const name = user?.name || 'User';
+                      if (name.includes('@')) return name.split('@')[0];
+                      return name.split(' ').slice(0, 2).join(' ');
+                    })()}
+                  </p>
                   <p className="text-xs text-gray-500 capitalize">{user?.role || 'Administrator'}</p>
                 </div>
                 <button
