@@ -51,6 +51,7 @@ export default function CheckoutPage() {
   const [requesting, setRequesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [existingPending, setExistingPending] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
@@ -63,9 +64,12 @@ export default function CheckoutPage() {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const [paketRes, channelsRes] = await Promise.all([
+      const [paketRes, channelsRes, historyRes] = await Promise.all([
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/paket-pembelians/${id}`),
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/tripay/channels`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/history/pembelian`, {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -76,6 +80,16 @@ export default function CheckoutPage() {
       
       if (channelsRes.data.success) {
         setChannels(channelsRes.data.data);
+      }
+
+      if (historyRes.data.success) {
+        const pending = historyRes.data.data.find((item: any) => 
+          item.paketPembelianId === parseInt(id as string) && item.status === 'PENDING'
+        );
+        if (pending) {
+          setExistingPending(pending);
+          setSelectedChannel(pending.bank);
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch checkout details.');
@@ -162,6 +176,16 @@ export default function CheckoutPage() {
         {/* Left: Payment Methods */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-8 sm:p-10">
+            {existingPending && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-8 flex items-center gap-3 text-amber-700 animate-in slide-in-from-top duration-500">
+                <Clock size={20} className="shrink-0" />
+                <div className="text-xs font-medium">
+                  <span className="font-bold uppercase tracking-tight">Melanjutkan Pembayaran:</span> <br/>
+                  Anda memiliki transaksi pending untuk paket ini. Silakan selesaikan atau ganti metode pembayaran.
+                </div>
+              </div>
+            )}
+            
             <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-8 flex items-center gap-3">
               <CreditCard className="text-blue-600" />
               Pilih Metode <span className="text-blue-600">Pembayaran</span>

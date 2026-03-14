@@ -25,6 +25,7 @@ interface HistoryPembelian {
   amount: number;
   status: 'SUCCESS' | 'PENDING' | 'EXPIRED' | 'CANCELLED' | 'FAILED';
   merchantRef: string;
+  checkoutUrl?: string;
   createdAt: string;
 }
 
