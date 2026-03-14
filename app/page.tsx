@@ -41,6 +41,7 @@ export default function Home() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [landingPakets, setLandingPakets] = useState<LandingPaket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLandingPakets = async () => {
@@ -56,7 +57,18 @@ export default function Home() {
         setLoading(false);
       }
     };
+    const fetchSettings = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+        if (response.data.success && response.data.data) {
+          setLogoUrl(response.data.data.logoUrl);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings:", err);
+      }
+    };
     fetchLandingPakets();
+    fetchSettings();
   }, []);
 
   return (
@@ -64,10 +76,16 @@ export default function Home() {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md z-50 px-6 md:px-12 flex items-center justify-between border-b border-gray-100 uppercase">
         <div className="flex items-center gap-8">
-          <div className="flex items-center tracking-tighter">
-            <span className="text-3xl font-black italic text-slate-900">CBT</span>
-            <span className="text-3xl font-black italic text-blue-600 ml-1">INGGRIS</span>
-          </div>
+          <Link href="/" className="flex items-center gap-2 overflow-hidden group">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="h-12 w-auto object-contain transition-transform duration-500 group-hover:scale-105" />
+            ) : (
+              <div className="flex items-center tracking-tighter">
+                <span className="text-3xl font-black italic text-slate-900">CBT</span>
+                <span className="text-3xl font-black italic text-blue-600 ml-1">INGGRIS</span>
+              </div>
+            )}
+          </Link>
           <div className="hidden lg:flex items-center gap-8 text-[15px] font-bold text-slate-600">
             <div 
               className="relative group cursor-pointer"
@@ -279,7 +297,11 @@ export default function Home() {
       <footer className="bg-white py-20 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
            <div>
-              <div className="text-3xl font-black italic text-slate-300 mb-4 opacity-50">TEST</div>
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="h-12 w-auto object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 mb-6" />
+              ) : (
+                <div className="text-3xl font-black italic text-slate-300 mb-4 opacity-50">TEST</div>
+              )}
               <p className="text-slate-500 font-medium">Tes bahasa Inggris online tercanggih di dunia.</p>
            </div>
            {[

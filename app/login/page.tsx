@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, ChevronDown, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 interface Region {
   id: string;
@@ -34,12 +35,28 @@ function LoginContent() {
   
   const provinceRef = useRef<HTMLDivElement>(null);
   const cityRef = useRef<HTMLDivElement>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
    const router = useRouter();
    const searchParams = useSearchParams();
    const redirectPath = searchParams.get('redirect') || '/dashboard';
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success && response.data.data) {
+        setLogoUrl(response.data.data.logoUrl);
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings in login:', error);
+    }
+  };
 
   useEffect(() => {
     if (isRegister) {
@@ -163,11 +180,16 @@ function LoginContent() {
 
   return (
     <div 
-      className="flex min-h-screen items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
+      className="flex h-screen items-center justify-center p-4 bg-cover bg-center bg-no-repeat overflow-hidden"
       style={{ backgroundImage: "url('/images/background-login.png')" }}
     >
-      <div className={`w-full ${isRegister ? 'max-w-2xl' : 'max-w-md'} rounded-2xl bg-white/90 backdrop-blur-md p-8 shadow-2xl border border-white/20 transition-all`}>
-        <h2 className="mb-6 text-center text-3xl font-bold text-gray-800">
+      <div className={`w-full ${isRegister ? 'max-w-2xl py-4 px-8' : 'max-w-md p-8'} rounded-2xl bg-white/90 backdrop-blur-md shadow-2xl border border-white/20 transition-all`}>
+        {logoUrl && (
+          <div className={`flex justify-center ${isRegister ? 'mb-2' : 'mb-6'}`}>
+            <img src={logoUrl} alt="Logo" className={`${isRegister ? 'h-14' : 'h-20'} w-auto object-contain`} />
+          </div>
+        )}
+        <h2 className={`${isRegister ? 'mb-3' : 'mb-6'} text-center text-3xl font-bold text-gray-800`}>
           {isRegister ? 'Register User' : 'Login'}
         </h2>
         {error && (
@@ -176,77 +198,77 @@ function LoginContent() {
           </div>
         )}
         <form onSubmit={handleAction}>
-          <div className={`grid ${isRegister ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} gap-x-6`}>
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
+          <div className={`grid ${isRegister ? 'grid-cols-2' : 'grid-cols-1'} gap-x-4`}>
+            <div className={`${isRegister ? 'mb-2' : 'mb-4'}`}>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
+                className={`w-full rounded-md border border-gray-300 ${isRegister ? 'p-1.5' : 'p-2'} text-black focus:border-blue-500 focus:outline-none`}
                 required
               />
             </div>
             {isRegister && (
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-gray-700">Nama</label>
+              <div className="mb-2">
+                <label className="mb-1 block text-sm font-medium text-gray-700">Nama</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 p-1.5 text-black focus:border-blue-500 focus:outline-none"
                   required
                 />
               </div>
             )}
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">Password</label>
+            <div className={`${isRegister ? 'mb-2' : 'mb-4'}`}>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
+                className={`w-full rounded-md border border-gray-300 ${isRegister ? 'p-1.5' : 'p-2'} text-black focus:border-blue-500 focus:outline-none`}
                 required
               />
             </div>
             {isRegister && (
               <>
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Re-type Password</label>
+                <div className="mb-2">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Re-type Password</label>
                   <input
                     type="password"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full rounded-md border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-md border border-gray-300 p-1.5 text-black focus:border-blue-500 focus:outline-none"
                     required
                   />
                 </div>
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Telp / WA</label>
+                <div className="mb-2">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Telp / WA</label>
                   <input
                     type="text"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full rounded-md border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-md border border-gray-300 p-1.5 text-black focus:border-blue-500 focus:outline-none"
                   />
                 </div>
                 
                 {/* Province Search Dropdown */}
-                <div className="mb-4 relative" ref={provinceRef}>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Provinsi</label>
+                <div className="mb-2 relative" ref={provinceRef}>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Provinsi</label>
                   <div 
-                    className="w-full rounded-md border border-gray-300 p-2 text-black flex justify-between items-center cursor-pointer bg-white"
+                    className="w-full rounded-md border border-gray-300 p-1.5 text-black flex justify-between items-center cursor-pointer bg-white"
                     onClick={() => setShowProvinceDropdown(!showProvinceDropdown)}
                   >
-                    <span className={formData.provinceName ? 'text-black' : 'text-gray-400 font-normal'}>
+                    <span className={formData.provinceName ? 'text-black text-xs font-bold' : 'text-gray-400 font-normal text-xs'}>
                       {formData.provinceName || 'Pilih Provinsi'}
                     </span>
-                    <ChevronDown size={18} className="text-gray-400" />
+                    <ChevronDown size={14} className="text-gray-400" />
                   </div>
                   
                   {showProvinceDropdown && (
@@ -292,16 +314,16 @@ function LoginContent() {
                 </div>
 
                 {/* City Search Dropdown */}
-                <div className="mb-4 relative" ref={cityRef}>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Kota / Kabupaten</label>
+                <div className="mb-2 relative" ref={cityRef}>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Kota / Kabupaten</label>
                   <div 
-                    className={`w-full rounded-md border border-gray-300 p-2 text-black flex justify-between items-center cursor-pointer ${!formData.provinceId ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}`}
+                    className={`w-full rounded-md border border-gray-300 p-1.5 text-black flex justify-between items-center cursor-pointer ${!formData.provinceId ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}`}
                     onClick={() => formData.provinceId && setShowCityDropdown(!showCityDropdown)}
                   >
-                    <span className={formData.cityName ? 'text-black' : 'text-gray-400 font-normal'}>
+                    <span className={formData.cityName ? 'text-black text-xs font-bold' : 'text-gray-400 font-normal text-xs'}>
                       {formData.cityName || (formData.provinceId ? 'Pilih Kota' : 'Pilih Provinsi dulu')}
                     </span>
-                    <ChevronDown size={18} className="text-gray-400" />
+                    <ChevronDown size={14} className="text-gray-400" />
                   </div>
                   
                   {showCityDropdown && formData.provinceId && (
@@ -346,14 +368,14 @@ function LoginContent() {
                   )}
                 </div>
 
-                <div className="mb-6 md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">Alamat</label>
+                <div className="mb-3 col-span-2">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Alamat</label>
                   <textarea
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    rows={2}
-                    className="w-full rounded-md border border-gray-300 p-2 text-black focus:border-blue-500 focus:outline-none"
+                    rows={1}
+                    className="w-full rounded-md border border-gray-300 p-1.5 text-black focus:border-blue-500 focus:outline-none text-xs"
                   />
                 </div>
               </>
@@ -363,13 +385,13 @@ function LoginContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 py-2 text-white transition hover:bg-blue-700 disabled:bg-blue-300 font-bold"
+            className="w-full rounded-md bg-blue-600 py-1.5 text-white transition hover:bg-blue-700 disabled:bg-blue-300 font-bold text-sm"
           >
             {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
           </button>
         </form>
         
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className={`mt-4 text-center text-sm text-gray-600`}>
           {isRegister ? (
             <p>
               Already have an account?{' '}
