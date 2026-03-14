@@ -152,13 +152,9 @@ function UserHistoryList() {
               placeholder="Search by name or email..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-80 pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all shadow-sm"
+              className="w-full sm:w-80 pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm text-black focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all shadow-sm"
             />
           </div>
-          <button className="flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm active:scale-95">
-            <Filter size={18} />
-            <span>Filters</span>
-          </button>
         </div>
       </div>
 

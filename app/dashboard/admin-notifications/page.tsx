@@ -59,7 +59,7 @@ export default function AdminNotificationsPage() {
     { value: 'ADMIN', label: 'Admin', icon: <Bell size={16} />, color: 'red' },
     { value: 'INFO', label: 'Informasi', icon: <Info size={16} />, color: 'blue' },
     { value: 'PURCHASE', label: 'Pembelian', icon: <ShoppingBag size={16} />, color: 'emerald' },
-    { value: 'TEST_COMPLETION', label: 'Tes Selesai', icon: <BookOpen size={16} />, color: 'indigo' },
+    { value: 'TEST_COMPLETION', label: 'Tes Selesai', icon: <BookOpen size={16} />, color: 'amber' },
   ];
 
   return (
