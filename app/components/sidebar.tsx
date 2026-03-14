@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import axios from 'axios';
 import { 
   Home, 
   BookOpen, 
@@ -53,6 +54,7 @@ const sidebarItems = [
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const pathname = usePathname();
   const { isMobileOpen, setIsMobileOpen } = useSidebar();
 
@@ -66,7 +68,19 @@ export default function Sidebar() {
         console.error('Failed to parse user data');
       }
     }
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
+      if (response.data.success && response.data.data) {
+        setLogoUrl(response.data.data.logoUrl);
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings in sidebar:', error);
+    }
+  };
 
   // Close mobile sidebar when pathname changes
   React.useEffect(() => {
@@ -101,11 +115,17 @@ export default function Sidebar() {
         } w-64`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <div className={`h-16 flex items-center ${collapsed && !isMobileOpen ? 'justify-center' : 'justify-between'} px-4 border-b border-gray-200`}>
           {(!collapsed || isMobileOpen) && (
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {userRole === 'admin' ? 'Admin CBT' : 'CBT Online'}
-            </span>
+            <div className="flex items-center gap-2 overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="h-14 w-auto object-contain" />
+              ) : (
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
+                  {userRole === 'admin' ? 'Admin CBT' : 'CBT Online'}
+                </span>
+              )}
+            </div>
           )}
           
           <div className="flex items-center gap-1">

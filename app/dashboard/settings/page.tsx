@@ -15,6 +15,9 @@ export default function SettingsPage() {
   const [writingInstructions, setWritingInstructions] = useState('');
   const [speakingInstructions, setSpeakingInstructions] = useState('');
   const [banners, setBanners] = useState<any[]>([]);
+  const [whatsappAdmins, setWhatsappAdmins] = useState<any[]>([]);
+  const [newWA, setNewWA] = useState({ number: '', message: '' });
+  const [editingWA, setEditingWA] = useState<any>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
@@ -22,7 +25,63 @@ export default function SettingsPage() {
   useEffect(() => {
     fetchSettings();
     fetchBanners();
+    fetchWhatsappAdmins();
   }, []);
+
+  const fetchWhatsappAdmins = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/whatsapp-admins`);
+      if (response.data.success) {
+        setWhatsappAdmins(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch whatsapp admins:', error);
+    }
+  };
+
+  const handleCreateWA = async () => {
+    if (!newWA.number || !newWA.message) return;
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/whatsapp-admins`, newWA);
+      if (response.data.success) {
+        setWhatsappAdmins(prev => [response.data.data, ...prev]);
+        setNewWA({ number: '', message: '' });
+        setMessage({ type: 'success', text: 'Whatsapp Admin berhasil ditambahkan!' });
+      }
+    } catch (error) {
+      console.error('Failed to create whatsapp admin:', error);
+      setMessage({ type: 'error', text: 'Gagal menambahkan Whatsapp Admin.' });
+    }
+  };
+
+  const handleUpdateWA = async () => {
+    if (!editingWA.number || !editingWA.message) return;
+    try {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/whatsapp-admins/${editingWA.id}`, editingWA);
+      if (response.data.success) {
+        setWhatsappAdmins(prev => prev.map(wa => wa.id === editingWA.id ? response.data.data : wa));
+        setEditingWA(null);
+        setMessage({ type: 'success', text: 'Whatsapp Admin berhasil diperbarui!' });
+      }
+    } catch (error) {
+      console.error('Failed to update whatsapp admin:', error);
+      setMessage({ type: 'error', text: 'Gagal memperbarui Whatsapp Admin.' });
+    }
+  };
+
+  const handleDeleteWA = async (id: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus Whatsapp Admin ini?')) return;
+    try {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/whatsapp-admins/${id}`);
+      if (response.data.success) {
+        setWhatsappAdmins(prev => prev.filter(wa => wa.id !== id));
+        setMessage({ type: 'success', text: 'Whatsapp Admin berhasil dihapus!' });
+      }
+    } catch (error) {
+      console.error('Failed to delete whatsapp admin:', error);
+      setMessage({ type: 'error', text: 'Gagal menghapus Whatsapp Admin.' });
+    }
+  };
 
   const fetchBanners = async () => {
     try {
@@ -334,6 +393,89 @@ export default function SettingsPage() {
                 {banners.length === 0 && !uploadingBanner && (
                   <p className="text-center text-xs text-slate-400 italic py-4">Belum ada banner.</p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5 fill-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.414 0 .018 5.394 0 12.03a11.85 11.85 0 0 0 1.54 5.851L0 24l6.117-1.605a11.815 11.815 0 0 0 5.925 1.586h.005c6.632 0 12.028-5.396 12.033-12.03a11.85 11.85 0 0 0-3.353-8.541z"/>
+                </svg>
+              </div>
+              Whatsapp Admin
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="flex flex-col gap-2">
+                <input
+                  type="text"
+                  placeholder="Nomor WA (e.g. 62812...)"
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-black placeholder:text-slate-400"
+                  value={editingWA ? editingWA.number : newWA.number}
+                  onChange={(e) => editingWA ? setEditingWA({...editingWA, number: e.target.value}) : setNewWA({...newWA, number: e.target.value})}
+                />
+                <textarea
+                  placeholder="Pesan otomatis..."
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-20 text-black placeholder:text-slate-400"
+                  value={editingWA ? editingWA.message : newWA.message}
+                  onChange={(e) => editingWA ? setEditingWA({...editingWA, message: e.target.value}) : setNewWA({...newWA, message: e.target.value})}
+                />
+                <div className="flex gap-2">
+                  {editingWA ? (
+                    <>
+                      <button
+                        onClick={handleUpdateWA}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+                      >
+                        Perbarui
+                      </button>
+                      <button
+                        onClick={() => setEditingWA(null)}
+                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-semibold py-2 rounded-lg transition-colors"
+                      >
+                        Batal
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleCreateWA}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+                    >
+                      Tambah Admin
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3 mt-4">
+                {whatsappAdmins.map((wa) => (
+                  <div key={wa.id} className="p-3 border border-slate-200 rounded-xl bg-white shadow-sm space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-black">{wa.number}</span>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setEditingWA(wa)}
+                          className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                        >
+                          <Save size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteWA(wa.id)}
+                          className="p-1 text-red-500 hover:bg-red-50 rounded"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-black leading-relaxed">{wa.message}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

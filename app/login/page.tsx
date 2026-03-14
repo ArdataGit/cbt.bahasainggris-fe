@@ -162,8 +162,11 @@ function LoginContent() {
   const filteredCities = cities.filter(c => c.name.toLowerCase().includes(citySearch.toLowerCase()));
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <div className={`w-full ${isRegister ? 'max-w-2xl' : 'max-w-md'} rounded-lg bg-white p-8 shadow-md transition-all`}>
+    <div 
+      className="flex min-h-screen items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/images/background-login.png')" }}
+    >
+      <div className={`w-full ${isRegister ? 'max-w-2xl' : 'max-w-md'} rounded-2xl bg-white/90 backdrop-blur-md p-8 shadow-2xl border border-white/20 transition-all`}>
         <h2 className="mb-6 text-center text-3xl font-bold text-gray-800">
           {isRegister ? 'Register User' : 'Login'}
         </h2>
