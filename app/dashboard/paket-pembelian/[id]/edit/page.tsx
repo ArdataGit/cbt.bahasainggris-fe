@@ -43,6 +43,18 @@ export default function EditPaketPembelianPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for admin role
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      if (user.role !== 'admin') {
+        router.push('/dashboard');
+        return;
+      }
+    } else {
+      router.push('/login');
+      return;
+    }
     fetchInitialData();
   }, []);
 

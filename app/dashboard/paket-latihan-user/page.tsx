@@ -218,7 +218,7 @@ export default function UserPracticeListPage() {
             <input 
               type="text" 
               placeholder="Search test bundles..." 
-              className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white font-medium text-sm"
+              className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white font-medium text-sm text-black"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -439,9 +439,8 @@ export default function UserPracticeListPage() {
         </div>
       )}
 
-      {/* Confirmation Modal (Bundled Purchase) */}
       {isModalOpen && selectedBundle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6 transition-all">
           <div 
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" 
             onClick={() => setIsModalOpen(false)}

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Plus, 
   Search, 
@@ -37,8 +38,21 @@ export default function PaketPembelianListPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
+    // Check for admin role
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      if (user.role !== 'admin') {
+        router.push('/dashboard');
+        return;
+      }
+    } else {
+      router.push('/login');
+      return;
+    }
     fetchPakets();
   }, []);
 
