@@ -18,6 +18,7 @@ export default function CreateSpeakingPage() {
     categoryIds: [] as number[]
   });
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [fetchingCategories, setFetchingCategories] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +28,14 @@ export default function CreateSpeakingPage() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (audioPreviewUrl) {
+        URL.revokeObjectURL(audioPreviewUrl);
+      }
+    };
+  }, [audioPreviewUrl]);
 
   const fetchCategories = async () => {
     try {
@@ -86,7 +95,11 @@ export default function CreateSpeakingPage() {
         setError('Audio file size should not exceed 10MB');
         return;
       }
+      if (audioPreviewUrl) {
+        URL.revokeObjectURL(audioPreviewUrl);
+      }
       setAudioFile(file);
+      setAudioPreviewUrl(URL.createObjectURL(file));
       setError(null);
     }
   };
@@ -316,10 +329,15 @@ export default function CreateSpeakingPage() {
                     MP3, WAV up to 10MB
                   </p>
                   
-                  {audioFile && (
-                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200 text-sm font-medium">
-                      <Check size={16} />
-                      {audioFile.name}
+                  {audioFile && audioPreviewUrl && (
+                    <div className="mt-4 flex flex-col gap-2 p-3 bg-green-50 border border-green-100 rounded-lg w-full">
+                      <div className="inline-flex items-center gap-2 text-green-700 text-sm font-medium">
+                        <Check size={16} />
+                        {audioFile.name} (Ready to upload)
+                      </div>
+                      <audio controls className="w-full mt-2">
+                        <source src={audioPreviewUrl} type={audioFile.type} />
+                      </audio>
                     </div>
                   )}
                 </div>

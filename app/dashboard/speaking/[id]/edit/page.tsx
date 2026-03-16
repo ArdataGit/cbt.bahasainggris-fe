@@ -26,12 +26,21 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
   
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSpeaking();
     fetchCategories();
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      if (audioPreviewUrl) {
+        URL.revokeObjectURL(audioPreviewUrl);
+      }
+    };
+  }, [audioPreviewUrl]);
 
   const fetchCategories = async () => {
     try {
@@ -116,7 +125,11 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
         setError('Audio file size should not exceed 10MB');
         return;
       }
+      if (audioPreviewUrl) {
+        URL.revokeObjectURL(audioPreviewUrl);
+      }
       setAudioFile(file);
+      setAudioPreviewUrl(URL.createObjectURL(file));
       setError(null);
     }
   };
@@ -335,22 +348,19 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
               </label>
               
               {currentAudioUrl && !audioFile && (
-                <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-lg flex flex-col gap-2">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                       <Play size={18} fill="currentColor" className="ml-0.5" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900">Current Audio</p>
-                      <Link 
-                        href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${currentAudioUrl}`} 
-                        target="_blank"
-                        className="text-xs text-blue-600 hover:underline"
-                      >
-                        Listen to file
-                      </Link>
                     </div>
                   </div>
+                  <audio controls className="w-full mt-2">
+                    <source src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${currentAudioUrl}`} />
+                    Your browser does not support the audio element.
+                  </audio>
                 </div>
               )}
 
@@ -378,10 +388,15 @@ export default function EditSpeakingPage({ params }: { params: Promise<{ id: str
                     MP3, WAV up to 10MB
                   </p>
                   
-                  {audioFile && (
-                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200 text-sm font-medium">
-                      <Check size={16} />
-                      {audioFile.name} (Ready to upload)
+                  {audioFile && audioPreviewUrl && (
+                    <div className="mt-4 flex flex-col gap-2 p-3 bg-green-50 border border-green-100 rounded-lg w-full">
+                      <div className="inline-flex items-center gap-2 text-green-700 text-sm font-medium">
+                        <Check size={16} />
+                        {audioFile.name} (Ready to upload)
+                      </div>
+                      <audio controls className="w-full mt-2">
+                        <source src={audioPreviewUrl} type={audioFile.type} />
+                      </audio>
                     </div>
                   )}
                 </div>
